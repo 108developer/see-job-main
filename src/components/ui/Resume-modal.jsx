@@ -50,8 +50,6 @@ export default function ResumeUploadModal({ btntext }) {
         await new Promise(resolve => setTimeout(resolve, 2000))
         setIsUploading(false)
         setIsOpen(false)
-        // Here you would typically send the file to your server
-        console.log('File uploaded:', file.name)
     }
 
     return (
