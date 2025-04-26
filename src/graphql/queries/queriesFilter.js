@@ -17,6 +17,28 @@ export const GET_LOCATIONS = gql`
   }
 `;
 
+export const GET_JOB_TITLES_SEARCH = gql`
+  query GetJobTitleSearch($searchTerm: String) {
+    jobTitles(searchTerm: $searchTerm) {
+      _id
+      value
+      label
+    }
+  }
+`;
+
+// Query for getting locations
+export const GET_CITY_STATE_COUNTRY = gql`
+  query GetCityStateCountry($searchTerm: String) {
+    cityStateCountry(searchTerm: $searchTerm) {
+      _id
+      city
+      state
+      country
+    }
+  }
+`;
+
 // Query for getting industries
 export const GET_INDUSTRIES = gql`
   query GetIndustries($searchTerm: String) {
@@ -41,6 +63,17 @@ export const GET_JOB_TYPES = gql`
 `;
 
 // Query for getting job types
+export const GET_JOB_TITLES = gql`
+  query GetJobTitles {
+    getJobTitle {
+      _id
+      value
+      label
+    }
+  }
+`;
+
+// Query for getting job types
 export const GET_JOB_ROLES = gql`
   query GetJobRoles {
     getJobRole {
@@ -51,9 +84,20 @@ export const GET_JOB_ROLES = gql`
   }
 `;
 
+// Query for getting job types
+export const GET_DEGREES = gql`
+  query GetDegrees {
+    getDegree {
+      _id
+      value
+      label
+    }
+  }
+`;
+
 // Query for searching skills
 export const SEARCH_SKILLS = gql`
-  query searchSkills($query: String!) {
+  query searchSkills($query: String) {
     searchSkills(query: $query) {
       _id
       name

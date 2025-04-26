@@ -2,10 +2,13 @@
 
 import JobTitleSearchBar from "@/components/graphql-ui/JobTitle";
 import JobTypeSearchBar from "@/components/graphql-ui/JobType";
+import LocationSearchBar from "@/components/graphql-ui/LocationSearchBar";
+import PlaceholderImage from "@/images/Profile_avatar_placeholder_large.png";
 import { useSaveJobPreferencesMutation } from "@/redux/api/candidateAuth";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import { Edit2 } from "lucide-react";
 import moment from "moment";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
@@ -20,16 +23,17 @@ const experienceOptions = Array.from({ length: 11 }, (_, i) => i);
 // Job Preferences options
 const formOptions = {
   maritalStatus: [
-    { value: "single", label: "Single" },
-    { value: "married", label: "Married" },
-    { value: "divorced", label: "Divorced" },
-    { value: "widowed", label: "Widowed" },
+    { value: "Single", label: "Single" },
+    { value: "Married", label: "Married" },
+    { value: "Divorced", label: "Divorced" },
+    { value: "Widowed", label: "Widowed" },
   ],
   language: [
-    { value: "english", label: "English" },
-    { value: "hindi", label: "Hindi" },
-    { value: "spanish", label: "Spanish" },
-    { value: "french", label: "French" },
+    { value: "English", label: "English" },
+    { value: "Hindi", label: "Hindi" },
+    { value: "Spanish", label: "Spanish" },
+    { value: "French", label: "French" },
+    { value: "Other", label: "Other" },
   ],
 };
 
@@ -37,6 +41,9 @@ const formOptions = {
 const validationSchema = Yup.object({
   profileTitle: Yup.string().required("Profile title is required"),
   jobType: Yup.string().required("Please select a job type"),
+  preferredJobLocation: Yup.array()
+    .min(1, "At least one location is required")
+    .max(10, "You can select a maximum of 10 locations"),
   experienceYears: Yup.number()
     .required("Experience in years is required")
     .min(0, "Experience cannot be negative"),
@@ -55,12 +62,15 @@ const initialValues = {
   profilePic: null,
   profileTitle: "",
   jobType: "",
+  preferredJobLocation: [],
   experienceYears: "",
   experienceMonths: "",
-  gender: "male",
+  gender: "Male",
   dob: new Date(),
   maritalStatus: "",
   language: "",
+  currentSalary: "",
+  expectedSalary: "",
 };
 
 // Experience Dropdown component
@@ -116,14 +126,18 @@ const JobPreferences = () => {
   const [experienceMonths, setExperienceMonths] = useState("");
   const [jobTitle, setJobTitle] = useState("");
   const [jobType, setJobType] = useState("");
+  const [locationSearch, setLocationSearch] = useState("");
+  const [preferredJobLocation, setPreferredJobLocation] = useState([]);
 
-  const { userid, token } = useSelector((state) => state.auth);
+  const { userid, token, role } = useSelector((state) => state.auth);
+
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    if (!token) {
+    if (!token || role !== "candidate") {
       router.push("/");
     }
-  }, [token, router]);
+  }, [isClient, token, router, role]);
 
   const [selectedImage, setSelectedImage] = useState(null);
 
@@ -134,18 +148,52 @@ const JobPreferences = () => {
     }
   };
 
+  const handleLocationSelect = (selectedLocation, setFieldValue) => {
+    if (preferredJobLocation.length < 10) {
+      setPreferredJobLocation((prevLocations) => {
+        const newLocations = [...prevLocations, selectedLocation.fullAddress];
+        setTimeout(() => {
+          setFieldValue("preferredJobLocation", newLocations);
+        }, 0);
+        return newLocations;
+      });
+      setLocationSearch("");
+    } else {
+      toast.error("You can only select up to 10 locations.");
+    }
+  };
+
+  const handleRemoveLocation = (location, setFieldValue) => {
+    setPreferredJobLocation((prevLocations) => {
+      const updatedLocations = prevLocations.filter(
+        (item) => item !== location
+      );
+      setTimeout(() => {
+        setFieldValue("preferredJobLocation", updatedLocations);
+      }, 0);
+      return updatedLocations;
+    });
+    setLocationSearch("");
+  };
+
   const handleSubmit = async (values, { resetForm }) => {
     const formData = new FormData();
 
     formData.append("candidateId", userid);
     formData.append("profileTitle", values.profileTitle);
     formData.append("jobType", values.jobType);
+    formData.append(
+      "preferredJobLocation",
+      JSON.stringify(values.preferredJobLocation)
+    );
     formData.append("experienceYears", experienceYears);
     formData.append("experienceMonths", experienceMonths);
     formData.append("gender", values.gender);
     formData.append("dob", moment(values.dob).format("DD/MM/YYYY"));
     formData.append("maritalStatus", values.maritalStatus);
     formData.append("language", values.language);
+    formData.append("currentSalary", values.currentSalary);
+    formData.append("expectedSalary", values.expectedSalary);
 
     if (selectedImage) {
       formData.append("profilePic", selectedImage);
@@ -155,7 +203,6 @@ const JobPreferences = () => {
 
     try {
       const response = await saveJobPreferences(formData).unwrap();
-
       toast.success("Job preferences submitted successfully!");
       router.push("/");
     } catch (error) {
@@ -177,11 +224,21 @@ const JobPreferences = () => {
             <div className="flex justify-center items-center">
               <label htmlFor="image" className="relative">
                 <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-gray-300">
-                  <img
-                    src={selectedImage || "/default-avatar.png"}
-                    alt="Upload"
-                    className="w-full h-full object-cover"
-                  />
+                  {selectedImage?.startsWith("blob:") ? (
+                    <img
+                      src={selectedImage}
+                      alt="Upload"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <Image
+                      src={selectedImage || PlaceholderImage}
+                      alt="Upload"
+                      width={96}
+                      height={96}
+                      className="rounded-full object-cover"
+                    />
+                  )}
                 </div>
                 <div className="absolute bottom-0 right-0 p-1 bg-gray-200 rounded-full">
                   <Edit2 className="w-6 h-6 text-gray-600" />
@@ -199,10 +256,7 @@ const JobPreferences = () => {
 
             {/* Profile Title */}
             <div>
-              <label
-                htmlFor="profileTitle"
-                className="block text-sm font-medium"
-              >
+              <label htmlFor="profileTitle" className="text-sm font-medium">
                 Profile Title
               </label>
               <JobTitleSearchBar
@@ -223,7 +277,7 @@ const JobPreferences = () => {
 
             {/* Job Type */}
             <div>
-              <label htmlFor="jobType" className="block text-sm font-medium">
+              <label htmlFor="jobType" className="text-sm font-medium">
                 Job Type
               </label>
               <JobTypeSearchBar
@@ -242,8 +296,87 @@ const JobPreferences = () => {
               />
             </div>
 
+            {/* Preferred Job Location */}
+            <div>
+              <label htmlFor="location" className="text-sm font-medium">
+                Preferred Job Location
+              </label>
+              <LocationSearchBar
+                searchTerm={locationSearch}
+                onSearchChange={(value) => setLocationSearch(value)}
+                setFieldValue={setFieldValue}
+                onLocationSelect={(selectedLocation) =>
+                  handleLocationSelect(selectedLocation, setFieldValue)
+                }
+              />
+              <ErrorMessage
+                name="preferredJobLocation"
+                component="div"
+                className="text-red-500 text-sm mt-1"
+              />
+            </div>
+
+            {/* Display selected locations with a cross sign */}
+            <div className="flex flex-wrap gap-2">
+              {preferredJobLocation.map((location, index) => (
+                <div
+                  key={index}
+                  className="flex items-center space-x-2 bg-gray-200 p-2 rounded-md"
+                >
+                  <span>{location}</span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleRemoveLocation(location, setFieldValue)
+                    }
+                    className="text-red-500"
+                  >
+                    <span className="text-xl">×</span>
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {/* Current Salary */}
+            <div>
+              <label htmlFor="currentSalary" className="text-sm font-medium">
+                Current Salary
+              </label>
+              <Field
+                type="number"
+                id="currentSalary"
+                name="currentSalary"
+                className="mt-1 p-3 w-full border rounded-md"
+                placeholder="Enter current salary"
+              />
+              <ErrorMessage
+                name="currentSalary"
+                component="div"
+                className="text-red-500 text-sm mt-1"
+              />
+            </div>
+
+            {/* Expected Salary */}
+            <div>
+              <label htmlFor="expectedSalary" className="text-sm font-medium">
+                Expected Salary
+              </label>
+              <Field
+                type="number"
+                id="expectedSalary"
+                name="expectedSalary"
+                className="mt-1 p-3 w-full border rounded-md"
+                placeholder="Enter expected salary"
+              />
+              <ErrorMessage
+                name="expectedSalary"
+                component="div"
+                className="text-red-500 text-sm mt-1"
+              />
+            </div>
+
             {/* Experience */}
-            <div className="block text-sm font-medium">
+            <div className="text-sm font-medium">
               <h1> Experience (in years)</h1>
 
               <div className="flex items-center gap-8 justify-between flex-col lg:flex-row">
@@ -279,13 +412,13 @@ const JobPreferences = () => {
 
             {/* Gender */}
             <div>
-              <label className="block text-sm font-medium">Gender</label>
+              <label className="text-sm font-medium">Gender</label>
               <div className="space-x-4">
                 <label>
                   <Field
                     type="radio"
                     name="gender"
-                    value="male"
+                    value="Male"
                     className="mr-2"
                     checked
                   />
@@ -295,7 +428,7 @@ const JobPreferences = () => {
                   <Field
                     type="radio"
                     name="gender"
-                    value="female"
+                    value="Female"
                     className="mr-2"
                   />
                   Female
@@ -304,10 +437,10 @@ const JobPreferences = () => {
                   <Field
                     type="radio"
                     name="gender"
-                    value="preferNotToSpecify"
+                    value="other"
                     className="mr-2"
                   />
-                  Prefer Not to Specify
+                  Other
                 </label>
               </div>
               <ErrorMessage
@@ -319,7 +452,7 @@ const JobPreferences = () => {
 
             {/* Date of Birth */}
             <div>
-              <label htmlFor="dob" className="block text-sm font-medium">
+              <label htmlFor="dob" className="text-sm font-medium">
                 Date of Birth
               </label>
               <Field name="dob">
@@ -343,10 +476,7 @@ const JobPreferences = () => {
 
             {/* Marital Status */}
             <div>
-              <label
-                htmlFor="maritalStatus"
-                className="block text-sm font-medium"
-              >
+              <label htmlFor="maritalStatus" className="text-sm font-medium">
                 Marital Status
               </label>
               <Field
@@ -371,7 +501,7 @@ const JobPreferences = () => {
 
             {/* Language */}
             <div>
-              <label htmlFor="language" className="block text-sm font-medium">
+              <label htmlFor="language" className="text-sm font-medium">
                 Language
               </label>
               <Field

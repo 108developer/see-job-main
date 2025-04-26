@@ -25,12 +25,9 @@ const candidateAuth = createApi({
       }),
     }),
     getCandidateProfile: builder.query({
-      query: ({ userid, token }) => ({
-        url: `getCandidateProfile/${userid}`,
+      query: ({ id }) => ({
+        url: `getCandidateProfile/${id}`,
         method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       }),
     }),
 
@@ -91,28 +88,24 @@ const candidateAuth = createApi({
       }),
     }),
 
-    // Upload Profile Picture
-    uploadProfilePic: builder.mutation({
-      query: (file) => {
-        const formData = new FormData();
-        formData.append("profilePic", file);
+    // Update Profile Picture
+    updateProfilePic: builder.mutation({
+      query: ({ userid, profilePicData }) => {
         return {
-          url: "/upload/profile-pic",
-          method: "POST",
-          body: formData,
+          url: `/updateProfilePic/${userid}`,
+          method: "PUT",
+          body: profilePicData,
         };
       },
     }),
 
-    // Upload Resume
-    uploadResume: builder.mutation({
-      query: (file) => {
-        const formData = new FormData();
-        formData.append("resume", file);
+    // Update Resume
+    updateResume: builder.mutation({
+      query: ({ userid, resumeData }) => {
         return {
-          url: "/upload/resume",
-          method: "POST",
-          body: formData,
+          url: `/updateResume/${userid}`,
+          method: "PUT",
+          body: resumeData,
         };
       },
     }),
@@ -129,8 +122,8 @@ export const {
   useUpdateJobPreferencesMutation,
   useSaveEducationalDetailsMutation,
   useUpdateEducationalDetailsMutation,
-  useUploadProfilePicMutation,
-  useUploadResumeMutation,
+  useUpdateProfilePicMutation,
+  useUpdateResumeMutation,
 } = candidateAuth;
 
 export default candidateAuth;

@@ -22,10 +22,33 @@ const employerAuth = createApi({
         body: loginData,
       }),
     }),
+    getEmployerProfile: builder.query({
+      query: ({ userid, token }) => ({
+        url: `getEmployerProfile/${userid}`,
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }),
+    }),
+    updateRecruiter: builder.mutation({
+      query: ({ userid, token, userData }) => ({
+        url: `updateRecruiter/${userid}`,
+        method: "PUT",
+        body: userData,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }),
+    }),
   }),
 });
 
-export const { useEmployerRegistrationMutation, useEmployerLoginMutation } =
-  employerAuth;
+export const {
+  useEmployerRegistrationMutation,
+  useEmployerLoginMutation,
+  useGetEmployerProfileQuery,
+  useUpdateRecruiterMutation,
+} = employerAuth;
 
 export default employerAuth;

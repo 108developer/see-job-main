@@ -54,7 +54,7 @@ const DegreeSearchBar = ({
 
   const handleDegreeSelect = (degree) => {
     onDegreeSelect(degree);
-    setFieldValue("highestQualification", degree.name);
+    setFieldValue("highestQualification", degree.label);
     setDegreeSelected(true);
     setShowDropdown(false);
   };

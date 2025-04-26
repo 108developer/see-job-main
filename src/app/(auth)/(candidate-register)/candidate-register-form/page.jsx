@@ -23,6 +23,7 @@ const fileValidation = (value, maxSize, allowedTypes) => {
 // Validation schema using Yup
 const validationSchema = Yup.object({
   location: Yup.string().required("Current Location is required"),
+  permanentAddress: Yup.string().required("Permanent Address is required"),
   minexp: Yup.number().required("Experience Min is required"),
   maxexp: Yup.number().required("Experience Max is required"),
   skills: Yup.array().min(1, "At least one skill is required"),
@@ -88,23 +89,24 @@ const CandidateRegister = () => {
   const router = useRouter();
   const [registerCandidate, { isLoading }] = useRegisterCandidateMutation();
   const [location, setLocation] = useState("");
+  const [permanentAddress, setPermanentAddress] = useState("");
   const [industry, setIndustry] = useState("");
   const [minExp, setMinExp] = useState("");
   const [maxExp, setMaxExp] = useState("");
   const [selectedSkills, setSelectedSkills] = useState([]);
   const [skillSet, setSkillSet] = useState("");
 
-  const { userid, useremail, token, phone, username } = useSelector(
+  const { userid, useremail, token, phone, username, role } = useSelector(
     (state) => state.auth
   );
 
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    if (!token) {
+    if (!token || role !== "candidate") {
       router.push("/");
     }
-  }, [isClient, token, router]);
+  }, [isClient, token, router, role]);
 
   const initialValues = {
     fullName: username || "",
@@ -112,6 +114,7 @@ const CandidateRegister = () => {
     password: "",
     phone: phone || "",
     location: "",
+    permanentAddress: "",
     minexp: "",
     maxexp: "",
     skills: [],
@@ -126,6 +129,7 @@ const CandidateRegister = () => {
 
     formData.append("candidateId", userid);
     formData.append("location", values.location);
+    formData.append("permanentAddress", values.permanentAddress);
     formData.append("minexp", values.minexp);
     formData.append("maxexp", values.maxexp);
     formData.append(
@@ -278,6 +282,30 @@ const CandidateRegister = () => {
               />
             </div>
 
+            {/* Permanent Address */}
+            <div>
+              <label htmlFor="location" className="block text-sm font-medium">
+                Permanent Address
+              </label>
+              <LocationSearchBar
+                searchTerm={permanentAddress}
+                onSearchChange={(value) => setPermanentAddress(value)}
+                setFieldValue={setFieldValue}
+                onLocationSelect={(selectedPermanentAddress) => {
+                  setPermanentAddress(selectedPermanentAddress.fullAddress);
+                  setFieldValue(
+                    "permanentAddress",
+                    selectedPermanentAddress.fullAddress
+                  );
+                }}
+              />
+              <ErrorMessage
+                name="permanentAddress"
+                component="div"
+                className="text-red-500 text-sm mt-1"
+              />
+            </div>
+
             {/* Experience */}
             <div className="block text-sm font-medium">
               <h1> Experience (in years)</h1>
@@ -325,6 +353,13 @@ const CandidateRegister = () => {
                 onSkillSelect={(selectedSkill) => {
                   setSelectedSkills([...selectedSkills, selectedSkill]);
                   setFieldValue("skills", [...selectedSkills, selectedSkill]);
+                }}
+                onRemoveSkill={(skillToRemove) => {
+                  const updatedSkills = selectedSkills.filter(
+                    (skill) => skill !== skillToRemove
+                  );
+                  setSelectedSkills(updatedSkills);
+                  setFieldValue("skills", updatedSkills);
                 }}
               />
               <ErrorMessage

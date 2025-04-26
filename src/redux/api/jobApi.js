@@ -10,11 +10,12 @@ export const jobApi = createApi({
   }),
   endpoints: (builder) => ({
     getAllJobs: builder.query({
-      query: ({ page = 1, limit = 10, filters = {} }) => {
+      query: ({ page = 1, limit = 10, filters = {}, candidateId }) => {
         const queryParams = new URLSearchParams({
           page,
           limit,
           ...filters,
+          candidateId,
         }).toString();
         return `getjobs?${queryParams}`;
       },
@@ -29,10 +30,45 @@ export const jobApi = createApi({
         body: jobData,
       }),
     }),
+
+    applyToJob: builder.mutation({
+      query: ({ jobId, candidateId, answers }) => ({
+        url: "applyToJob",
+        method: "POST",
+        body: { jobId, candidateId, answers },
+      }),
+    }),
+
+    getJobApplicants: builder.query({
+      query: (jobId) => `applicants/${jobId}`,
+    }),
+
+    getJobsPostedByRecruiter: builder.query({
+      query: ({ userId, page }) =>
+        `getJobsPostedByRecruiter/${userId}?page=${page}`,
+    }),
+
+    getJobsAppliedByCandidate: builder.query({
+      query: ({ userId, page }) =>
+        `getJobsAppliedByCandidate/${userId}?page=${page}`,
+    }),
+
+    getJobsApplications: builder.query({
+      query: ({ jobId, page }) =>
+        `getJobsAppliedByCandidate/${jobId}?page=${page}`,
+    }),
   }),
 });
 
-export const { useGetAllJobsQuery, useGetJobDetailsQuery, usePostJobMutation } =
-  jobApi;
+export const {
+  useGetAllJobsQuery,
+  useGetJobDetailsQuery,
+  usePostJobMutation,
+  useApplyToJobMutation,
+  useGetJobApplicantsQuery,
+  useGetJobsPostedByRecruiterQuery,
+  useGetJobsAppliedByCandidateQuery,
+  useGetJobsApplicationsQuery,
+} = jobApi;
 
 export default jobApi;

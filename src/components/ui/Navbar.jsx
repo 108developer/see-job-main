@@ -1,11 +1,11 @@
 "use client";
-import { ArrowRight, Bell, Mail, PhoneIcon } from "lucide-react";
-import Image from "next/image";
-import React, { useEffect, useRef, useState } from "react";
-import Link from "next/link";
-import ResumeUploadModal from "./Resume-modal";
-import { useDispatch, useSelector } from "react-redux";
 import { setModal } from "@/redux/slices/modalSlice";
+import { ArrowRight, Bell, Mail, PhoneIcon, UserCircle } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import ResumeUploadModal from "./Resume-modal";
 
 const ResumeService = [
   {
@@ -38,7 +38,7 @@ const wfhData = [
 
 const Navbar = () => {
   const [authLogin, setAuthLogin] = useState(false);
-  const { token } = useSelector((state) => state.auth);
+  const { token, role } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -54,7 +54,6 @@ const Navbar = () => {
   };
 
   const openSignInModal = () => {
-    // This will open the Sign In modal
     dispatch(setModal({ modalType: "candidateAuth" }));
   };
 
@@ -85,23 +84,14 @@ const Navbar = () => {
               <DropdownMenu label="Company Profile" items={components} />
             </div>
           </div>
-          <div className="w-fit truncate flex items-center gap-5">
+          <div className="w-fit flex items-center gap-5">
             <ResumeUploadModal btntext="Post Your Resume" />
-            {authLogin === true ? (
-              <button
-                onClick={openLogoutModal}
-                className="text-white bg-red-600  text-lg font-thin px-3 py-1 rounded-md"
-              >
-                Sign Out
-              </button>
-            ) : (
-              <button
-                onClick={openSignInModal}
-                className="text-white bg-red-600  text-lg font-thin px-3 py-1 rounded-md"
-              >
-                Sign In
-              </button>
-            )}
+            <UserDropdown
+              authLogin={authLogin}
+              role={role}
+              openSignInModal={openSignInModal}
+              openLogoutModal={openLogoutModal}
+            />
           </div>
         </div>
       </div>
@@ -248,6 +238,86 @@ const DropdownMenu = ({ label, items }) => {
             </Link>
           ))}
         </ul>
+      )}
+    </div>
+  );
+};
+
+const UserDropdown = ({
+  authLogin,
+  role,
+  openSignInModal,
+  openLogoutModal,
+}) => {
+  let items = [];
+
+  {
+    role === "employer"
+      ? (items = [
+          { itemTitle: "Profile", href: "/profile/employer" },
+          { itemTitle: "Settings", href: "/employer/settings" },
+        ])
+      : (items = [
+          { itemTitle: "Profile", href: "/profile/candidate" },
+          { itemTitle: "Settings", href: "/candidate/settings" },
+        ]);
+  }
+
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      {authLogin ? (
+        <>
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="text-gray-500 text-lg font-thin transition duration-300 ease-in-out hover:text-gray-400"
+          >
+            <UserCircle className="h-8 w-8" />
+          </button>
+          {isOpen && (
+            <ul className="absolute top-full left-0 bg-white shadow-lg rounded-md w-24 z-10">
+              {items.map((item) => (
+                <li key={item.itemTitle}>
+                  <Link
+                    href={item.href}
+                    className="flex items-center border-b border-dashed gap-2 transition duration-300 ease-in-out hover:bg-gray-100 p-3"
+                  >
+                    {item.itemTitle}
+                  </Link>
+                </li>
+              ))}
+              <li>
+                <button
+                  onClick={openLogoutModal}
+                  className="flex items-center gap-2 px-3 py-2 text-red-600 transition duration-300 ease-in-out hover:bg-gray-100"
+                >
+                  Sign Out
+                </button>
+              </li>
+            </ul>
+          )}
+        </>
+      ) : (
+        <button
+          onClick={openSignInModal}
+          className="text-white bg-red-600 text-lg font-thin px-3 py-1 rounded-md"
+        >
+          Sign In
+        </button>
       )}
     </div>
   );

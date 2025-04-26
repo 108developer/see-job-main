@@ -2,6 +2,7 @@
 
 import JobTitleSearchBar from "@/components/graphql-ui/JobTitle";
 import JobTypeSearchBar from "@/components/graphql-ui/JobType";
+import LocationSearchBar from "@/components/graphql-ui/LocationSearchBar";
 import { useUpdateJobPreferencesMutation } from "@/redux/api/candidateAuth";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import moment from "moment";
@@ -16,16 +17,17 @@ const experienceOptions = Array.from({ length: 11 }, (_, i) => i);
 
 const formOptions = {
   maritalStatus: [
-    { value: "single", label: "Single" },
-    { value: "married", label: "Married" },
-    { value: "divorced", label: "Divorced" },
-    { value: "widowed", label: "Widowed" },
+    { value: "Single", label: "Single" },
+    { value: "Married", label: "Married" },
+    { value: "Divorced", label: "Divorced" },
+    { value: "Widowed", label: "Widowed" },
   ],
   language: [
-    { value: "english", label: "English" },
-    { value: "hindi", label: "Hindi" },
-    { value: "spanish", label: "Spanish" },
-    { value: "french", label: "French" },
+    { value: "English", label: "English" },
+    { value: "Hindi", label: "Hindi" },
+    { value: "Spanish", label: "Spanish" },
+    { value: "French", label: "French" },
+    { value: "Other", label: "Other" },
   ],
 };
 
@@ -38,6 +40,10 @@ const CandidateJobPreferences = ({ initialJobPreference, closeModal }) => {
     initialJobPreference.profileTitle || ""
   );
   const [jobType, setJobType] = useState(initialJobPreference.jobType || "");
+  const [locationSearch, setLocationSearch] = useState("");
+  const [preferredJobLocation, setPreferredJobLocation] = useState(
+    initialJobPreference?.preferredJobLocation || []
+  );
 
   const [dobDisplay, setDobDisplay] = useState(
     initialJobPreference.dob
@@ -57,16 +63,47 @@ const CandidateJobPreferences = ({ initialJobPreference, closeModal }) => {
     setDobDisplay(moment(date).format("DD/MM/YYYY"));
   };
 
+  const handleLocationSelect = (selectedLocation, setFieldValue) => {
+    if (preferredJobLocation.length < 10) {
+      setPreferredJobLocation((prevLocations) => {
+        const newLocations = [...prevLocations, selectedLocation.fullAddress];
+        setTimeout(() => {
+          setFieldValue("preferredJobLocation", newLocations);
+        }, 0);
+        return newLocations;
+      });
+      setLocationSearch("");
+    } else {
+      toast.error("You can only select up to 10 locations.");
+    }
+  };
+
+  const handleRemoveLocation = (location, setFieldValue) => {
+    setPreferredJobLocation((prevLocations) => {
+      const updatedLocations = prevLocations.filter(
+        (item) => item !== location
+      );
+      setTimeout(() => {
+        setFieldValue("preferredJobLocation", updatedLocations);
+      }, 0);
+      return updatedLocations;
+    });
+    setLocationSearch("");
+  };
+
   const handleSubmit = async (values, { resetForm }) => {
     const body = {
       profileTitle: values.profileTitle,
       jobType: values.jobType,
+      preferredJobLocation: values.preferredJobLocation,
       experienceYears: experienceYears,
       experienceMonths: experienceMonths,
       gender: values.gender,
-      dob: moment(dobDisplay, "DD/MM/YYYY"),
+      dob: moment(dobDisplay).format("DD/MM/YYYY"),
       maritalStatus: values.maritalStatus,
       language: values.language,
+      currentSalary: values.currentSalary,
+      expectedSalary: values.expectedSalary,
     };
 
     try {
@@ -138,6 +175,89 @@ const CandidateJobPreferences = ({ initialJobPreference, closeModal }) => {
             />
           </div>
 
+          {/* Preferred Job Location */}
+          <div>
+            <label htmlFor="location" className="block text-sm font-medium">
+              Preferred Job Location
+            </label>
+            <LocationSearchBar
+              searchTerm={locationSearch}
+              onSearchChange={(value) => setLocationSearch(value)}
+              setFieldValue={setFieldValue}
+              onLocationSelect={(selectedLocation) =>
+                handleLocationSelect(selectedLocation, setFieldValue)
+              }
+            />
+            <ErrorMessage
+              name="preferredJobLocation"
+              component="div"
+              className="text-red-500 text-sm mt-1"
+            />
+          </div>
+
+          {/* Display selected locations with a cross sign */}
+          <div className="flex flex-wrap gap-2">
+            {preferredJobLocation.map((location, index) => (
+              <div
+                key={index}
+                className="flex items-center space-x-2 bg-gray-200 p-2 rounded-md"
+              >
+                <span>{location}</span>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveLocation(location, setFieldValue)}
+                  className="text-red-500"
+                >
+                  <span className="text-xl">×</span>
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {/* Current Salary */}
+          <div>
+            <label
+              htmlFor="currentSalary"
+              className="block text-sm font-medium"
+            >
+              Current Salary
+            </label>
+            <Field
+              type="number"
+              id="currentSalary"
+              name="currentSalary"
+              className="mt-1 p-3 w-full border rounded-md"
+              placeholder="Enter current salary"
+            />
+            <ErrorMessage
+              name="currentSalary"
+              component="div"
+              className="text-red-500 text-sm mt-1"
+            />
+          </div>
+
+          {/* Expected Salary */}
+          <div>
+            <label
+              htmlFor="expectedSalary"
+              className="block text-sm font-medium"
+            >
+              Expected Salary
+            </label>
+            <Field
+              type="number"
+              id="expectedSalary"
+              name="expectedSalary"
+              className="mt-1 p-3 w-full border rounded-md"
+              placeholder="Enter expected salary"
+            />
+            <ErrorMessage
+              name="expectedSalary"
+              component="div"
+              className="text-red-500 text-sm mt-1"
+            />
+          </div>
+
           {/* Experience */}
           <div className="block text-sm font-medium">
             <h1> Experience (in years)</h1>
@@ -181,9 +301,8 @@ const CandidateJobPreferences = ({ initialJobPreference, closeModal }) => {
                 <Field
                   type="radio"
                   name="gender"
-                  value="male"
+                  value="Male"
                   className="mr-2"
-                  checked
                 />
                 Male
               </label>
@@ -191,7 +310,7 @@ const CandidateJobPreferences = ({ initialJobPreference, closeModal }) => {
                 <Field
                   type="radio"
                   name="gender"
-                  value="female"
+                  value="Female"
                   className="mr-2"
                 />
                 Female
@@ -200,10 +319,10 @@ const CandidateJobPreferences = ({ initialJobPreference, closeModal }) => {
                 <Field
                   type="radio"
                   name="gender"
-                  value="preferNotToSpecify"
+                  value="other"
                   className="mr-2"
                 />
-                Prefer Not to Specify
+                Other
               </label>
             </div>
             <ErrorMessage

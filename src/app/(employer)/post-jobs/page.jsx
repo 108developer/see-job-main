@@ -1,95 +1,23 @@
 "use client";
 
+import AddEditQuestionsModal from "@/app/(employer)/post-jobs/AddEditQuestionsModal";
 import JobRoleSearchBar from "@/components/graphql-ui/JobRole";
 import JobTitleSearchBar from "@/components/graphql-ui/JobTitle";
-import { GET_JOB_TYPES } from "@/graphql/queries/queriesFilter";
+import LocationSearchBar from "@/components/graphql-ui/LocationSearchBar";
+import SkillDropdown from "@/components/graphql-ui/SkillsDropdown";
 import { usePostJobMutation } from "@/redux/api/jobApi";
-import { useQuery } from "@apollo/client";
-import { City, Country, State } from "country-state-city";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import * as Yup from "yup";
-
-// Static Experience and Salary data
-const experienceOptions = [
-  { value: 0, label: "0 years" },
-  { value: 1, label: "1 year" },
-  { value: 2, label: "2 years" },
-  { value: 3, label: "3 years" },
-  { value: 4, label: "4 years" },
-  { value: 5, label: "5 years" },
-  { value: 6, label: "6 years" },
-  { value: 7, label: "7 years" },
-  { value: 8, label: "8 years" },
-  { value: 9, label: "9 years" },
-  { value: 10, label: "10+ years" },
-];
-
-const salaryOptions = [
-  { value: 0, label: "0" },
-  { value: 1, label: "10,000" },
-  { value: 2, label: "20,000" },
-  { value: 3, label: "30,000" },
-  { value: 4, label: "40,000" },
-  { value: 5, label: "50,000" },
-  { value: 6, label: "60,000" },
-  { value: 7, label: "70,000" },
-  { value: 8, label: "80,000" },
-  { value: 9, label: "90,000" },
-  { value: 10, label: "100,000" },
-  { value: 12, label: "120,000" },
-  { value: 15, label: "150,000" },
-];
-
-// Validation Schema using Yup
-const validationSchema = Yup.object({
-  jobTitle: Yup.string().required("Job title is required"),
-  jobType: Yup.array()
-    .of(Yup.string().required("Job type is required"))
-    .min(1, "At least one job type must be selected")
-    .required("Job type is required"),
-  jobRole: Yup.string().required("Job role is required"),
-  minSalary: Yup.string().required("Min salary is required"),
-  maxSalary: Yup.string().required("Max salary is required"),
-  minExperience: Yup.string().required("Min experience is required"),
-  maxExperience: Yup.string().required("Max experience is required"),
-  country: Yup.string().required("Country is required"),
-  state: Yup.string().required("State is required"),
-  city: Yup.string().required("City is required"),
-  jobDescription: Yup.string().required("Job description is required"),
-  hiringCompany: Yup.string().required("Hiring company is required"),
-  contactEmail: Yup.string()
-    .email("Invalid email format")
-    .required("Email is required"),
-  contactPhone: Yup.string()
-    .matches(/^[0-9]{10,15}$/, "Phone number must be valid")
-    .required("Phone number is required"),
-  terms: Yup.boolean().oneOf(
-    [true],
-    "You must accept the terms and conditions"
-  ),
-});
-
-const initialValues = {
-  jobTitle: "",
-  jobType: [],
-  jobRole: "",
-  minSalary: "",
-  maxSalary: "",
-  minExperience: "",
-  maxExperience: "",
-  country: "",
-  state: "",
-  city: "",
-  jobDescription: "",
-  hiringCompany: "",
-  contactEmail: "",
-  contactPhone: "",
-  terms: false,
-};
+import {
+  experienceOptions,
+  jobType,
+  salaryOptions,
+  validationSchema,
+} from "./constants/constant";
+import DegreeSearchBar from "@/components/graphql-ui/HighestQualificationDegree";
 
 const RangeSelector = ({ label, options, onSelect, value, unit }) => {
   return (
@@ -116,135 +44,104 @@ const RangeSelector = ({ label, options, onSelect, value, unit }) => {
   );
 };
 
-const PostJobs = () => {
+const inputClass =
+  "w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500";
+
+const PostJob = () => {
   const router = useRouter();
   const [postJob, { isLoading }] = usePostJobMutation();
+  const { userid } = useSelector((state) => state.auth);
+
+  const [location, setLocation] = useState("");
+  const [selectedSkills, setSelectedSkills] = useState([]);
+  const [skillSet, setSkillSet] = useState("");
   const [experience, setExperience] = useState({ min: "", max: "" });
   const [salary, setSalary] = useState({ min: "", max: "" });
-  const [jobDetails, setJobDetails] = useState({
-    title: "",
-    type: [],
-    role: "",
-    country: "",
-    state: "",
-    city: "",
-    description: "",
-    company: "",
-    contactEmail: "",
-    contactphone: "",
-  });
+  const [jobTitle, setJobTitle] = useState("");
+  const [jobRole, setJobRole] = useState("");
+  const [degree, setDegree] = useState("");
 
-  const [countries, setCountries] = useState([]);
-  const [states, setStates] = useState([]);
-  const [cities, setCities] = useState([]);
-  const [selectedCountry, setSelectedCountry] = useState("");
-  const [selectedState, setSelectedState] = useState("");
-  const [availableJobtypes, setAvailableJobtypes] = useState([]);
-
-  const { userid, token } = useSelector((state) => state.auth);
-
-  const { data, loading, error } = useQuery(GET_JOB_TYPES);
-
-  useEffect(() => {
-    if (!token) {
-      router.push("/");
-    }
-    if (data && data.getJobTypes) {
-      setAvailableJobtypes(data.getJobTypes);
-    }
-  }, [data, token, router]);
-
-  const handleCountryClick = () => {
-    const countryList = Country.getAllCountries();
-    setCountries(countryList);
+  const initialValues = {
+    jobTitle: "",
+    // jobRole: "",
+    // category: "",
+    skillsRequired: [],
+    jobType: [],
+    jobDescription: "",
+    jobLocation: "",
+    openings: 1,
+    deadline: "",
+    // status: "open",
+    monthlySalary: { min: "", max: "" },
+    experience: { min: "", max: "" },
+    education: "",
+    questions: [],
+    companyName: "",
+    companyEmail: "",
+    companyPhone: "",
+    companyWebsite: "",
+    companyDescription: "",
   };
 
-  const handleCountryChange = (e, setFieldValue) => {
-    const countryCode = e.target.value;
-    setSelectedCountry(countryCode);
-    setStates(State.getStatesOfCountry(countryCode));
-    setCities([]);
-    setFieldValue("state", "");
-    setFieldValue("city", "");
+  const [isQuestionModalOpen, setIsQuestionModalOpen] = useState(false);
+  const [questions, setQuestions] = useState([]);
+
+  const openAddQuestionsModal = () => {
+    setIsQuestionModalOpen(true);
   };
 
-  const handleStateChange = (e) => {
-    const stateCode = e.target.value;
-    setSelectedState(stateCode);
-    setCities(City.getCitiesOfState(selectedCountry, stateCode));
-  };
-
-  const handleJobTypeChange = (e, setFieldValue) => {
-    const { value, checked } = e.target;
-    let updatedJobTypes = [...jobDetails.type];
-
-    if (checked) {
-      updatedJobTypes.push(value);
-    } else {
-      updatedJobTypes = updatedJobTypes.filter((item) => item !== value);
-    }
-
-    setJobDetails({ ...jobDetails, type: updatedJobTypes });
-    setFieldValue("jobType", updatedJobTypes);
+  const closeAddQuestionsModal = () => {
+    setIsQuestionModalOpen(false);
   };
 
   const handleSubmit = async (values, { resetForm }) => {
+    const { skillsRequired, location, highestQualification, ...cleanedValues } =
+      values;
+
     const jobData = {
-      employerId: userid,
-      ...values,
+      userid,
+      ...cleanedValues,
+      questions,
     };
+
     try {
       console.log("Job Data", jobData);
       const response = await postJob(jobData).unwrap();
-      if (response.success) {
-        toast.success(response.message);
+
+      if (response?.success) {
+        toast.success(response?.message || "Job posted successfully!");
         resetForm();
-        setJobDetails({
-          title: "",
-          type: [],
-          role: "",
-          country: "",
-          state: "",
-          city: "",
-          description: "",
-          company: "",
-          contactEmail: "",
-          contactphone: "",
-        });
-        setExperience({ min: "", max: "" });
-        setSalary({ min: "", max: "" });
+        router.push("/joblisting");
+      } else {
+        toast.error(response?.message || "Failed to post job.");
       }
-    } catch (error) {
-      toast.error("Submission failed. Please try again.");
+    } catch (err) {
+      toast.error(err?.data?.message || "Failed to post job.");
     }
   };
 
   return (
-    <div className="w-full py-6 px-28">
-      {/* Formik Form */}
+    <div className="w-full py-6 px-4 md:px-16 lg:px-28">
+      <h1 className="text-2xl font-semibold mb-6">Post a New Job</h1>
+
       <Formik
         initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
       >
-        {({ setFieldValue }) => (
+        {({ values, setFieldValue }) => (
           <Form className="space-y-6 w-full">
-            {/* Job Title */}
+            {/* Basic Job Info */}
             <div>
-              <label htmlFor="jobTitle" className="block text-sm font-medium">
+              <label htmlFor="jobTitle" className="text-sm font-semibold">
                 Job Title
               </label>
               <JobTitleSearchBar
-                searchTerm={jobDetails.title}
-                onSearchChange={(value) =>
-                  setJobDetails({ ...jobDetails, title: value })
-                }
+                searchTerm={jobTitle}
+                onSearchChange={(value) => setJobTitle(value)}
                 setFieldValue={setFieldValue}
                 onJobTitleSelect={(selectedJobTitle) => {
-                  setJobDetails({
-                    ...jobDetails,
-                    title: selectedJobTitle.label,
-                  });
+                  setJobTitle(selectedJobTitle.label);
                   setFieldValue("jobTitle", selectedJobTitle.label);
                 }}
                 placeholder="Sales, Executive, urgently..."
@@ -256,31 +153,109 @@ const PostJobs = () => {
               />
             </div>
 
-            {/* Job Type (Multi-select checkbox) */}
+            {/* Job Role */}
+            {/* <div>
+              <label htmlFor="jobRole" className="text-sm font-semibold">
+                Job Role
+              </label>
+              <JobRoleSearchBar
+                searchTerm={jobRole}
+                onSearchChange={(value) => setJobRole(value)}
+                setFieldValue={setFieldValue}
+                onJobRoleSelect={(selectedJobRole) => {
+                  setJobRole(selectedJobRole.label);
+                  setFieldValue("jobRole", selectedJobRole.label);
+                }}
+                placeholder="Developer, Designer, Manager..."
+              />
+
+              <ErrorMessage
+                name="jobRole"
+                component="div"
+                className="text-red-500 text-sm mt-1"
+              />
+            </div> */}
+
+            {/* Category */}
+            {/* <div>
+              <label htmlFor="category" className="text-sm font-semibold">
+                Category
+              </label>
+              <Field
+                name="category"
+                placeholder="IT, Finance, Healthcare"
+                className={inputClass}
+              />
+              <ErrorMessage
+                name="category"
+                component="div"
+                className="text-red-500 text-sm mt-1"
+              />
+            </div> */}
+
+            {/* Key Skills */}
+            <div className="w-full mb-auto">
+              <label htmlFor="skills" className="text-sm font-semibold">
+                Key Skills*
+              </label>
+              <SkillDropdown
+                searchTerm={skillSet}
+                onSearchChange={(value) => setSkillSet(value)}
+                setFieldValue={setFieldValue}
+                onSkillSelect={(selectedSkill) => {
+                  setSelectedSkills([...selectedSkills, selectedSkill]);
+                  setFieldValue("skillsRequired", [
+                    ...selectedSkills,
+                    selectedSkill,
+                  ]);
+                }}
+                onRemoveSkill={(skillToRemove) => {
+                  const updatedSkills = selectedSkills.filter(
+                    (skill) => skill !== skillToRemove
+                  );
+                  setSelectedSkills(updatedSkills);
+                  setFieldValue("skillsRequired", updatedSkills);
+                }}
+              />
+              <ErrorMessage
+                name="skillsRequired"
+                component="div"
+                className="text-red-500 text-sm mt-1"
+              />
+            </div>
+
+            {/* Education */}
             <div>
-              <label htmlFor="jobType" className="block text-sm font-medium">
+              <label htmlFor="education" className="text-sm font-semibold">
+                Education
+              </label>
+              <DegreeSearchBar
+                searchTerm={degree}
+                onSearchChange={(value) => setDegree(value)}
+                setFieldValue={setFieldValue}
+                onDegreeSelect={(selectedDegree) => {
+                  setDegree(selectedDegree.label);
+                  setFieldValue("education", selectedDegree.label);
+                }}
+              />
+              <ErrorMessage
+                name="education"
+                component="div"
+                className="text-red-500 text-sm mt-1"
+              />
+            </div>
+
+            {/* Job Type */}
+            <div>
+              <label htmlFor="jobType" className="text-sm font-semibold">
                 Job Type
               </label>
-              <div className="flex flex-wrap gap-4 mt-2 w-full">
-                {availableJobtypes.map((jobType) => (
-                  <div key={jobType._id} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id={`jobType-${jobType._id}`}
-                      name="jobType"
-                      value={jobType.value}
-                      onChange={(e) => handleJobTypeChange(e, setFieldValue)}
-                      checked={jobDetails.type.includes(jobType.value)}
-                      className="mr-2"
-                    />
-
-                    <label
-                      htmlFor={`jobType-${jobType._id}`}
-                      className="text-sm"
-                    >
-                      {jobType.label}
-                    </label>
-                  </div>
+              <div className="flex flex-wrap gap-4 mt-2">
+                {jobType.map((type) => (
+                  <label key={type} className="flex items-center gap-2 text-sm">
+                    <Field type="checkbox" name="jobType" value={type} />
+                    {type}
+                  </label>
                 ))}
               </div>
               <ErrorMessage
@@ -290,81 +265,120 @@ const PostJobs = () => {
               />
             </div>
 
-            {/* Job Role */}
+            {/* Job Description */}
             <div>
-              <label htmlFor="jobRole" className="block text-sm font-medium">
-                Job Role
+              <label htmlFor="jobDescription" className="text-sm font-semibold">
+                Job Description
               </label>
-              <JobRoleSearchBar
-                searchTerm={jobDetails.role}
-                onSearchChange={(value) =>
-                  setJobDetails({ ...jobDetails, role: value })
-                }
-                setFieldValue={setFieldValue}
-                onJobRoleSelect={(selectedJobRole) => {
-                  setJobDetails({
-                    ...jobDetails,
-                    role: selectedJobRole.label,
-                  });
-                  setFieldValue("role", selectedJobRole.label);
-                }}
-                placeholder="Dveloper, Designer, Manager..."
+              <Field
+                as="textarea"
+                name="jobDescription"
+                className={inputClass}
+                placeholder="Briefly describe job responsibilities, expectations, etc."
+                rows={5}
               />
               <ErrorMessage
-                name="jobRole"
+                name="jobDescription"
                 component="div"
                 className="text-red-500 text-sm mt-1"
               />
             </div>
 
-            {/* Experience Range */}
-            <div className="block text-sm font-medium">
-              <h1>Experience</h1>
-              <div className="flex items-center gap-8 justify-between flex-col lg:flex-row">
-                {/* Min Experience */}
-                <RangeSelector
-                  label="Min"
-                  value={experience.min}
-                  onSelect={(val) => {
-                    setExperience({ ...experience, min: val });
-                    setFieldValue("minExperience", val);
-                  }}
-                  options={experienceOptions.filter(
-                    (opt) => opt.value <= (experience.max || 10)
-                  )}
-                />
-
-                {/* Max Experience */}
-                <RangeSelector
-                  label="Max"
-                  value={experience.max}
-                  onSelect={(val) => {
-                    setExperience({ ...experience, max: val });
-                    setFieldValue("maxExperience", val);
-                  }}
-                  options={experienceOptions.filter(
-                    (opt) => opt.value >= (experience.min || 0)
-                  )}
-                />
-              </div>
+            {/* Current Location */}
+            <div>
+              <label htmlFor="jobLocation" className="text-sm font-semibold">
+                Current Location
+              </label>
+              <LocationSearchBar
+                searchTerm={location}
+                onSearchChange={(value) => setLocation(value)}
+                setFieldValue={setFieldValue}
+                onLocationSelect={(selectedLocation) => {
+                  setLocation(selectedLocation.fullAddress);
+                  setFieldValue("jobLocation", selectedLocation.fullAddress);
+                }}
+              />
+              <ErrorMessage
+                name="jobLocation"
+                component="div"
+                className="text-red-500 text-sm mt-1"
+              />
             </div>
 
+            {/* Number of Openings */}
+            <div>
+              <label htmlFor="openings" className="text-sm font-semibold">
+                Number of Openings
+              </label>
+              <Field
+                name="openings"
+                type="number"
+                placeholder="3"
+                className={inputClass}
+              />
+              <ErrorMessage
+                name="openings"
+                component="div"
+                className="text-red-500 text-sm mt-1"
+              />
+            </div>
+
+            {/* Application Deadline */}
+            <div>
+              <label htmlFor="deadline" className="text-sm font-semibold">
+                Application Deadline
+              </label>
+              <Field
+                name="deadline"
+                type="date"
+                className={inputClass}
+                placeholder="3"
+                min={new Date().toISOString().split("T")[0]}
+              />
+              <ErrorMessage
+                name="deadline"
+                component="div"
+                className="text-red-500 text-sm mt-1"
+              />
+            </div>
+
+            {/* Status */}
+            {/* <div>
+              <label htmlFor="status" className="text-sm font-semibold">
+                Status
+              </label>
+              <Field
+                as="select"
+                name="status"
+                placeholder="3"
+                className={inputClass}
+              >
+                <option value="open">Open</option>
+                <option value="closed">Closed</option>
+                <option value="paused">Paused</option>
+              </Field>
+              <ErrorMessage
+                name="status"
+                component="div"
+                className="text-red-500 text-sm mt-1"
+              />
+            </div> */}
+
             {/* Salary Range */}
-            <div className="block text-sm font-medium">
+            <div className="text-sm font-semibold">
               <h1>Salary</h1>
-              <div className="flex items-center gap-8 justify-between flex-col lg:flex-row">
+              <div className="flex items-center gap-2 justify-between flex-col lg:flex-row font-medium">
                 {/* Min Salary */}
                 <RangeSelector
                   label="Min"
                   value={salary.min}
                   onSelect={(val) => {
                     setSalary({ ...salary, min: val });
-                    setFieldValue("minSalary", val);
+                    setFieldValue("monthlySalary.min", val);
                   }}
-                  options={salaryOptions.filter(
-                    (opt) => opt.value <= (salary.max || 150000)
-                  )}
-                  unit="Rs/month"
+                  options={salaryOptions
+                    .filter((opt) => Number(opt) <= (salary.max || 150000))
+                    .map((opt) => ({ value: opt, label: opt }))}
                 />
 
                 {/* Max Salary */}
@@ -373,232 +387,236 @@ const PostJobs = () => {
                   value={salary.max}
                   onSelect={(val) => {
                     setSalary({ ...salary, max: val });
-                    setFieldValue("maxSalary", val);
+                    setFieldValue("monthlySalary.max", val);
                   }}
-                  options={salaryOptions.filter(
-                    (opt) => opt.value >= (salary.min || 0)
-                  )}
-                  unit="Rs/month"
+                  options={salaryOptions
+                    .filter((opt) => Number(opt) >= (salary.min || 0))
+                    .map((opt) => ({ value: opt, label: opt }))}
+                />
+              </div>
+              <div className="flex items-center justify-between font-medium">
+                <ErrorMessage
+                  name="monthlySalary.min"
+                  component="div"
+                  className="text-red-500 text-sm mt-1"
+                />
+                <ErrorMessage
+                  name="monthlySalary.max"
+                  component="div"
+                  className="text-red-500 text-sm mt-1"
                 />
               </div>
             </div>
 
-            {/* Country */}
+            {/* Experience Range */}
+            <div className="text-sm font-semibold">
+              <h1>Experience</h1>
+              <div className="flex items-center gap-2 justify-between flex-col lg:flex-row font-medium">
+                {/* Min Experience */}
+                <RangeSelector
+                  label="Min"
+                  value={experience.min}
+                  onSelect={(val) => {
+                    setExperience({ ...experience, min: val });
+                    setFieldValue("experience.min", val);
+                  }}
+                  options={experienceOptions
+                    .filter((opt) => Number(opt) <= (experience.max || 15))
+                    .map((opt) => ({ value: opt, label: opt }))}
+                />
+
+                {/* Max Experience */}
+                <RangeSelector
+                  label="Max"
+                  value={experience.max}
+                  onSelect={(val) => {
+                    setExperience({ ...experience, max: val });
+                    setFieldValue("experience.max", val);
+                  }}
+                  options={experienceOptions
+                    .filter((opt) => Number(opt) >= (experience.min || 0))
+                    .map((opt) => ({ value: opt, label: opt }))}
+                />
+              </div>
+              <div className="flex items-center justify-between font-medium">
+                <ErrorMessage
+                  name="experience.min"
+                  component="div"
+                  className="text-red-500 text-sm mt-1"
+                />
+                <ErrorMessage
+                  name="experience.max"
+                  component="div"
+                  className="text-red-500 text-sm mt-1"
+                />
+              </div>
+            </div>
+
+            {/* Company Name */}
             <div>
-              <label htmlFor="country" className="block text-sm font-medium">
-                Country
+              <label htmlFor="companyName" className="text-sm font-semibold">
+                Company Name
               </label>
-              <select
-                name="country"
-                onChange={(e) => {
-                  setFieldValue("country", e.target.value);
-                  handleCountryChange(e, setFieldValue);
-                }}
-                onClick={handleCountryClick}
-                value={selectedCountry}
-                className="w-full px-4 py-3 border border-gray-300 rounded-md"
+              <Field
+                name="companyName"
+                placeholder="Google Inc."
+                className={inputClass}
+              />
+              <ErrorMessage
+                name="companyName"
+                component="div"
+                className="text-red-500 text-sm mt-1"
+              />
+            </div>
+
+            {/* Company Email */}
+            <div>
+              <label htmlFor="companyEmail" className="text-sm font-semibold">
+                Company Email
+              </label>
+              <Field
+                name="companyEmail"
+                type="email"
+                placeholder="careers@company.com"
+                className={inputClass}
+              />
+              <ErrorMessage
+                name="companyEmail"
+                component="div"
+                className="text-red-500 text-sm mt-1"
+              />
+            </div>
+
+            {/* Company Phone */}
+            <div>
+              <label htmlFor="companyPhone" className="text-sm font-semibold">
+                Company Phone
+              </label>
+              <Field
+                name="companyPhone"
+                placeholder="+91 9876543210"
+                className={inputClass}
+              />
+              <ErrorMessage
+                name="companyPhone"
+                component="div"
+                className="text-red-500 text-sm mt-1"
+              />
+            </div>
+
+            {/* Company Website */}
+            <div>
+              <label htmlFor="companyWebsite" className="text-sm font-semibold">
+                Company Website
+              </label>
+              <Field
+                name="companyWebsite"
+                placeholder="https://www.company.com"
+                className={inputClass}
+              />
+              <ErrorMessage
+                name="companyWebsite"
+                component="div"
+                className="text-red-500 text-sm mt-1"
+              />
+            </div>
+
+            {/* Company Description */}
+            <div>
+              <label
+                htmlFor="companyDescription"
+                className="text-sm font-semibold"
               >
-                <option value="">Select Country</option>
-                {countries.map((country) => (
-                  <option key={country.isoCode} value={country.isoCode}>
-                    {country.name}
-                  </option>
+                Company Description
+              </label>
+              <Field
+                as="textarea"
+                name="companyDescription"
+                placeholder="Describe what your company does, mission, etc."
+                className={inputClass}
+                rows={3}
+              />
+              <ErrorMessage
+                name="companyDescription"
+                component="div"
+                className="text-red-500 text-sm mt-1"
+              />
+            </div>
+
+            {/* Application Questions */}
+            <div>
+              <label
+                htmlFor="questions"
+                className="text-lg font-semibold mb-3 text-gray-800 flex items-center justify-between"
+              >
+                Application Questions
+                <button
+                  type="button"
+                  onClick={openAddQuestionsModal}
+                  className="py-1 px-2 bg-indigo-600 text-sm text-white rounded-lg justify-end"
+                >
+                  Add/Edit Questions
+                </button>
+              </label>
+              <div className="space-y-4">
+                {questions.map((q, index) => (
+                  <div key={index} className="border p-6 rounded-lg shadow-md">
+                    <div className="space-y-2">
+                      <p>{`Que ${index + 1} - ${q.questionText}`}</p>
+                      {q.type === "single-choice" && (
+                        <div>
+                          {q.options.map((option, i) => (
+                            <label key={i} className="block">
+                              <input type="radio" name={`question${index}`} />{" "}
+                              {option}
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                      {q.type === "multiple-choice" && (
+                        <div>
+                          {q.options.map((option, i) => (
+                            <label key={i} className="block">
+                              <input
+                                type="checkbox"
+                                name={`question${index}`}
+                              />{" "}
+                              {option}
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 ))}
-              </select>
-              <ErrorMessage
-                name="country"
-                component="div"
-                className="text-red-500 text-sm mt-1"
-              />
-            </div>
-
-            {/* State */}
-            {selectedCountry && (
-              <div>
-                <label htmlFor="state" className="block text-sm font-medium">
-                  State
-                </label>
-                <select
-                  name="state"
-                  onChange={(e) => {
-                    setFieldValue("state", e.target.value);
-                    handleStateChange(e);
-                  }}
-                  value={selectedState}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-md"
-                >
-                  <option value="">Select State</option>
-                  {states.map((state) => (
-                    <option key={state.isoCode} value={state.isoCode}>
-                      {state.name}
-                    </option>
-                  ))}
-                </select>
-                <ErrorMessage
-                  name="state"
-                  component="div"
-                  className="text-red-500 text-sm mt-1"
-                />
-              </div>
-            )}
-
-            {/* City */}
-            {selectedState && (
-              <div>
-                <label htmlFor="city" className="block text-sm font-medium">
-                  City
-                </label>
-                <select
-                  name="city"
-                  onChange={(e) => setFieldValue("city", e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-md"
-                >
-                  <option value="">Select City</option>
-                  {cities.map((city) => (
-                    <option key={city.id || city.name} value={city.name}>
-                      {city.name}
-                    </option>
-                  ))}
-                </select>
-                <ErrorMessage
-                  name="city"
-                  component="div"
-                  className="text-red-500 text-sm mt-1"
-                />
-              </div>
-            )}
-
-            {/* Job Description */}
-            <div>
-              <label
-                htmlFor="jobDescription"
-                className="block text-sm font-medium"
-              >
-                Job Description
-              </label>
-              <textarea
-                name="jobDescription"
-                rows="4"
-                className="w-full px-4 py-3 border border-gray-300 rounded-md"
-                onChange={(e) =>
-                  setFieldValue("jobDescription", e.target.value)
-                }
-              />
-              <ErrorMessage
-                name="jobDescription"
-                component="div"
-                className="text-red-500 text-sm mt-1"
-              />
-            </div>
-
-            <h1 className="text-xl font-bold space-y-4">
-              Recruiter Details (cannot be changed)
-            </h1>
-
-            {/* Hiring Company */}
-            <div>
-              <label
-                htmlFor="hiringCompany"
-                className="block text-sm font-medium"
-              >
-                Hiring Company
-              </label>
-              <input
-                type="text"
-                name="hiringCompany"
-                placeholder="Software Solution Pvt Ltd"
-                className="w-full px-4 py-3 border border-gray-300 rounded-md"
-                onChange={(e) => setFieldValue("hiringCompany", e.target.value)}
-              />
-              <ErrorMessage
-                name="hiringCompany"
-                component="div"
-                className="text-red-500 text-sm mt-1"
-              />
-            </div>
-
-            <div className="flex items-center justify-between w-full gap-8 flex-col md:flex-row">
-              {/* Contact Email */}
-              <div className="w-full">
-                <label
-                  htmlFor="contactEmail"
-                  className="block text-sm font-medium"
-                >
-                  Contact Email
-                </label>
-                <input
-                  type="email"
-                  name="contactEmail"
-                  placeholder="Enter email"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-md"
-                  onChange={(e) =>
-                    setFieldValue("contactEmail", e.target.value)
-                  }
-                />
-                <ErrorMessage
-                  name="contactEmail"
-                  component="div"
-                  className="text-red-500 text-sm mt-1"
-                />
-              </div>
-
-              {/* Contact Phone */}
-              <div className="w-full">
-                <label
-                  htmlFor="contactPhone"
-                  className="block text-sm font-medium"
-                >
-                  Contact Phone
-                </label>
-                <input
-                  type="text"
-                  name="contactPhone"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-md"
-                  placeholder="Enter phone number"
-                  onChange={(e) =>
-                    setFieldValue("contactPhone", e.target.value)
-                  }
-                />
-                <ErrorMessage
-                  name="contactPhone"
-                  component="div"
-                  className="text-red-500 text-sm mt-1"
-                />
               </div>
             </div>
 
-            {/* Terms and Conditions */}
-            <div>
-              <label className="inline-flex items-center">
-                <Field type="checkbox" name="terms" className="form-checkbox" />
-                <span className="ml-2 text-sm">
-                  I agree to use the above details to create my Recruiter
-                  Profile & display it on the SeeJob site and also agree to be
-                  bound by the Terms of Use & Privacy of SeeJob.
-                </span>
-              </label>
-              <ErrorMessage
-                name="terms"
-                component="div"
-                className="text-red-500 text-sm mt-1"
-              />
-            </div>
-
-            {/* Submit Button */}
+            {/* Post Job  */}
             <div className="flex justify-center">
               <button
                 type="submit"
                 className="px-6 py-3 mt-4 bg-red-600 text-white rounded-md"
                 disabled={isLoading}
               >
-                {isLoading ? "Posting..." : "Post a job"}
+                {isLoading ? "Posting..." : "Post Job"}
               </button>
             </div>
           </Form>
         )}
       </Formik>
+      {isQuestionModalOpen && (
+        <AddEditQuestionsModal
+          closeModal={closeAddQuestionsModal}
+          questions={questions}
+          setQuestions={(updated) => {
+            setQuestions(updated);
+            setFieldValue("questions", updated);
+          }}
+        />
+      )}
     </div>
   );
 };
 
-export default PostJobs;
+export default PostJob;
