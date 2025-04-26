@@ -13,18 +13,18 @@ import * as Yup from "yup";
 const formOptions = {
   medium: [
     { value: "", label: "Please Select Medium" },
-    { value: "hindi", label: "Hindi" },
-    { value: "english", label: "English" },
-    { value: "other", label: "Other" },
+    { value: "Hindi", label: "Hindi" },
+    { value: "English", label: "English" },
+    { value: "Other", label: "Other" },
   ],
   boardOfEducation: [
     { value: "", label: "Please Select Board of Education" },
-    { value: "cbse", label: "CBSE" },
-    { value: "icse", label: "ICSE" },
-    { value: "cisce", label: "CISCE" },
-    { value: "nios", label: "NIOS" },
-    { value: "cie", label: "CIE" },
-    { value: "ib", label: "IB" },
+    { value: "CBSE", label: "CBSE" },
+    { value: "ICSE", label: "ICSE" },
+    { value: "CISCE", label: "CISCE" },
+    { value: "NIOS", label: "NIOS" },
+    { value: "CIE", label: "CIE" },
+    { value: "IB", label: "IB" },
   ],
   percentage: [
     { value: "", label: "Select Percentage" },
@@ -37,9 +37,8 @@ const formOptions = {
     { value: "90-100", label: "90% - 100%" },
   ],
   educationMode: [
-    { value: "fullTime", label: "Full Time" },
-    { value: "partTime", label: "Part Time" },
-    { value: "correspondence", label: "Correspondence" },
+    { value: "Full Time", label: "Full Time" },
+    { value: "Online/Distance", label: "Online/Distance" },
   ],
 };
 
@@ -71,13 +70,15 @@ const CandidateEducation = () => {
     useSaveEducationalDetailsMutation();
   const [degree, setDegree] = useState("");
 
-  const { userid, token } = useSelector((state) => state.auth);
+  const { userid, token, role } = useSelector((state) => state.auth);
+
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    if (!token) {
+    if (!token || role !== "candidate") {
       router.push("/");
     }
-  }, [token, router]);
+  }, [isClient, token, router, role]);
 
   const handleRegister = async (values, { resetForm }) => {
     const body = {

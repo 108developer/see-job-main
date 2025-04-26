@@ -1,104 +1,136 @@
 "use client";
+
+import PlaceholderImage from "@/images/Profile_avatar_placeholder_large.png";
 import {
   useGetCandidateProfileQuery,
-  useUploadProfilePicMutation,
-  useUploadResumeMutation,
+  useUpdateProfilePicMutation,
+  useUpdateResumeMutation,
 } from "@/redux/api/candidateAuth";
-import { Edit, Edit2, File, User2Icon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Form, Formik } from "formik";
+import { DownloadIcon, Edit2, FileIcon } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import * as Yup from "yup";
 import CandidateEducationDetails from "./CandidateEducationDetails";
 import CandidateJobPreference from "./CandidateJobPreference";
 import CandidateRegisterForm from "./CandidateRegisterForm";
+import Image from "next/image";
+
+const profilePicSchema = Yup.object().shape({
+  profilePic: Yup.mixed()
+    .nullable()
+    .required("Profile picture is required.")
+    .test("fileType", "Unsupported File Format", (value) => {
+      return (
+        value && (value.type === "image/jpeg" || value.type === "image/png")
+      );
+    }),
+});
+
+const resumeSchema = Yup.object().shape({
+  resume: Yup.mixed()
+    .nullable()
+    .required("Resume is required.")
+    .test("fileType", "Unsupported File Format", (value) => {
+      return (
+        value &&
+        [
+          "application/pdf",
+          "application/msword",
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        ].includes(value.type)
+      );
+    }),
+});
 
 const Page = () => {
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [newImageSelected, setNewImageSelected] = useState(false);
   const [isEditingImage, setIsEditingImage] = useState(false);
   const [isEditingResume, setIsEditingResume] = useState(false);
-  const [newResumeSelected, setNewResumeSelected] = useState(false);
-
+  const [showImage, setShowImage] = useState("");
+  const [selectedImage, setSelectedImage] = useState(null);
   const [selectedResume, setSelectedResume] = useState(null);
+
+  const resumeInputRef = useRef(null);
+
+  const [updateProfilePic] = useUpdateProfilePicMutation();
+  const [updateResume] = useUpdateResumeMutation();
 
   const { userid, token } = useSelector((state) => state.auth);
 
   const { data, isLoading, error } = useGetCandidateProfileQuery({
-    userid,
+    id: userid,
     token,
   });
 
   useEffect(() => {
     if (data?.profilePic) {
       setSelectedImage(data.profilePic);
+      setShowImage(data.profilePic);
     }
     if (data?.resume) {
       setSelectedResume(data.resume);
     }
   }, [data]);
 
-  const [uploadProfilePic] = useUploadProfilePicMutation();
-  const [uploadResume] = useUploadResumeMutation();
+  const handleResumeClick = () => {
+    setIsEditingResume(true);
+    resumeInputRef.current.click();
+  };
 
-  const handleImageUpload = async (e) => {
-    const file = e.target.files ? e.target.files[0] : null;
+  const handleResumeUpload = (e) => {
+    const file = e.target.files[0];
     if (file) {
-      try {
-        const response = await uploadProfilePic(file).unwrap();
-        setSelectedImage(URL.createObjectURL(file));
-        console.log("Profile picture uploaded successfully", response);
-        setIsEditingImage(false);
-        setNewImageSelected(false);
-      } catch (error) {
-        console.log("Error uploading profile picture:", error);
+      setSelectedResume(URL.createObjectURL(file));
+    }
+  };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedImage(file);
+      setShowImage(URL.createObjectURL(file));
+    }
+  };
+
+  const handleUpdateProfilePic = async (values, { resetForm }) => {
+    const profilePicData = new FormData();
+
+    if (selectedImage) {
+      profilePicData.append("profilePic", selectedImage);
+    } else {
+      profilePicData.append("profilePic", null);
+    }
+
+    try {
+      await updateProfilePic({ userid, profilePicData }).unwrap();
+      setIsEditingImage(false);
+      toast.success("Profile Pic updated successfully!");
+      resetForm();
+    } catch (error) {
+      toast.error("Submission failed. Please try again.");
+    }
+  };
+
+  const handleUpdateResume = async (values, { resetForm }) => {
+    const resumeData = new FormData();
+
+    if (selectedResume) {
+      resumeData.append("resume", selectedResume);
+    } else {
+      resumeData.append("resume", null);
+    }
+
+    try {
+      const response = await updateResume({ userid, resumeData }).unwrap();
+
+      if (response.success) {
+        toast.success("Resume updated successfully!");
+        setIsEditingResume(false);
       }
-    } else {
-      console.log("No file selected");
+    } catch (error) {
+      toast.error("Submission failed. Please try again.");
     }
-  };
-
-  const handleCancelImageUpload = () => {
-    setIsEditingImage(false);
-    setNewImageSelected(false);
-  };
-
-  const handleFileSelect = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setNewImageSelected(true);
-    } else {
-      setNewImageSelected(false);
-    }
-  };
-
-  const handleResumeSelect = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-
-      setSelectedResume(file);
-      setNewResumeSelected(true);
-    } else {
-      setNewResumeSelected(false);
-    }
-  };
-
-  const handleResumeUpdate = async () => {
-    const fileInput = document.getElementById("file");
-    if (fileInput && fileInput.files.length > 0) {
-      const file = fileInput.files[0];
-      try {
-        const response = await uploadResume(file).unwrap();
-        console.log("Resume uploaded successfully", response);
-
-        setSelectedResume(URL.createObjectURL(file));
-        setNewResumeSelected(false);
-      } catch (error) {
-        console.log("Error uploading resume:", error);
-      }
-    }
-  };
-
-  const handleCancelResumeUpload = () => {
-    setNewResumeSelected(false);
-    setSelectedResume(data?.resume);
   };
 
   if (isLoading)
@@ -118,61 +150,78 @@ const Page = () => {
     <div className="bg-gray-200 px-4 lg:px-28 py-12 gap-8 flex flex-col min-h-screen w-full">
       {/* Profile Image Section */}
       <div className="flex flex-col justify-center items-center relative w-full">
-        <label htmlFor="image" className="relative">
-          <div className="w-24 h-24 rounded-full overflow-hidden flex justify-center items-center relative">
-            {selectedImage ? (
-              <img
-                src={selectedImage}
-                alt="Uploaded Profile"
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <User2Icon className="text-gray-400 text-4xl w-full h-full bg-white rounded-full" />
-            )}
-          </div>
-          <div
-            className="absolute bottom-1 right-0 p-1 bg-blue-500 rounded-full cursor-pointer"
-            onClick={() => setIsEditingImage(true)}
-          >
-            <Edit2 className="w-4 h-4 text-white z-10" />
-          </div>
-        </label>
+        <Formik
+          initialValues={{ profilePic: selectedImage || "" }}
+          validationSchema={profilePicSchema}
+          onSubmit={handleUpdateProfilePic}
+        >
+          {({ setFieldValue }) => (
+            <Form className="space-y-6 w-full">
+              {/* Upload Image */}
+              <div className="flex justify-center items-center">
+                <label htmlFor="image" className="relative">
+                  <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-gray-300">
+                    {showImage?.startsWith("blob:") ? (
+                      <img
+                        src={showImage}
+                        alt="Upload"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <Image
+                        src={showImage || PlaceholderImage}
+                        alt="Upload"
+                        width={96}
+                        height={96}
+                        className="rounded-full object-cover"
+                      />
+                    )}
+                  </div>
+                  <div className="absolute bottom-2 right-0 p-1 bg-blue-800 rounded-full cursor-pointer">
+                    <Edit2
+                      className="w-4 h-4 text-white font-bold"
+                      onClick={() => setIsEditingImage(true)}
+                    />
+                  </div>
+                </label>
+                <input
+                  type="file"
+                  id="image"
+                  name="profilePic"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    handleImageUpload(e);
+                    setFieldValue("profilePic", e.target.files[0]);
+                  }}
+                />
+              </div>
 
-        {/* Hidden file input */}
-        {isEditingImage && (
-          <div className="absolute bottom-0 left-0 w-full flex justify-between p-2">
-            <input
-              type="file"
-              id="image"
-              name="profilePic"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => {
-                handleFileSelect(e);
-                handleImageUpload(e);
-              }}
-            />
-          </div>
-        )}
+              {isEditingImage && (
+                <div className="flex flex-col md:flex-row w-full items-center justify-between gap-4">
+                  <button
+                    type="button"
+                    className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
+                    onClick={() => {
+                      setIsEditingImage(false);
+                      setSelectedImage(data?.profilePic || null);
+                    }}
+                  >
+                    Cancel
+                  </button>
 
-        {newImageSelected && (
-          <div className="flex items-center gap-8 mt-4">
-            <div
-              type="button"
-              onClick={handleCancelImageUpload}
-              className="px-2 py-1 bg-red-500 text-white rounded-md cursor-pointer"
-            >
-              Cancel
-            </div>
-            <div
-              type="button"
-              onClick={() => document.getElementById("image").click()}
-              className="px-2 py-1 bg-blue-500 text-white rounded-md cursor-pointer"
-            >
-              Update
-            </div>
-          </div>
-        )}
+                  <button
+                    type="submit"
+                    className="w-fit px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Loading..." : "Submit"}
+                  </button>
+                </div>
+              )}
+            </Form>
+          )}
+        </Formik>
       </div>
 
       <div className="w-full">
@@ -195,86 +244,111 @@ const Page = () => {
         />
       </div>
 
-      {/* Upload Resume */}
-      <div className="space-y-6 bg-white rounded-xl border p-8 w-full">
-        <div className="flex justify-between items-center">
-          <label htmlFor="file" className="block text-sm font-semibold">
-            Upload Resume
-          </label>
+      {/* Resume Upload Section */}
+      <div className="flex flex-col justify-center items-center relative w-full">
+        <Formik
+          initialValues={{ resume: selectedResume || null }}
+          validationSchema={resumeSchema}
+          onSubmit={handleUpdateResume}
+        >
+          {({ setFieldValue }) => (
+            <Form className="space-y-6 w-full">
+              {/* Upload Resume */}
+              <div className="flex justify-center items-center w-full">
+                <label htmlFor="resume" className="relative w-full">
+                  <div className="w-full bg-white shadow-sm rounded-lg border border-gray-300 p-4">
+                    {selectedResume ? (
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 bg-gray-200 flex justify-center items-center rounded-full">
+                            <FileIcon className="text-gray-600 w-6 h-6" />
+                          </div>
+                          <div className="flex items-center gap-6 text-lg">
+                            <span className="font-semibold text-gray-700">
+                              {typeof selectedResume === "string"
+                                ? decodeURIComponent(
+                                    selectedResume
+                                      .split("/")
+                                      .pop()
+                                      .split("?")[0]
+                                  )
+                                : selectedResume.name}
+                            </span>
+                            {typeof selectedResume === "string" ? (
+                              <a
+                                href={selectedResume}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-500 font-medium hover:underline"
+                              >
+                                <DownloadIcon className="w-4 h-4 font-bold" />
+                              </a>
+                            ) : (
+                              <span className="text-sm text-gray-500">
+                                {selectedResume.name}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div>
+                          <button
+                            type="button"
+                            onClick={handleResumeClick}
+                            className="text-blue-600 hover:text-blue-800 font-medium text-sm"
+                          >
+                            Edit
+                          </button>
+                          {/* Hidden file input for resume upload */}
+                          <input
+                            type="file"
+                            id="resume"
+                            name="resume"
+                            accept=".pdf,.doc,.docx"
+                            className="hidden"
+                            ref={resumeInputRef}
+                            onChange={(e) => {
+                              handleResumeUpload(e);
+                              setFieldValue("resume", e.target.files[0]);
+                              setSelectedResume(e.target.files[0]);
+                            }}
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-center text-gray-500">
+                        <span>No resume uploaded yet.</span>
+                      </div>
+                    )}
+                  </div>
+                </label>
+              </div>
 
-          {/* Pencil Icon for Resume */}
-          <div
-            className="cursor-pointer text-gray-600"
-            onClick={() => document.getElementById("file").click()}
-          >
-            <Edit className="text-gray-500 cursor-pointer" />
-          </div>
-        </div>
-
-        <div className="flex items-center">
-          <div className="w-10 h-10 flex justify-center items-center gap-4 bg-gray-200 rounded-full mr-4">
-            <File className="text-gray-500 text-xl" />
-          </div>
-
-          {/* Hidden File Input */}
-          <input
-            type="file"
-            id="file"
-            name="file"
-            className="hidden"
-            accept=".pdf, .doc, .docx"
-            onChange={handleResumeSelect}
-          />
-
-          {/* Display the file name if a new resume is selected */}
-          {newResumeSelected && selectedResume ? (
-            <div className="mt-2 text-sm text-gray-700">
-              <strong>{selectedResume.name}</strong>
-            </div>
-          ) : (
-            <div className="mt-2 text-sm text-gray-700">
-              {selectedResume ? (
-                typeof selectedResume === "string" ? (
-                  <a
-                    href={selectedResume}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-500 font-semibold underline"
+              {/* Edit/Cancel buttons */}
+              {isEditingResume && (
+                <div className="flex justify-between gap-4 mt-4">
+                  <button
+                    type="button"
+                    className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
+                    onClick={() => {
+                      setIsEditingResume(false);
+                      setSelectedResume(data?.resume || null);
+                    }}
                   >
-                    {/* {selectedResume.split("/").pop()}{" "} */}
-                    RESUME
-                  </a>
-                ) : (
-                  <span className="text-gray-500">{selectedResume.name}</span>
-                )
-              ) : (
-                <span className="text-gray-500">No resume uploaded yet.</span>
-              )}
-            </div>
-          )}
-        </div>
+                    Cancel
+                  </button>
 
-        <div className="flex items-center justify-between mt-4">
-          {/* Show Cancel and Update buttons when a new resume is selected */}
-          {newResumeSelected && (
-            <>
-              <button
-                type="button"
-                onClick={handleCancelResumeUpload}
-                className="px-2 py-1 bg-red-500 text-white rounded-md"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleResumeUpdate}
-                className="px-2 py-1 bg-blue-500 text-white rounded-md"
-              >
-                Update
-              </button>
-            </>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Loading..." : "Submit"}
+                  </button>
+                </div>
+              )}
+            </Form>
           )}
-        </div>
+        </Formik>
       </div>
 
       <div className="w-full">
@@ -299,10 +373,14 @@ const Page = () => {
             token: { token },
             profileTitle: data?.jobPreferences?.profileTitle || "",
             jobType: data?.jobPreferences?.jobType || "",
+            preferredJobLocation:
+              data?.jobPreferences?.preferredJobLocation || "",
             experienceYears: data?.jobPreferences?.experienceYears || "",
             experienceMonths: data?.jobPreferences?.experienceMonths || "",
             gender: data?.jobPreferences?.gender || "male",
             dob: data?.jobPreferences?.dob || new Date(),
+            currentSalary: data?.jobPreferences?.currentSalary || 0,
+            expectedSalary: data?.jobPreferences?.expectedSalary || 0,
             maritalStatus: data?.jobPreferences?.maritalStatus || "",
             language: data?.jobPreferences?.language || "",
           }}

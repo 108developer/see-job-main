@@ -1,0 +1,64 @@
+"use client";
+
+import { Pagination } from "@/components/Pagination";
+
+import PostedJobCard from "@/components/ui/postedJobCard";
+import { useGetJobsPostedByRecruiterQuery } from "@/redux/api/jobApi";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+
+const PostedJobs = () => {
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const { userid } = useSelector((state) => state.auth);
+
+  const { data, error, isLoading } = useGetJobsPostedByRecruiterQuery({
+    page: currentPage,
+    userId: userid,
+  });
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, []);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="w-full flex items-center justify-center min-h-screen">
+        Loading...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="w-full flex items-center justify-center min-h-screen">
+        Error loading jobs. Please try again later.
+      </div>
+    );
+  }
+
+  const jobs = data?.data || [];
+  const totalPages = data?.pagination?.totalPages || 1;
+
+  return (
+    <div className="flex flex-col w-full space-y-4 px-4 md:px-12 lg:px-24 py-8">
+      {jobs.length === 0 ? (
+        <div>No jobs found for the selected filters.</div>
+      ) : (
+        jobs.map((job) => <PostedJobCard key={job._id} job={job} />)
+      )}
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages || 1}
+        onPageChange={handlePageChange}
+      />
+    </div>
+  );
+};
+
+export default PostedJobs;

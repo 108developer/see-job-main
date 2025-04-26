@@ -8,6 +8,9 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Banknote, CheckCircle, Clock, MapPin, StickyNote } from "lucide-react";
+import ApplyJobModal from "@/app/Joblisting/ApplyJobModal";
+import { useState } from "react";
+import { useSelector } from "react-redux";
 
 function formatDate(dateString) {
   const date = new Date(dateString);
@@ -19,6 +22,10 @@ function formatDate(dateString) {
 }
 
 export default function JobCard({ job, applyUrl } = { applyUrl: "#" }) {
+  const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
+
+  const { userid } = useSelector((state) => state.auth);
+
   if (!job) {
     return (
       <Card className="w-full max-w-2xl">
@@ -34,17 +41,23 @@ export default function JobCard({ job, applyUrl } = { applyUrl: "#" }) {
   return (
     <Card className="w-full rounded-md ">
       <CardHeader className="flex flex-row items-start justify-between space-y-0">
-        <CardTitle>{job.jobTitle}</CardTitle>
-        <Button variant="destructive" size="sm" asChild>
-          <a href={applyUrl} className="text-white no-underline">
-            Apply now
-          </a>
-        </Button>
+        <CardTitle className="text-3xl">{job.jobTitle}</CardTitle>
+        {job?.hasApplied ? (
+          <Button variant="destructive" size="sm" disabled>
+            <span>Applied</span>
+          </Button>
+        ) : (
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => setIsApplyModalOpen(true)}
+          >
+            <a className="text-white no-underline">Apply now</a>
+          </Button>
+        )}
       </CardHeader>
       <CardContent className="space-y-4">
-        <p className="text-sm text-muted-foreground">
-          {job.hiringForCompanies}
-        </p>
+        <p className="text-muted-foreground">{job.companyName}</p>
         <div className="flex items-start space-x-2">
           <StickyNote className="h-4 w-4 mt-1 text-muted-foreground" />
           <p className="text-sm">{job.jobDescription}</p>
@@ -60,7 +73,7 @@ export default function JobCard({ job, applyUrl } = { applyUrl: "#" }) {
           </Badge>
           <Badge variant="secondary" className="flex items-center">
             <MapPin className="mr-1 h-3 w-3" />
-            {job.city}, {job.state}, {job.country}
+            {job.jobLocation}
           </Badge>
         </div>
       </CardContent>
@@ -69,7 +82,7 @@ export default function JobCard({ job, applyUrl } = { applyUrl: "#" }) {
           <div className="flex items-center">
             <Clock className="mr-1 h-3 w-3" />
             <span>
-              <em>Posted {formatDate(job.createdAt)}</em>
+              <em>{formatDate(job.createdAt)}</em>
             </span>
           </div>
           <span className="text-green-600">
@@ -77,6 +90,13 @@ export default function JobCard({ job, applyUrl } = { applyUrl: "#" }) {
           </span>
         </div>
       </CardFooter>
+      {isApplyModalOpen && (
+        <ApplyJobModal
+          jobId={job._id}
+          questions={job.questions}
+          closeModal={() => setIsApplyModalOpen(false)}
+        />
+      )}
     </Card>
   );
 }

@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import LogoutModal from "./auth/LogOutModal";
+import LogoutModal from "./LogOutModal";
 import ModalBase from "./ModalBase";
 import { closeModal } from "@/redux/slices/modalSlice";
 import CandidateAuth from "../(auth)/candidate/page";
@@ -7,6 +7,8 @@ import CandidateProfileModal from "./auth/CandidateProfileModal";
 import CandidateRegisterModal from "./userProfile/CandidateRegisterModal";
 import CandidateEducation from "./userProfile/CandidateEducationDetailsModal";
 import CandidateJobPreferences from "./userProfile/CandidateJobPreferenceModal";
+import RecruiterProfile from "./userProfile/EmployerProfileModal";
+import AddQuestionsModal from "../(employer)/post-jobs/AddEditQuestionsModal";
 
 const ModalController = () => {
   const { modalType, modalProps } = useSelector((state) => state.modal);
@@ -17,7 +19,6 @@ const ModalController = () => {
   };
 
   const renderModal = () => {
-    console.log(modalProps);
     return modalType === "logout" ? (
       <LogoutModal closeModal={closeModalHandler} {...modalProps} />
     ) : modalType === "candidateAuth" ? (
@@ -30,6 +31,10 @@ const ModalController = () => {
       <CandidateEducation closeModal={closeModalHandler} {...modalProps} />
     ) : modalType === "jobPreferenceModal" ? (
       <CandidateJobPreferences closeModal={closeModalHandler} {...modalProps} />
+    ) : modalType === "recruiterProfileModal" ? (
+      <RecruiterProfile closeModal={closeModalHandler} {...modalProps} />
+    ) : modalType === "addQuestionsModal" ? (
+      <AddQuestionsModal closeModal={closeModalHandler} {...modalProps} />
     ) : null;
   };
 

@@ -12,7 +12,7 @@ const LogoutModal = ({ closeModal }) => {
   return (
     <div className="flex flex-col items-center justify-center p-6 space-y-4">
       <h2 className="text-lg font-bold">Are you sure you want to log out?</h2>
-      <div className="flex gap-4">
+      <div className="flex items-center justify-between gap-4 w-full">
         <button
           onClick={handleSignOut}
           className="px-4 py-2 bg-red-600 text-white rounded-md"

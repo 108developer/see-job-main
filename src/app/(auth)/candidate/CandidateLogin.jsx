@@ -53,7 +53,7 @@ const CandidateLogin = ({ closeModal }) => {
   };
 
   return (
-    <div className="flex items-center justify-center w-full py-2">
+    <div className="flex items-center justify-center w-full min-w-[300px] py-2">
       <div className="w-full">
         <Formik
           initialValues={{ email: "", password: "" }}

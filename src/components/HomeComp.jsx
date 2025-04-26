@@ -1,3 +1,4 @@
+"use client"
 import Image from 'next/image'
 import React from 'react'
 import InfiniteCarousel from './Slider'
@@ -5,36 +6,122 @@ import { Card, CardDescription, CardHeader, CardTitle } from './ui/card'
 import { Check, Search } from 'lucide-react'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion'
 
+// export const HeroSection = () => {
+//     return (<>
+//         <div className='relative w-full text-center items-center justify-center flex '>
+//             <Image className='w-full h-[400px]' width={1200} height={100} src='https://seejob.netlify.app/images/top-img.png' alt='HeroSection' />
+//             <div className='  w-full h-full bg-white/70 bg-opacity-95 text-white gap-5 absolute flex items-center justify-center'>
+//                 <div className='max-w-6xl  w-full h-full text-white gap-5 absolute flex items-center justify-center'>
+//                     <div className='text-start w-full'>
+//                         <div className='text-black text-3xl font-semibold'>What</div>
+//                         <div className='text-black'>Are you looking for?</div>
+//                         <div className='flex'>
+//                             <div className=' bg-gray-400 p-2 rounded-l-sm'><Search /></div>
+//                             <input type="text" placeholder='Job title Keyowrds or company' className='px-4 py-2 rounded-r-sm w-full' />
+//                         </div>
+//                     </div>
+//                     <div className='text-start w-full'>
+//                         <div className='text-black text-3xl font-semibold'>What</div>
+//                         <div className='text-black'>Are you looking for?</div>
+//                         <div className='flex'>
+//                             <div className=' bg-gray-400 p-2 rounded-l-sm'><Search /></div>
+//                             <input type="text" placeholder='Job title Keyowrds or company' className='px-4 py-2 rounded-r-sm w-full' />
+//                         </div>
+//                     </div>
+//                     <div className='h-[100px] flex items-end'>
+//                         <button className='bg-red-500 h-fit truncate py-2 px-4'>Find Jobs</button>
+//                     </div>
+//                 </div>
+//             </div>
+//         </div>
+//     </>)
+// }
+
+import { useState } from 'react';
+import Link from 'next/link';
+// Assuming you have a Search icon here
+
 export const HeroSection = () => {
-    return (<>
-        <div className='relative w-full text-center items-center justify-center flex '>
-            <Image className='w-full h-[400px]' width={1200} height={100} src='https://seejob.netlify.app/images/top-img.png' alt='HeroSection' />
-            <div className='  w-full h-full bg-white/70 bg-opacity-95 text-white gap-5 absolute flex items-center justify-center'>
-                <div className='max-w-6xl  w-full h-full text-white gap-5 absolute flex items-center justify-center'>
+    const [jobTitle, setJobTitle] = useState('');
+    const [location, setLocation] = useState('');
+
+    const handleJobTitleChange = (e) => {
+        setJobTitle(e.target.value);
+    };
+
+    const handleLocationChange = (e) => {
+        setLocation(e.target.value);
+    };
+
+    const handleFindJobs = () => {
+        localStorage.setItem('jobTitle', jobTitle);
+        localStorage.setItem('location', location);
+    };
+    
+    return (
+        <div className='relative w-full text-center items-center justify-center flex'>
+            <Image
+                className='w-full h-[400px]'
+                width={1200}
+                height={100}
+                src='https://seejob.netlify.app/images/top-img.png'
+                alt='HeroSection'
+            />
+            <div className='w-full h-full bg-white/70 bg-opacity-95 text-white gap-5 absolute flex items-center justify-center'>
+                <div className='max-w-6xl w-full h-full text-white gap-5 absolute flex items-center justify-center'>
+                    {/* "What" section */}
                     <div className='text-start w-full'>
                         <div className='text-black text-3xl font-semibold'>What</div>
                         <div className='text-black'>Are you looking for?</div>
                         <div className='flex'>
-                            <div className=' bg-gray-400 p-2 rounded-l-sm'><Search /></div>
-                            <input type="text" placeholder='Job title Keyowrds or company' className='px-4 py-2 rounded-r-sm w-full' />
+                            <div className='bg-gray-400 p-2 rounded-l-sm'>
+                                <Search />
+                            </div>
+                            <input
+                                type="text"
+                                placeholder='Job title, Keywords or company'
+                                className='px-4 py-2 rounded-r-sm w-full text-black'
+                                value={jobTitle}
+                                onChange={handleJobTitleChange}
+                            />
                         </div>
                     </div>
+
+                    {/* "Where" section */}
                     <div className='text-start w-full'>
-                        <div className='text-black text-3xl font-semibold'>What</div>
-                        <div className='text-black'>Are you looking for?</div>
+                        <div className='text-black text-3xl font-semibold'>Where</div>
+                        <div className='text-black'>Do you want to work?</div>
                         <div className='flex'>
-                            <div className=' bg-gray-400 p-2 rounded-l-sm'><Search /></div>
-                            <input type="text" placeholder='Job title Keyowrds or company' className='px-4 py-2 rounded-r-sm w-full' />
+                            <div className='bg-gray-400 p-2 rounded-l-sm'>
+                                <Search />
+                            </div>
+                            <input
+                                type="text"
+                                placeholder='Location'
+                                className='px-4 py-2 rounded-r-sm w-full text-black'
+                                value={location}
+                                onChange={handleLocationChange} 
+                            />
                         </div>
                     </div>
+
+                    {/* Button section */}
                     <div className='h-[100px] flex items-end'>
-                        <button className='bg-red-500 h-fit truncate py-2 px-4'>Find Jobs</button>
+                        <Link
+                            href="/Joblisting"
+                            passHref
+                            onClick={handleFindJobs}
+                        >
+                            <button className='bg-red-500 h-fit truncate py-2 px-4'>
+                                Find Jobs
+                            </button>
+                        </Link>
                     </div>
                 </div>
             </div>
         </div>
-    </>)
-}
+    );
+};
 
 export const JobCategory = () => {
     return (

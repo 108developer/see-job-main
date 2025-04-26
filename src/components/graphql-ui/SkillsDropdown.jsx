@@ -6,15 +6,16 @@ const SkillDropdown = ({
   searchTerm,
   onSearchChange,
   onSkillSelect,
+  onRemoveSkill,
   setFieldValue,
-  selectedSkillsFromParent = [],
+  selectedSkillsFromParent,
   placeholder = "Search for skills",
   noResultsMessage = "No results found",
 }) => {
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
   const [showDropdown, setShowDropdown] = useState(false);
   const [selectedSkills, setSelectedSkills] = useState(
-    selectedSkillsFromParent
+    selectedSkillsFromParent || []
   );
   const [skillSelected, setSkillSelected] = useState(false);
 
@@ -57,13 +58,8 @@ const SkillDropdown = ({
   };
 
   const handleSkillSelect = (skill) => {
-    if (
-      !selectedSkills.some((selectedSkill) => selectedSkill._id === skill._id)
-    ) {
-      const updatedSkills = [
-        ...selectedSkills,
-        { _id: skill._id, name: skill.name },
-      ];
+    if (skill?.name && !selectedSkills.includes(skill.name)) {
+      const updatedSkills = [...selectedSkills, skill.name];
       setSelectedSkills(updatedSkills);
       setFieldValue("skills", updatedSkills);
     }
@@ -75,10 +71,11 @@ const SkillDropdown = ({
 
   const handleRemoveSkill = (skillToRemove) => {
     const updatedSkills = selectedSkills.filter(
-      (skill) => skill._id !== skillToRemove._id
+      (skill) => skill !== skillToRemove
     );
     setSelectedSkills(updatedSkills);
     setFieldValue("skills", updatedSkills);
+    onRemoveSkill(skillToRemove);
   };
 
   return (
@@ -107,7 +104,7 @@ const SkillDropdown = ({
               className="p-3 text-sm text-gray-800 hover:bg-blue-100 cursor-pointer transition-colors duration-200 ease-in-out"
               onClick={() => handleSkillSelect(skill)}
             >
-              {skill.name}
+              {skill?.name}
             </div>
           ))}
         </div>
@@ -120,7 +117,7 @@ const SkillDropdown = ({
               key={index}
               className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full flex items-center"
             >
-              <span>{skill.name}</span>
+              <span>{skill}</span>
               <button
                 type="button"
                 className="ml-2 text-red-500"

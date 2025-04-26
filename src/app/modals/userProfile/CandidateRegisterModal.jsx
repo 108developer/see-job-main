@@ -10,7 +10,6 @@ import { toast } from "react-toastify";
 import { ExperienceDropdown } from "./ExperienceDropdown";
 import { validationRegisterForm } from "./validationSchemas";
 
-// Static Experience data
 const experienceOptions = Array.from({ length: 11 }, (_, i) => i);
 
 const CandidateRegisterModal = ({ initialRegisterForm, closeModal }) => {
@@ -18,9 +17,7 @@ const CandidateRegisterModal = ({ initialRegisterForm, closeModal }) => {
   const [industry, setIndustry] = useState(initialRegisterForm.industry || "");
   const [minExp, setMinExp] = useState(initialRegisterForm.minexp || "");
   const [maxExp, setMaxExp] = useState(initialRegisterForm.maxexp || "");
-  // const [selectedSkills, setSelectedSkills] = useState(
-  //   initialRegisterForm.skills || []
-  // );
+
   const [skillSet, setSkillSet] = useState("");
 
   const [updateRegisteredCandidate, { isLoading }] =
@@ -47,23 +44,18 @@ const CandidateRegisterModal = ({ initialRegisterForm, closeModal }) => {
   }
 
   const handleRegister = async (values, { resetForm }) => {
-    const formData = new FormData();
-
-    formData.append("candidateId", userId);
-    formData.append("location", values.location);
-    formData.append("minexp", values.minexp);
-    formData.append("maxexp", values.maxexp);
-    formData.append(
-      "skills",
-      selectedSkills.map((skill) => skill.name).join(",")
-    );
-    formData.append("industry", values.industry);
-    formData.append("jobDescription", values.jobDescription);
-    formData.append("terms", values.terms);
-
-    if (values.file) {
-      formData.append("resume", values.file);
-    }
+    const body = {
+      candidateId: userId,
+      fullName: values.fullName,
+      email: values.email,
+      phone: values.phone,
+      location: values.location,
+      minexp: values.minexp,
+      maxexp: values.maxexp,
+      skills: JSON.stringify(selectedSkills),
+      industry: values.industry,
+      jobDescription: values.jobDescription,
+    };
 
     try {
       const response = await updateRegisteredCandidate({
@@ -229,6 +221,13 @@ const CandidateRegisterModal = ({ initialRegisterForm, closeModal }) => {
                 setSelectedSkills([...selectedSkills, selectedSkill]);
                 setFieldValue("skills", [...selectedSkills, selectedSkill]);
               }}
+              onRemoveSkill={(skillToRemove) => {
+                const updatedSkills = selectedSkills.filter(
+                  (skill) => skill !== skillToRemove
+                );
+                setSelectedSkills(updatedSkills);
+                setFieldValue("skills", updatedSkills);
+              }}
             />
             <ErrorMessage
               name="skills"
@@ -272,23 +271,6 @@ const CandidateRegisterModal = ({ initialRegisterForm, closeModal }) => {
             />
             <ErrorMessage
               name="jobDescription"
-              component="div"
-              className="text-red-500 text-sm mt-1"
-            />
-          </div>
-
-          {/* Terms and Conditions */}
-          <div>
-            <label className="inline-flex items-center">
-              <Field type="checkbox" name="terms" className="form-checkbox" />
-              <span className="ml-2 text-sm">
-                I agree to use the above details to create my Jobseeker Profile
-                & display it on the SeeJob site and also agree to be bound by
-                the Terms of Use & Privacy of SeeJob.
-              </span>
-            </label>
-            <ErrorMessage
-              name="terms"
               component="div"
               className="text-red-500 text-sm mt-1"
             />

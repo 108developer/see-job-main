@@ -61,7 +61,7 @@ const RecruiterProfile = () => {
   const { token } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    if (!token) {
+    if (token) {
       router.push("/");
     }
   }, [token, router]);
@@ -89,7 +89,6 @@ const RecruiterProfile = () => {
   };
 
   const handleSubmit = async (values, { resetForm }) => {
-    console.log("VALUES", values);
     try {
       const formData = {
         firstName: values.firstName,
@@ -113,10 +112,7 @@ const RecruiterProfile = () => {
         terms: values.terms,
       };
 
-      console.log("FORM DATA", formData);
       const response = await employerRegister(formData);
-
-      console.log("RESPONSE", response);
 
       if (response.data && response.data.success) {
         resetForm();
@@ -128,7 +124,6 @@ const RecruiterProfile = () => {
         );
       }
     } catch (error) {
-      console.log(error);
       const errorMessage =
         error?.data?.message ||
         error?.message ||
@@ -260,6 +255,13 @@ const RecruiterProfile = () => {
                 onSkillSelect={(selectedSkill) => {
                   setSelectedSkills([...selectedSkills, selectedSkill]);
                   setFieldValue("skills", [...selectedSkills, selectedSkill]);
+                }}
+                onRemoveSkill={(skillToRemove) => {
+                  const updatedSkills = selectedSkills.filter(
+                    (skill) => skill !== skillToRemove
+                  );
+                  setSelectedSkills(updatedSkills);
+                  setFieldValue("skills", updatedSkills);
                 }}
               />
               <ErrorMessage
