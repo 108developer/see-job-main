@@ -24,7 +24,9 @@ function formatDate(dateString) {
 export default function JobCard({ job, applyUrl } = { applyUrl: "#" }) {
   const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
 
-  const { userid } = useSelector((state) => state.auth);
+  const { userid, role } = useSelector((state) => state.auth);
+
+  console.log("Role : ", role);
 
   if (!job) {
     return (
@@ -42,19 +44,21 @@ export default function JobCard({ job, applyUrl } = { applyUrl: "#" }) {
     <Card className="w-full rounded-md ">
       <CardHeader className="flex flex-row items-start justify-between space-y-0">
         <CardTitle className="text-3xl">{job.jobTitle}</CardTitle>
-        {job?.hasApplied ? (
-          <Button variant="destructive" size="sm" disabled>
-            <span>Applied</span>
-          </Button>
-        ) : (
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={() => setIsApplyModalOpen(true)}
-          >
-            <a className="text-white no-underline">Apply now</a>
-          </Button>
-        )}
+
+        {!(role === "employer" || role === "recruiter") &&
+          (job?.hasApplied ? (
+            <Button variant="destructive" size="sm" disabled>
+              <span>Applied</span>
+            </Button>
+          ) : (
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => setIsApplyModalOpen(true)}
+            >
+              <a className="text-white no-underline">Apply now</a>
+            </Button>
+          ))}
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-muted-foreground">{job.companyName}</p>

@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-const BASE_URL = "http://localhost:5000"; // Fixed the semicolon issue
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const employerAuth = createApi({
   reducerPath: "employerAuth",
