@@ -1,6 +1,6 @@
 import { ApolloClient, InMemoryCache, HttpLink } from "@apollo/client";
 
-const BASE_URL = "http://localhost:5000";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const client = new ApolloClient({
   link: new HttpLink({

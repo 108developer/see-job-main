@@ -1,7 +1,7 @@
 // Path : redux/api/groupedFilterApi.js
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-const BASE_URL = "http://localhost:5000";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 export const groupedFilterApi = createApi({
   reducerPath: "groupedFilterApi",

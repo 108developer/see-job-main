@@ -11,7 +11,7 @@ import axios from "axios";
 
 // const Editor = dynamic(() => import("../../admin"), { ssr: false });
 
-const BACKEND_URL = "http://localhost:5000";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const CandidateEmailSender = ({ candidates, closeModal }) => {
   const [emailBody, setEmailBody] = useState("");
@@ -25,9 +25,7 @@ const CandidateEmailSender = ({ candidates, closeModal }) => {
 
   useEffect(() => {
     const checkConnection = async () => {
-      const res = await fetch(
-        `${BACKEND_URL}/api/recruiter/status`
-      );
+      const res = await fetch(`${BACKEND_URL}/api/recruiter/status`);
       const data = await res.json();
       setIsConnected(data.isEmailConnected);
     };

@@ -206,7 +206,7 @@ const Page = () => {
   const dispatch = useDispatch();
 
   const openSendMailsModal = () => {
-    const selectedCandidatesData = jobApplications
+    const selectedCandidatesData = paginatedCandidates
       .filter((candidate) => selectedCandidates.includes(candidate.id))
       .map((candidate) => ({
         id: candidate.id,
@@ -256,7 +256,7 @@ const Page = () => {
             <div className="flex items-center gap-2 ml-auto">
               <div
                 onClick={() => {
-                  const allIds = jobApplications.map(
+                  const allIds = paginatedCandidates.map(
                     (candidate) => candidate.id
                   );
                   setSelectedCandidates(allIds);
