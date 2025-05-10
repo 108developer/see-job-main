@@ -459,7 +459,7 @@ const JobPreferences = () => {
                 {({ field, form }) => (
                   <DatePicker
                     {...field}
-                    selected={field.value || new Date()} // Ensure it has a fallback
+                    selected={field.value || new Date()}
                     onChange={(date) => setFieldValue("dob", date)}
                     className="mt-1 p-3 w-full border rounded-md"
                     dateFormat="dd-MM-yyyy"

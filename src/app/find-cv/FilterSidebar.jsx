@@ -1,7 +1,6 @@
 import CityStateCountrySearchBar from "@/components/graphql-ui/CityStateCountrySearchBar";
 import JobTitleSearchBar from "@/components/graphql-ui/JobTitleSearchBar";
 import SkillDropdown from "@/components/graphql-ui/SkillsDropdown";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -11,22 +10,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import {
-  GET_CITY_STATE_COUNTRY,
-  GET_DEGREES,
-} from "@/graphql/queries/queriesFilter";
+import { GET_DEGREES } from "@/graphql/queries/queriesFilter";
 import { useQuery } from "@apollo/client";
-import debounce from "lodash/debounce";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { salaryOptions } from "./constant";
 
 const FilterSidebar = ({ filters, onFilterChange }) => {
   const [skillSet, setSkillSet] = useState("");
-  const [locations, setLocations] = useState([]);
-  const [selectedLocation, setSelectedLocation] = useState("");
-  const locationDropdownRef = useRef(null);
-  const [showLocationDropdown, setShowLocationDropdown] = useState(false);
   const [degrees, setDegrees] = useState([]);
+  const [jobTitleSearchTerm, setJobTitleSearchTerm] = useState("");
+  const [location, setLocation] = useState("");
 
   const setFieldValue = (field, value) => {
     if (field === "skills") {
@@ -34,74 +27,15 @@ const FilterSidebar = ({ filters, onFilterChange }) => {
     }
   };
 
-  const [searchTerm, setSearchTerm] = useState("");
-  const [jobTitleSearchTerm, setJobTitleSearchTerm] = useState("");
-  const [location, setLocation] = useState("");
-  const debouncedSearchTerm = useRef("");
-
-  // const { data: jobRoleData } = useQuery(GET_JOB_ROLES);
-  // const { data: jobTitleData } = useQuery(GET_JOB_TITLES);
   const { data: degreeData } = useQuery(GET_DEGREES);
-  const { data, loading, error } = useQuery(GET_CITY_STATE_COUNTRY, {
-    variables: { searchTerm: debouncedSearchTerm.current },
-    skip: !debouncedSearchTerm.current || selectedLocation,
-  });
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      debouncedSearchTerm.current = searchTerm;
-    }, 300);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [searchTerm]);
-
-  const debouncedChange = useRef(
-    debounce((updatedFilters) => {
-      onFilterChange(updatedFilters);
-    }, 300)
-  ).current;
-
-  useEffect(() => {
-    debouncedChange(filters);
-  }, [filters]);
 
   const updateFilter = (key, value) => {
     onFilterChange({ [key]: value });
   };
 
-  const handleLocationSearch = (query) => {
-    setSearchTerm(query);
-    if (query.trim() === "") {
-      setLocations([]);
-    }
-  };
-
   useEffect(() => {
-    // if (jobRoleData?.getJobRole) setJobRoles(jobRoleData.getJobRole);
-    // if (jobTitleData?.getJobTitle) setJobTitles(jobTitleData.getJobTitle);
     if (degreeData?.getDegree) setDegrees(degreeData.getDegree);
-    // }, [jobRoleData, jobTitleData, degreeData]);
   }, [degreeData]);
-
-  useEffect(() => {
-    if (data?.cityStateCountry) {
-      const formattedLocations = data.cityStateCountry.map(
-        ({ city, state, country }) => ({
-          label: `${city}, ${state}, ${country}`,
-          value: `${city}, ${state}, ${country}`,
-        })
-      );
-      setLocations(formattedLocations);
-    }
-  }, [data]);
-
-  const handleLocationSelect = (value) => {
-    onFilterChange({ location: value });
-    setSelectedLocation(value);
-    setSelectedLocation(value);
-  };
 
   return (
     <div className="w-full flex gap-5 border-r h-full">
@@ -224,7 +158,7 @@ const FilterSidebar = ({ filters, onFilterChange }) => {
               }}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select Salary Range" />
+                <SelectValue placeholder="Select Salary" />
               </SelectTrigger>
               <SelectContent>
                 {salaryOptions.map((option) => (

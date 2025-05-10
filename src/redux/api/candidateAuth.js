@@ -10,6 +10,13 @@ const candidateAuth = createApi({
     baseUrl: `${BASE_URL}/api/candidateAuthRoute`,
   }),
   endpoints: (builder) => ({
+    bulkUploadCandidates: builder.mutation({
+      query: (formData) => ({
+        url: "bulkUploadCandidates",
+        method: "POST",
+        body: formData,
+      }),
+    }),
     signupCandidate: builder.mutation({
       query: (candidateData) => ({
         url: "signup",
@@ -25,8 +32,8 @@ const candidateAuth = createApi({
       }),
     }),
     getCandidateProfile: builder.query({
-      query: ({ id }) => ({
-        url: `getCandidateProfile/${id}`,
+      query: ({ id, jobId }) => ({
+        url: `getCandidateProfile/${id}${jobId ? `?jobId=${jobId}` : ""}`,
         method: "GET",
       }),
     }),
@@ -109,10 +116,41 @@ const candidateAuth = createApi({
         };
       },
     }),
+
+    /* ──────────────────────────────────────────────────────
+     *                Work Experience Endpoints
+     * ────────────────────────────────────────────────────── */
+    getWorkExperience: builder.query({
+      query: (userid) => ({
+        url: `/getWorkExperience/${userid}`,
+        method: "GET",
+      }),
+    }),
+    addWorkExperience: builder.mutation({
+      query: ({ userid, workExperienceData }) => ({
+        url: `/addWorkExperience/${userid}`,
+        method: "POST",
+        body: workExperienceData,
+      }),
+    }),
+    updateWorkExperience: builder.mutation({
+      query: ({ userid, updatedExperienceData }) => ({
+        url: `/updateWorkExperience/${userid}`,
+        method: "PUT",
+        body: updatedExperienceData,
+      }),
+    }),
+    deleteWorkExperience: builder.mutation({
+      query: ({ userid, experienceId }) => ({
+        url: `/deleteWorkExperience/${userid}/${experienceId}`,
+        method: "DELETE",
+      }),
+    }),
   }),
 });
 
 export const {
+  useBulkUploadCandidatesMutation,
   useSignupCandidateMutation,
   useLoginCandidateMutation,
   useGetCandidateProfileQuery,
@@ -124,6 +162,12 @@ export const {
   useUpdateEducationalDetailsMutation,
   useUpdateProfilePicMutation,
   useUpdateResumeMutation,
+
+  // Work Experience
+  useGetWorkExperienceQuery,
+  useAddWorkExperienceMutation,
+  useUpdateWorkExperienceMutation,
+  useDeleteWorkExperienceMutation,
 } = candidateAuth;
 
 export default candidateAuth;

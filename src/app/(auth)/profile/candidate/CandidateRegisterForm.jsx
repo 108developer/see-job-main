@@ -36,7 +36,10 @@ const CandidateRegister = ({ initialRegisterForm }) => {
 
       {/* Full Name */}
       <div>
-        <label htmlFor="fullName" className="text-sm font-semibold text-gray-700">
+        <label
+          htmlFor="fullName"
+          className="text-sm font-semibold text-gray-700"
+        >
           Full Name
         </label>
         <div className="mt-1 p-3 w-full border rounded-md text-gray-500">
@@ -71,7 +74,10 @@ const CandidateRegister = ({ initialRegisterForm }) => {
 
       {/* Current Location */}
       <div>
-        <label htmlFor="location" className="text-sm font-semibold text-gray-700">
+        <label
+          htmlFor="location"
+          className="text-sm font-semibold text-gray-700"
+        >
           Current Location
         </label>
         <div className="mt-1 p-3 w-full border rounded-md text-gray-500">
@@ -106,7 +112,10 @@ const CandidateRegister = ({ initialRegisterForm }) => {
 
       {/* Preferred Industry */}
       <div>
-        <label htmlFor="industry" className="text-sm font-semibold text-gray-700">
+        <label
+          htmlFor="industry"
+          className="text-sm font-semibold text-gray-700"
+        >
           Preferred Industry
         </label>
         <div className="mt-1 p-3 w-full border rounded-md text-gray-500">
@@ -116,8 +125,11 @@ const CandidateRegister = ({ initialRegisterForm }) => {
 
       {/* Job Description */}
       <div>
-        <label htmlFor="jobDescription" className="text-sm font-semibold text-gray-700">
-          Job Description
+        <label
+          htmlFor="jobDescription"
+          className="text-sm font-semibold text-gray-700"
+        >
+          Summary
         </label>
         <div className="mt-1 p-3 w-full border rounded-md text-gray-500">
           {getValue(initialRegisterForm?.jobDescription)}

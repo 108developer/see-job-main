@@ -4,13 +4,21 @@ import { Pagination } from "@/components/Pagination";
 
 import PostedJobCard from "@/components/ui/postedJobCard";
 import { useGetJobsPostedByRecruiterQuery } from "@/redux/api/jobApi";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
 const PostedJobs = () => {
+  const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
 
-  const { userid } = useSelector((state) => state.auth);
+  const { userid, token, role } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    if (token && role !== "employer" && role !== "recruiter") {
+      router.push("/");
+    }
+  }, [token, role, router]);
 
   const { data, error, isLoading } = useGetJobsPostedByRecruiterQuery({
     page: currentPage,

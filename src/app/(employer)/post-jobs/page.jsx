@@ -8,7 +8,7 @@ import SkillDropdown from "@/components/graphql-ui/SkillsDropdown";
 import { usePostJobMutation } from "@/redux/api/jobApi";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import {
@@ -50,7 +50,13 @@ const inputClass =
 const PostJob = () => {
   const router = useRouter();
   const [postJob, { isLoading }] = usePostJobMutation();
-  const { userid } = useSelector((state) => state.auth);
+  const { userid, token, role } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    if (token && role !== "employer" && role !== "recruiter") {
+      router.push("/");
+    }
+  }, [token, role, router]);
 
   const [location, setLocation] = useState("");
   const [selectedSkills, setSelectedSkills] = useState([]);
@@ -105,7 +111,6 @@ const PostJob = () => {
     };
 
     try {
-      console.log("Job Data", jobData);
       const response = await postJob(jobData).unwrap();
 
       if (response?.success) {
@@ -611,7 +616,6 @@ const PostJob = () => {
           questions={questions}
           setQuestions={(updated) => {
             setQuestions(updated);
-            setFieldValue("questions", updated);
           }}
         />
       )}

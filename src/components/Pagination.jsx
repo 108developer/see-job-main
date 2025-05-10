@@ -1,15 +1,29 @@
-// Pagination component
 import { Button } from "@/components/ui/button";
 
-export const Pagination = ({ currentPage, totalPages, onPageChange }) => {
-  const pages = [];
+export const Pagination = ({
+  currentPage,
+  totalPages,
+  onPageChange,
+  buttonsPerGroup = 10,
+}) => {
+  const currentGroup = Math.floor((currentPage - 1) / buttonsPerGroup);
+  const startPage = currentGroup * buttonsPerGroup + 1;
+  const endPage = Math.min(startPage + buttonsPerGroup - 1, totalPages);
 
-  for (let i = 1; i <= totalPages; i++) {
-    pages.push(i);
+  const pageNumbers = [];
+  for (let i = startPage; i <= endPage; i++) {
+    pageNumbers.push(i);
   }
 
+  const hasPrevGroup = startPage > 1;
+  const hasNextGroup = endPage < totalPages;
+
   return (
-    <div className="flex justify-center gap-2 mt-6">
+    <div className="flex flex-wrap justify-center items-center gap-4 mt-6">
+      {hasPrevGroup && (
+        <Button onClick={() => onPageChange(startPage - 1)}>{"<<"}</Button>
+      )}
+
       <Button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
@@ -17,7 +31,7 @@ export const Pagination = ({ currentPage, totalPages, onPageChange }) => {
         {"<"}
       </Button>
 
-      {pages.map((page) => (
+      {pageNumbers.map((page) => (
         <Button
           key={page}
           onClick={() => onPageChange(page)}
@@ -33,6 +47,10 @@ export const Pagination = ({ currentPage, totalPages, onPageChange }) => {
       >
         {">"}
       </Button>
+
+      {hasNextGroup && (
+        <Button onClick={() => onPageChange(endPage + 1)}>{">>"}</Button>
+      )}
     </div>
   );
 };

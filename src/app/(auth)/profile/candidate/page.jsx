@@ -16,6 +16,8 @@ import CandidateEducationDetails from "./CandidateEducationDetails";
 import CandidateJobPreference from "./CandidateJobPreference";
 import CandidateRegisterForm from "./CandidateRegisterForm";
 import Image from "next/image";
+import WorkExperienceModal from "@/app/modals/userProfile/WorkExperienceModal";
+import CandidateWorkExperience from "./CandidateWorkExperience";
 
 const profilePicSchema = Yup.object().shape({
   profilePic: Yup.mixed()
@@ -383,6 +385,16 @@ const Page = () => {
             expectedSalary: data?.jobPreferences?.expectedSalary || 0,
             maritalStatus: data?.jobPreferences?.maritalStatus || "",
             language: data?.jobPreferences?.language || "",
+          }}
+        />
+      </div>
+
+      <div className="w-full">
+        <CandidateWorkExperience
+          initialWorkExperience={{
+            userid: { userid },
+            token: { token },
+            workExperience: data?.workExperience || [],
           }}
         />
       </div>

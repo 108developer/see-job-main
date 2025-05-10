@@ -9,6 +9,8 @@ import CandidateEducation from "./userProfile/CandidateEducationDetailsModal";
 import CandidateJobPreferences from "./userProfile/CandidateJobPreferenceModal";
 import RecruiterProfile from "./userProfile/EmployerProfileModal";
 import AddQuestionsModal from "../(employer)/post-jobs/AddEditQuestionsModal";
+import WorkExperienceModal from "./userProfile/WorkExperienceModal";
+import CandidateEmailSender from "./post-jobs/SendMailsModal";
 
 const ModalController = () => {
   const { modalType, modalProps } = useSelector((state) => state.modal);
@@ -31,10 +33,14 @@ const ModalController = () => {
       <CandidateEducation closeModal={closeModalHandler} {...modalProps} />
     ) : modalType === "jobPreferenceModal" ? (
       <CandidateJobPreferences closeModal={closeModalHandler} {...modalProps} />
+    ) : modalType === "workExperienceModal" ? (
+      <WorkExperienceModal closeModal={closeModalHandler} {...modalProps} />
     ) : modalType === "recruiterProfileModal" ? (
       <RecruiterProfile closeModal={closeModalHandler} {...modalProps} />
     ) : modalType === "addQuestionsModal" ? (
       <AddQuestionsModal closeModal={closeModalHandler} {...modalProps} />
+    ) : modalType === "sendMailsModal" ? (
+      <CandidateEmailSender closeModal={closeModalHandler} {...modalProps} />
     ) : null;
   };
 

@@ -61,8 +61,8 @@ export const salaryOptions = [
 // Validation Schema using Yup
 export const validationSchema = Yup.object({
   jobTitle: Yup.string().required("Job title is required"),
-  jobRole: Yup.string().required("Job role is required"),
-  category: Yup.string().required("Category is required"),
+  // jobRole: Yup.string().required("Job role is required"),
+  // category: Yup.string().required("Category is required"),
   jobType: Yup.array()
     .of(Yup.string().required("Job type is required"))
     .min(1, "At least one job type must be selected")
@@ -73,9 +73,9 @@ export const validationSchema = Yup.object({
     .min(1, "At least one opening is required")
     .required("Openings are required"),
   deadline: Yup.date().required("Deadline is required"),
-  status: Yup.string()
-    .oneOf(["open", "closed"], "Invalid status")
-    .required("Status is required"),
+  // status: Yup.string()
+  //   .oneOf(["open", "closed"], "Invalid status")
+  //   .required("Status is required"),
   monthlySalary: Yup.object({
     min: Yup.string().required("Min salary is required"),
     max: Yup.string().required("Max salary is required"),

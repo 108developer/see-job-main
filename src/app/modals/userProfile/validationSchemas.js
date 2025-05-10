@@ -47,13 +47,13 @@ export const validationJobPreference = Yup.object({
   preferredJobLocation: Yup.array()
     .min(1, "At least one location is required")
     .max(10, "You can select a maximum of 10 locations"),
-  experienceYears: Yup.number()
-    .required("Experience in years is required")
-    .min(0, "Experience cannot be negative"),
-  experienceMonths: Yup.number()
-    .required("Experience in months is required")
-    .min(0, "Months cannot be negative")
-    .max(12, "Months cannot exceed 12"),
+  // experienceYears: Yup.number()
+  //   .required("Experience in years is required")
+  //   .min(0, "Experience cannot be negative"),
+  // experienceMonths: Yup.number()
+  //   .required("Experience in months is required")
+  //   .min(0, "Months cannot be negative")
+  //   .max(12, "Months cannot exceed 12"),
   gender: Yup.string().required("Please select a gender"),
   dob: Yup.date().required("Please select your date of birth"),
   maritalStatus: Yup.string().required("Please select marital status"),
@@ -77,4 +77,25 @@ export const validationEducationDetails = Yup.object({
   percentage: Yup.string().required("Percentage is required"),
   yearOfEducation: Yup.string().required("Year of Education is required"),
   educationMode: Yup.string().required("Please select an Education Mode"),
+});
+
+export const validationWorkExperienceForm = Yup.object({
+  companyName: Yup.string().required("Company Name is required"),
+  jobTitle: Yup.string().required("Job Title is required"),
+  startDate: Yup.date()
+    .required("Start Date is required")
+    .max(new Date(), "Start Date cannot be in the future"),
+  // endDate: Yup.date().when("currentlyEmployed", {
+  //   is: false,
+  //   then: Yup.date()
+  //     .required("End Date is required")
+  //     .min(Yup.ref("startDate"), "End Date cannot be before Start Date"),
+  //   otherwise: Yup.date().nullable(),
+  // }),
+  jobDescription: Yup.string()
+    .required("Job Description is required")
+    .max(1000, "Job Description must be at most 1000 characters"),
+  location: Yup.string().required("Location is required"),
+  industry: Yup.string().required("Industry is required"),
+  noticePeriod: Yup.string().required("Notice Period is required"),
 });
