@@ -28,7 +28,6 @@ export default function ApplyJobModal({ jobId, questions, closeModal }) {
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      console.log("USer ID", userid);
       if (!userid) {
         toast.error("Candidate ID is missing. Please login again.");
         setSubmitting(false);
@@ -37,7 +36,7 @@ export default function ApplyJobModal({ jobId, questions, closeModal }) {
 
       const response = await applyToJob({
         jobId,
-        candidateId : userid,
+        candidateId: userid,
         answers: values,
       }).unwrap();
 
@@ -45,10 +44,14 @@ export default function ApplyJobModal({ jobId, questions, closeModal }) {
         toast.success("Application submitted!");
         closeModal();
       } else {
-        toast.error(data.message || "Something went wrong.");
+        const errorMessage =
+          error?.data?.message || "Error submitting application.";
+        toast.error(errorMessage);
       }
     } catch (error) {
-      toast.error("Error submitting application.");
+      const errorMessage =
+        error?.data?.message || "Error submitting application.";
+      toast.error(errorMessage);
     } finally {
       setSubmitting(false);
     }

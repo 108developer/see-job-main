@@ -1,14 +1,29 @@
 "use client";
 
-import { useGetCandidateProfileQuery } from "@/redux/api/candidateAuth";
-import { FileIcon, FilesIcon } from "lucide-react";
-import Image from "next/image";
-import { useParams } from "next/navigation";
 import PlaceholderImage from "@/images/Profile_avatar_placeholder_large.png";
+import { useGetCandidateProfileQuery } from "@/redux/api/candidateAuth";
+import { handleDownloadResume } from "@/utils/HandleDownloadResume";
+import { DownloadIcon, FileIcon } from "lucide-react";
+import moment from "moment";
+import Image from "next/image";
+import { useParams, useSearchParams } from "next/navigation";
+
+const actions = [
+  "Email",
+  "Forward",
+  "Download",
+  "Shortlist",
+  "Delete",
+  "Reject",
+  "Hold",
+  "WhatsApp",
+];
 
 const CandidateDetailPage = () => {
+  const searchParams = useSearchParams();
+  const jobId = searchParams.get("jobId");
   const { id } = useParams();
-  const { data, isLoading, error } = useGetCandidateProfileQuery({ id });
+  const { data, isLoading, error } = useGetCandidateProfileQuery({ id, jobId });
 
   if (isLoading) return <div className="text-center py-10">Loading...</div>;
   if (error)
@@ -18,33 +33,31 @@ const CandidateDetailPage = () => {
       </div>
     );
 
-  const formatResumeName = () => {};
+  const getValue = (val) =>
+    val !== undefined && val !== null && val !== "" ? val : "Not Available";
+
+  const formatDate = (date) => {
+    return date ? moment(date).format("DD/MM/YYYY") : "Not Available";
+  };
 
   const registration = data?.registration || {};
   const jobPreferences = data?.jobPreferences || {};
   const education = data?.candidateEducation || {};
+  const questionnaire = data?.questionnaire || {};
 
   return (
     <div className="p-12 space-y-6">
       <h1 className="text-2xl font-bold ">
-        {data?.registration?.fullName || "Candidate Name"}
+        Candidate Details
+        {/* {data?.registration?.fullName || "Candidate Details"} */}
       </h1>
 
       {/* Action Buttons */}
-      <div className="flex flex-wrap gap-2 ">
-        {[
-          "Email",
-          "Forward",
-          "Download",
-          "Shortlist",
-          "Delete",
-          "Reject",
-          "Hold",
-          "WhatsApp",
-        ].map((action, i) => (
+      {/* <div className="flex flex-wrap gap-2 ">
+        {actions?.map((action, i) => (
           <button
             key={i}
-            className={`btn btn-sm border rounded px-3 py-1 text-sm ${
+            className={`border rounded px-3 py-1 text-sm ${
               action === "WhatsApp"
                 ? "text-green-500 border-green-500"
                 : "text-gray-700 border-gray-300"
@@ -53,7 +66,7 @@ const CandidateDetailPage = () => {
             {action}
           </button>
         ))}
-      </div>
+      </div> */}
 
       {/* Candidate Overview */}
       <div className="bg-white border rounded shadow-sm p-4  flex flex-col md:flex-row gap-6">
@@ -68,13 +81,15 @@ const CandidateDetailPage = () => {
                   "Post Graduate, 2 years 8 months experience in Software Development"}
               </p>
             </div>
-            <Image
-              src={data?.profilePic || PlaceholderImage}
-              alt={registration.fullName || "Candidate Profile Picture"}
-              width={100}
-              height={100}
-              className="object-cover"
-            />
+            <div className="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0">
+              <Image
+                src={data?.profilePic || PlaceholderImage}
+                alt={registration.fullName || "Candidate Profile Picture"}
+                width={100}
+                height={100}
+                className="w-full h-full object-cover"
+              />
+            </div>
           </div>
           <div className="w-full h-[1px] bg-gray-100"></div>
           <div className="flex items-center gap-4 w-full">
@@ -130,12 +145,13 @@ const CandidateDetailPage = () => {
           </p>
           <p>
             <strong>CTC:</strong>{" "}
-            {jobPreferences?.currentSalary.toLocaleString() || "Not Available"}{" "}
+            {jobPreferences?.currentSalary?.toLocaleString() || "Not Available"}{" "}
             /month
           </p>
           <p>
             <strong>Expected CTC:</strong>{" "}
-            {jobPreferences?.expectedSalary.toLocaleString() || "Not Available"}{" "}
+            {jobPreferences?.expectedSalary?.toLocaleString() ||
+              "Not Available"}{" "}
             /month
           </p>
           <p>
@@ -159,13 +175,37 @@ const CandidateDetailPage = () => {
       </div>
 
       {/* Questionnaire */}
-      <div className="bg-white border rounded shadow-sm p-4 space-y-2 gap-6">
-        <h3 className="text-lg font-semibold  text-green-600">Questionnaire</h3>
-        <p className="text-gray-700">
-          <strong>1. Do you know Drupal?</strong>
-        </p>
-        <p className="text-gray-600">A. No</p>
-      </div>
+      {questionnaire?.length > 0 && (
+        <div className="bg-white border rounded shadow-sm p-4 space-y-2 gap-6">
+          <h3 className="text-lg font-semibold  text-green-600">
+            Questionnaire
+          </h3>
+          <div className="mt-2">
+            {questionnaire?.map((answer, index) => {
+              return (
+                <div key={index} className="mb-3">
+                  <strong>
+                    Que {index + 1}: {answer.questionText}
+                  </strong>
+                  <ul className="list-inside list-disc mt-1 ml-4">
+                    {answer.answer && (
+                      <li>
+                        {Array.isArray(answer.answer) ? (
+                          <ul className="list-inside list-disc ml-4">
+                            {formatAnswer(answer.answer)}
+                          </ul>
+                        ) : (
+                          <span>{answer.answer}</span>
+                        )}
+                      </li>
+                    )}
+                  </ul>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       <div className="bg-white border rounded shadow-sm p-4  gap-6 text-gray-500">
         SeeJob.com does not promise a job or an interview in exchange for money.
@@ -184,16 +224,63 @@ const CandidateDetailPage = () => {
       </div>
 
       {/* Work Experience */}
-      <div className="bg-white border rounded shadow-sm p-4 space-y-2 gap-6">
-        <h3 className="text-lg font-semibold  text-green-600">
-          Work Experience
-        </h3>
-        <p className="text-gray-700">
-          {registration.jobDescription || "Not Available"}
-        </p>
-        <p className="text-gray-700">Post Graduate (Distance Learning)</p>
-        <p className="text-gray-600">MA (English), IGNOU | 2005</p>
-      </div>
+      {data?.workExperience.length === 0 ? (
+        <p className="text-gray-500">No work experience added yet.</p>
+      ) : (
+        <div className="bg-white border rounded shadow-sm p-4 space-y-2 gap-6">
+          <h3 className="text-lg font-semibold  text-green-600">
+            Work Experience
+          </h3>
+
+          {data?.workExperience.map((exp, index) => (
+            <div
+              key={exp._id || index}
+              className="border rounded-lg p-4 space-y-2 relative bg-gray-50"
+            >
+              <div>
+                <span className="font-semibold text-gray-700">Company:</span>{" "}
+                {getValue(exp.companyName)}
+              </div>
+              <div className="flex flex-col md:flex-row items-center justify-between w-full">
+                <div className="w-full">
+                  <span className="font-semibold text-gray-700">
+                    Job Title:
+                  </span>{" "}
+                  {getValue(exp.jobTitle)}
+                </div>
+                <div className="w-full">
+                  <span className="font-semibold text-gray-700">Duration:</span>{" "}
+                  {formatDate(exp.startDate)} -{" "}
+                  {exp.currentlyEmployed ? "Present" : formatDate(exp.endDate)}
+                </div>
+              </div>
+
+              <div className="flex flex-col md:flex-row items-center justify-between w-full">
+                <div className="w-full">
+                  <span className="font-semibold text-gray-700">Industry:</span>{" "}
+                  {getValue(exp.industry)}
+                </div>
+                <div className="w-full">
+                  <span className="font-semibold text-gray-700">
+                    Notice Period:
+                  </span>{" "}
+                  {getValue(exp.noticePeriod)}
+                </div>
+              </div>
+              <div>
+                <span className="font-semibold text-gray-700">Location:</span>{" "}
+                {getValue(exp.location)}
+              </div>
+              <div>
+                <span className="font-semibold text-gray-700">
+                  Job Description:
+                </span>{" "}
+                {getValue(exp.jobDescription)}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Language Known */}
       <div className="">
@@ -279,17 +366,19 @@ const CandidateDetailPage = () => {
               <FileIcon className="text-gray-600 w-6 h-6" />
             </div>
             <div>
-              <p className="text-sm">
-                <a
-                  href={registration.resume || "#"}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 underline"
-                >
-                  Download Resume
-                </a>
-              </p>
-              <p className="text-xs text-gray-500">Added on 24 Dec 2020</p>
+              <button
+                onClick={() =>
+                  handleDownloadResume(
+                    data?.resume,
+                    registration.fullName,
+                    registration.email
+                  )
+                }
+                className="bg-blue-600 text-white font-semibold flex items-center gap-2 px-2 py-1 rounded-lg ml-auto"
+              >
+                <DownloadIcon className="w-4 h-4" />
+                Resume
+              </button>
             </div>
           </div>
         </div>

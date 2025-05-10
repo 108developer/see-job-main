@@ -2,6 +2,7 @@ import { gql } from "@apollo/client";
 
 export const GET_ALL_CANDIDATES = gql`
   query GetAllCandidates(
+    $employerId: ID
     $skills: [String]
     $location: String
     $jobTitle: String
@@ -15,8 +16,12 @@ export const GET_ALL_CANDIDATES = gql`
     $gender: String
     $ageMin: Int
     $ageMax: Int
+    $status: String
+    $page: Int
+    $limit: Int
   ) {
     getAllCandidates(
+      employerId: $employerId
       skills: $skills
       location: $location
       jobTitle: $jobTitle
@@ -30,6 +35,9 @@ export const GET_ALL_CANDIDATES = gql`
       gender: $gender
       ageMin: $ageMin
       ageMax: $ageMax
+      status: $status
+      page: $page
+      limit: $limit
     ) {
       success
       message
@@ -40,6 +48,7 @@ export const GET_ALL_CANDIDATES = gql`
         id
         name
         email
+        phone
         jobTitle
         jobRole
         location
@@ -58,6 +67,7 @@ export const GET_ALL_CANDIDATES = gql`
         board
         medium
         mode
+        recruiterStatus
       }
     }
   }

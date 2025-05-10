@@ -256,10 +256,12 @@ const UserDropdown = ({
       ? (items = [
           { itemTitle: "Profile", href: "/profile/employer" },
           { itemTitle: "Settings", href: "/employer/settings" },
+          { itemTitle: "Post jobs", href: "/post-jobs" },
+          { itemTitle: "Posted jobs", href: "/posted-jobs" },
         ])
       : (items = [
+          { itemTitle: "All Jobs", href: "/Joblisting" },
           { itemTitle: "Profile", href: "/profile/candidate" },
-          { itemTitle: "Settings", href: "/candidate/settings" },
         ]);
   }
 
@@ -289,9 +291,9 @@ const UserDropdown = ({
             <UserCircle className="h-8 w-8" />
           </button>
           {isOpen && (
-            <ul className="absolute top-full left-0 bg-white shadow-lg rounded-md w-24 z-10">
+            <ul className="absolute top-full right-0 bg-white shadow-lg rounded-md w-36 z-10">
               {items.map((item) => (
-                <li key={item.itemTitle}>
+                <li key={item.itemTitle} onClick={() => setIsOpen(false)}>
                   <Link
                     href={item.href}
                     className="flex items-center border-b border-dashed gap-2 transition duration-300 ease-in-out hover:bg-gray-100 p-3"

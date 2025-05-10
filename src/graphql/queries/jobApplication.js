@@ -17,6 +17,7 @@ export const GET_JOB_APPLICATIONS = gql`
     $gender: String
     $ageMin: Int
     $ageMax: Int
+    $status: String
     $page: Int
     $limit: Int
   ) {
@@ -35,6 +36,7 @@ export const GET_JOB_APPLICATIONS = gql`
       gender: $gender
       ageMin: $ageMin
       ageMax: $ageMax
+      status: $status
       page: $page
       limit: $limit
     ) {
@@ -45,8 +47,10 @@ export const GET_JOB_APPLICATIONS = gql`
       totalApplications
       jobApplications {
         id
+        candidateId
         fullName
         email
+        phone
         jobTitle
         location
         experience
@@ -70,6 +74,7 @@ export const GET_JOB_APPLICATIONS = gql`
           questionText
           answer
         }
+        numberOfRecruitersShortlisted
       }
     }
   }

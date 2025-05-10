@@ -28,7 +28,6 @@ const page = () => {
   });
 
   useEffect(() => {
-    console.log("FILTERS UPDATED", filters);
     setCurrentPage(1);
   }, [filters]);
 

@@ -1,4 +1,5 @@
-import LocationSearchBar from "@/components/graphql-ui/LocationSearchBar";
+import CityStateCountrySearchBar from "@/components/graphql-ui/CityStateCountrySearchBar";
+import JobTitleSearchBar from "@/components/graphql-ui/JobTitleSearchBar";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import {
@@ -9,23 +10,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { GET_JOB_ROLES, GET_JOB_TITLES } from "@/graphql/queries/queriesFilter";
-import { useQuery } from "@apollo/client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Separator } from "../../components/ui/separator";
 import { jobType, salaryOptions } from "./constant";
 
 const FilterSidebar = ({ onFilterChange, children }) => {
   const [selectedJobTypes, setSelectedJobTypes] = useState([]);
-  const [selectedJobRole, setSelectedJobRole] = useState("");
   const [selectedJobTitle, setSelectedJobTitle] = useState("");
+
+  const [jobTitleSearchTerm, setJobTitleSearchTerm] = useState("");
   const [location, setLocation] = useState("");
-
-  const [jobRoles, setJobRoles] = useState([]);
-  const [jobTitles, setJobTitles] = useState([]);
-
-  const { data: jobRoleData } = useQuery(GET_JOB_ROLES);
-  const { data: jobTitleData } = useQuery(GET_JOB_TITLES);
 
   const [experience, setExperience] = useState([0]);
 
@@ -51,15 +45,6 @@ const FilterSidebar = ({ onFilterChange, children }) => {
       localStorage.removeItem("location");
     }
   }, [onFilterChange, selectedJobTitle, location]);
-
-  useEffect(() => {
-    if (jobRoleData && jobRoleData.getJobRole) {
-      setJobRoles(jobRoleData.getJobRole);
-    }
-    if (jobTitleData && jobTitleData.getJobTitle) {
-      setJobTitles(jobTitleData.getJobTitle);
-    }
-  }, [jobRoleData, jobTitleData]);
 
   const handleSalaryChange = (value) => {
     const salaryMin = salaryOptions[value]?.label.replace(",", "") || null;
@@ -91,7 +76,7 @@ const FilterSidebar = ({ onFilterChange, children }) => {
     onFilterChange({
       jobTypes: selectedJobTypes,
     });
-  }, [selectedJobTypes]); // only triggers after state update
+  }, [selectedJobTypes]);
 
   const handleJobTypeChange = useCallback((type) => {
     setSelectedJobTypes((prevSelectedJobTypes) =>
@@ -100,20 +85,6 @@ const FilterSidebar = ({ onFilterChange, children }) => {
         : [...prevSelectedJobTypes, type]
     );
   }, []);
-
-  const handleJobRoleChange = (value) => {
-    setSelectedJobRole(value);
-    onFilterChange({
-      role: value,
-    });
-  };
-
-  const handleJobTitleChange = (value) => {
-    setSelectedJobTitle(value);
-    onFilterChange({
-      jobTitle: value,
-    });
-  };
 
   return (
     <div className="w-full flex gap-5 border-r h-full">
@@ -124,7 +95,9 @@ const FilterSidebar = ({ onFilterChange, children }) => {
               <span className="font-semibold text-xs text-gray-700">
                 Searched Job Title:{" "}
               </span>
-              <span className="font-semibold text-red-700">"{savedJobTitle}"</span>
+              <span className="font-semibold text-red-700">
+                "{savedJobTitle}"
+              </span>
             </div>
           </div>
         )}
@@ -135,7 +108,9 @@ const FilterSidebar = ({ onFilterChange, children }) => {
               <span className="font-semibold text-xs text-gray-700">
                 Searched Location:{" "}
               </span>
-              <span className="font-semibold text-red-700">"{savedLocation}"</span>
+              <span className="font-semibold text-red-700">
+                "{savedLocation}"
+              </span>
             </div>
           </div>
         )}
@@ -148,32 +123,21 @@ const FilterSidebar = ({ onFilterChange, children }) => {
           {/* Job Title */}
           <div className="space-y-2">
             <Label htmlFor="role">Title</Label>
-            <div className="relative">
-              <Select onValueChange={handleJobTitleChange}>
-                <SelectTrigger id="jobTitle">
-                  <SelectValue placeholder="Select title" />
-                </SelectTrigger>
-                <SelectContent side="bottom">
-                  {jobTitles.length > 0 ? (
-                    jobTitles.map((jobTitle) => (
-                      <SelectItem key={jobTitle.value} value={jobTitle.value}>
-                        {jobTitle.label}
-                      </SelectItem>
-                    ))
-                  ) : (
-                    <SelectItem value="no_titles" disabled>
-                      No profiles available
-                    </SelectItem>
-                  )}
-                </SelectContent>
-              </Select>
-            </div>
+            <JobTitleSearchBar
+              searchTerm={jobTitleSearchTerm}
+              onSearchChange={(value) => setJobTitleSearchTerm(value)}
+              setFieldValue={() => {}}
+              onJobTitleSelect={(selectedJobTitle) => {
+                setJobTitleSearchTerm(selectedJobTitle.label);
+                onFilterChange({ jobTitle: selectedJobTitle.label });
+              }}
+            />
           </div>
 
           <Separator />
 
           {/* Job Role */}
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <Label htmlFor="role">Role</Label>
             <div className="relative">
               <Select onValueChange={handleJobRoleChange}>
@@ -197,7 +161,7 @@ const FilterSidebar = ({ onFilterChange, children }) => {
             </div>
           </div>
 
-          <Separator />
+          <Separator /> */}
 
           {/* Job Type */}
           <div className="space-y-2">
@@ -222,14 +186,13 @@ const FilterSidebar = ({ onFilterChange, children }) => {
 
           <div className="space-y-2">
             <Label htmlFor="location">Location</Label>
-            <LocationSearchBar
+            <CityStateCountrySearchBar
               searchTerm={location}
               onSearchChange={(value) => setLocation(value)}
               setFieldValue={() => {}}
               onLocationSelect={(selectedLocation) => {
-                const address = selectedLocation.fullAddress;
-                setLocation(address);
-                onFilterChange({ location: address });
+                setLocation(selectedLocation.fullAddress);
+                onFilterChange({ location: selectedLocation.fullAddress });
               }}
             />
           </div>

@@ -7,10 +7,9 @@ import { useUpdateJobPreferencesMutation } from "@/redux/api/candidateAuth";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import moment from "moment";
 import { useState } from "react";
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { toast } from "react-toastify";
-import { ExperienceDropdown } from "./ExperienceDropdown";
+// import { ExperienceDropdown } from "./ExperienceDropdown";
 import { validationJobPreference } from "./validationSchemas";
 
 const experienceOptions = Array.from({ length: 11 }, (_, i) => i);
@@ -31,11 +30,16 @@ const formOptions = {
   ],
 };
 
+const formatDate = (date) => {
+  if (!date) return "";
+  return date.split("T")[0];
+};
+
 const CandidateJobPreferences = ({ initialJobPreference, closeModal }) => {
   const [updateJobPreferences, { isLoading }] =
     useUpdateJobPreferencesMutation();
-  const [experienceYears, setExperienceYears] = useState("");
-  const [experienceMonths, setExperienceMonths] = useState("");
+  // const [experienceYears, setExperienceYears] = useState("");
+  // const [experienceMonths, setExperienceMonths] = useState("");
   const [jobTitle, setJobTitle] = useState(
     initialJobPreference.profileTitle || ""
   );
@@ -45,11 +49,6 @@ const CandidateJobPreferences = ({ initialJobPreference, closeModal }) => {
     initialJobPreference?.preferredJobLocation || []
   );
 
-  const [dobDisplay, setDobDisplay] = useState(
-    initialJobPreference.dob
-      ? moment(initialJobPreference.dob).format("DD/MM/YYYY")
-      : ""
-  );
   const { userid, token } = initialJobPreference;
   const userId = userid?.userid;
   const authToken = token?.token;
@@ -58,10 +57,6 @@ const CandidateJobPreferences = ({ initialJobPreference, closeModal }) => {
     toast.error("User ID is missing");
     return;
   }
-
-  const handleDobChange = (date) => {
-    setDobDisplay(moment(date).format("DD/MM/YYYY"));
-  };
 
   const handleLocationSelect = (selectedLocation, setFieldValue) => {
     if (preferredJobLocation.length < 10) {
@@ -96,10 +91,10 @@ const CandidateJobPreferences = ({ initialJobPreference, closeModal }) => {
       profileTitle: values.profileTitle,
       jobType: values.jobType,
       preferredJobLocation: values.preferredJobLocation,
-      experienceYears: experienceYears,
-      experienceMonths: experienceMonths,
+      // experienceYears: experienceYears,
+      // experienceMonths: experienceMonths,
       gender: values.gender,
-      dob: moment(dobDisplay).format("DD/MM/YYYY"),
+      dob: formatDate(values.dob),
       maritalStatus: values.maritalStatus,
       language: values.language,
       currentSalary: values.currentSalary,
@@ -127,7 +122,10 @@ const CandidateJobPreferences = ({ initialJobPreference, closeModal }) => {
 
   return (
     <Formik
-      initialValues={initialJobPreference}
+      initialValues={{
+        ...initialJobPreference,
+        dob: formatDate(initialJobPreference.dob),
+      }}
       validationSchema={validationJobPreference}
       onSubmit={handleSubmit}
     >
@@ -259,11 +257,10 @@ const CandidateJobPreferences = ({ initialJobPreference, closeModal }) => {
           </div>
 
           {/* Experience */}
-          <div className="block text-sm font-medium">
+          {/* <div className="block text-sm font-medium">
             <h1> Experience (in years)</h1>
 
             <div className="flex items-center gap-8 justify-between flex-col lg:flex-row">
-              {/* Min Experience */}
               <ExperienceDropdown
                 label="Min"
                 id="experienceYears"
@@ -277,7 +274,6 @@ const CandidateJobPreferences = ({ initialJobPreference, closeModal }) => {
                 )}
               />
 
-              {/* Max Experience */}
               <ExperienceDropdown
                 label="Max"
                 id="experienceMonths"
@@ -291,7 +287,7 @@ const CandidateJobPreferences = ({ initialJobPreference, closeModal }) => {
                 )}
               />
             </div>
-          </div>
+          </div> */}
 
           {/* Gender */}
           <div>
@@ -337,25 +333,15 @@ const CandidateJobPreferences = ({ initialJobPreference, closeModal }) => {
             <label htmlFor="dob" className="block text-sm font-medium">
               Date of Birth
             </label>
-            <Field name="dob">
-              {({ field, form }) => (
-                <DatePicker
-                  {...field}
-                  selected={
-                    dobDisplay
-                      ? moment(dobDisplay, "DD/MM/YYYY").toDate()
-                      : new Date()
-                  }
-                  onChange={(date) => {
-                    setFieldValue("dob", moment(date));
-                    handleDobChange(date);
-                  }}
-                  className="mt-1 p-3 w-full border rounded-md"
-                  dateFormat="dd-MM-yyyy"
-                  placeholderText="Select your date of birth"
-                />
-              )}
-            </Field>
+            <Field
+              type="date"
+              name="dob"
+              onChange={(e) => {
+                const selectedDate = e.target.value;
+                setFieldValue("dob", selectedDate);
+              }}
+              className="mt-1 p-3 w-full border rounded-md"
+            />
 
             <ErrorMessage
               name="dob"

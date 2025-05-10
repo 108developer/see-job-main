@@ -39,7 +39,6 @@ export default function PostedJobCard({ job, applyUrl } = { applyUrl: "#" }) {
     );
   }
 
-  console.log("JOBS", job);
   return (
     <Card className="w-full rounded-md ">
       <CardHeader className="flex flex-row items-start justify-between space-y-0">

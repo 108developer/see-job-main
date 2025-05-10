@@ -9,8 +9,10 @@ import JobTitle from "./content/JobTitle";
 import Language from "./content/Language";
 import Location from "./content/Location";
 import Skills from "./content/Skills";
+import Candidates from "./content/Candidates";
 
 const dashboardItems = [
+  "Candidates",
   "Skills",
   "Job Title",
   "Degree",
@@ -24,7 +26,9 @@ const Page = () => {
   const [selectedItem, setSelectedItem] = useState("Skills");
 
   const renderContent = () =>
-    selectedItem === "Skills" ? (
+    selectedItem === "Candidates" ? (
+      <Candidates />
+    ) : selectedItem === "Skills" ? (
       <Skills />
     ) : selectedItem === "Job Title" ? (
       <JobTitle />
@@ -55,8 +59,8 @@ const Page = () => {
             key={idx}
             className={`flex items-center gap-2 mt-2 cursor-pointer p-3 space-y-2 rounded-md transition duration-100 ${
               selectedItem === item
-                ? "bg-red-600 text-white font-bold" // Active tab styles
-                : "hover:bg-red-600 text-gray-300" // Inactive tab hover styles
+                ? "bg-red-600 text-white font-bold"
+                : "hover:bg-red-600 text-gray-300"
             }`}
             onClick={() => setSelectedItem(item)}
           >
