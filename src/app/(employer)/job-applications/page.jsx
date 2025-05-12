@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import FilterSidebar from "@/app/find-cv/FilterSidebar";
 import { Pagination } from "@/components/Pagination";
 import { Loader } from "@/components/ui/loader";
