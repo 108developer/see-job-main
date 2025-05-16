@@ -125,7 +125,7 @@ const PostJob = () => {
       if (response?.success) {
         toast.success(response?.message || "Job posted successfully!");
         resetForm();
-        router.push("/joblisting");
+        router.push("/Joblisting");
       } else {
         toast.error(response?.message || "Failed to post job.");
       }

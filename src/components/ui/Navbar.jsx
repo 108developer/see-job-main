@@ -260,7 +260,7 @@ const UserDropdown = ({
           { itemTitle: "Posted jobs", href: "/posted-jobs" },
         ])
       : (items = [
-          { itemTitle: "All Jobs", href: "/joblisting" },
+          { itemTitle: "All Jobs", href: "/Joblisting" },
           { itemTitle: "Profile", href: "/profile/candidate" },
         ]);
   }
