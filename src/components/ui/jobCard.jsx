@@ -1,4 +1,4 @@
-import JobApply from "@/app/joblisting/JobApply";
+// import JobApply from "@/app/joblisting/JobApply";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -95,13 +95,13 @@ export default function JobCard({ job, applyUrl } = { applyUrl: "#" }) {
           </span>
         </div>
       </CardFooter>
-      {isApplyModalOpen && (
+      {/* {isApplyModalOpen && (
         <JobApply
           jobId={job._id}
           questions={job.questions}
           closeModal={() => setIsApplyModalOpen(false)}
         />
-      )}
+      )} */}
     </Card>
   );
 }

@@ -10,7 +10,7 @@ import {
 import { Banknote, CheckCircle, Clock, MapPin, StickyNote } from "lucide-react";
 import { useState } from "react";
 
-import JobApply from "@/app/joblisting/JobApply";
+// import JobApply from "@/app/joblisting/JobApply";
 import Link from "next/link";
 import { useSelector } from "react-redux";
 
@@ -91,13 +91,13 @@ export default function PostedJobCard({ job, applyUrl } = { applyUrl: "#" }) {
           </span>
         </div>
       </CardFooter>
-      {isApplyModalOpen && (
+      {/* {isApplyModalOpen && (
         <JobApply
           jobId={job._id}
           questions={job.questions}
           closeModal={() => setIsApplyModalOpen(false)}
         />
-      )}
+      )} */}
     </Card>
   );
 }
