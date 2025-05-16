@@ -1,4 +1,5 @@
 // import JobApply from "@/app/joblisting/JobApply";
+import JobApply from "@/app/Joblisting/JobApply";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -42,7 +43,7 @@ export default function JobCard({ job, applyUrl } = { applyUrl: "#" }) {
   return (
     <Card className="w-full rounded-md ">
       <CardHeader className="flex flex-row items-start justify-between space-y-0">
-        <Link href={`/joblisting/${job._id}`}>
+        <Link href={`/Joblisting/${job._id}`}>
           <CardTitle className="text-3xl">{job.jobTitle}</CardTitle>
         </Link>
 
@@ -95,13 +96,13 @@ export default function JobCard({ job, applyUrl } = { applyUrl: "#" }) {
           </span>
         </div>
       </CardFooter>
-      {/* {isApplyModalOpen && (
+      {isApplyModalOpen && (
         <JobApply
           jobId={job._id}
           questions={job.questions}
           closeModal={() => setIsApplyModalOpen(false)}
         />
-      )} */}
+      )}
     </Card>
   );
 }

@@ -73,7 +73,7 @@ export const HeroSection = () => {
             <div className="text-black">Are you looking for?</div>
             <div className="flex">
               <div className="bg-gray-400 p-2 rounded-l-sm">
-                <Link href="/joblisting" passHref onClick={handleFindJobs}>
+                <Link href="/Joblisting" passHref onClick={handleFindJobs}>
                   <Search />
                 </Link>
               </div>
@@ -94,7 +94,7 @@ export const HeroSection = () => {
             <div className="text-black">Do you want to work?</div>
             <div className="flex">
               <div className="bg-gray-400 p-2 rounded-l-sm">
-                <Link href="/joblisting" passHref onClick={handleFindJobs}>
+                <Link href="/Joblisting" passHref onClick={handleFindJobs}>
                   <Search />
                 </Link>
               </div>
@@ -111,7 +111,7 @@ export const HeroSection = () => {
 
           {/* Button section */}
           <div className="h-[100px] flex items-end">
-            <Link href="/joblisting" passHref onClick={handleFindJobs}>
+            <Link href="/Joblisting" passHref onClick={handleFindJobs}>
               <button className="bg-red-500 h-fit truncate py-2 px-4">
                 Find Jobs
               </button>
