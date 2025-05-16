@@ -1,3 +1,5 @@
+import ApplyJobModal from "@/app/joblisting/ApplyJobModal";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -6,12 +8,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Banknote, CheckCircle, Clock, MapPin, StickyNote } from "lucide-react";
-import ApplyJobModal from "@/app/joblisting/ApplyJobModal";
+import Link from "next/link";
 import { useState } from "react";
 import { useSelector } from "react-redux";
-import Link from "next/link";
 
 function formatDate(dateString) {
   const date = new Date(dateString);
