@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
 
-export default function ApplyJobModal({ jobId, questions, closeModal }) {
+export default function JobApply({ jobId, questions, closeModal }) {
   const [applyToJob] = useApplyToJobMutation();
   const { userid } = useSelector((state) => state.auth);
 

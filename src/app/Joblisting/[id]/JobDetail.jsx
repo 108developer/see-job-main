@@ -1,6 +1,8 @@
 "use client";
 
+import { Loader } from "@/components/ui/loader";
 import { useGetJobByIdQuery } from "@/redux/api/jobApi";
+import { formatTime } from "@/utils/formatTime";
 import { getTimeSincePosted } from "@/utils/getTimeSincePosted";
 import {
   Banknote,
@@ -12,9 +14,7 @@ import {
 } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useState } from "react";
-import ApplyJobModal from "../JobApplyModal";
-import { formatTime } from "@/utils/formatTime";
-import { Loader } from "@/components/ui/loader";
+import JobApply from "../JobApply";
 
 const JobDetail = ({}) => {
   const searchParams = useParams();
@@ -229,7 +229,7 @@ const JobDetail = ({}) => {
       </div>
 
       {isApplyModalOpen && (
-        <ApplyJobModal
+        <JobApply
           jobId={job._id}
           questions={job.questions}
           closeModal={() => setIsApplyModalOpen(false)}

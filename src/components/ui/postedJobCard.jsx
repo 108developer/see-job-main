@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -6,12 +7,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Banknote, CheckCircle, Clock, MapPin, StickyNote } from "lucide-react";
 import { useState } from "react";
-import ApplyJobModal from "../../app/joblisting/JobApplyModal";
-import { useSelector } from "react-redux";
+
+import JobApply from "@/app/joblisting/JobApply";
 import Link from "next/link";
+import { useSelector } from "react-redux";
 
 function formatDate(dateString) {
   const date = new Date(dateString);
@@ -91,7 +92,7 @@ export default function PostedJobCard({ job, applyUrl } = { applyUrl: "#" }) {
         </div>
       </CardFooter>
       {isApplyModalOpen && (
-        <ApplyJobModal
+        <JobApply
           jobId={job._id}
           questions={job.questions}
           closeModal={() => setIsApplyModalOpen(false)}
