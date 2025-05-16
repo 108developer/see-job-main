@@ -1,5 +1,6 @@
 "use client";
 
+import { Loader } from "@/components/ui/loader";
 import { useGetEmployerProfileQuery } from "@/redux/api/employerAuth";
 import { setModal } from "@/redux/slices/modalSlice";
 import { Edit } from "lucide-react";
@@ -38,8 +39,8 @@ const Page = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen w-full flex items-center justify-center">
-        Loading...
+      <div className="flex items-center justify-center h-screen w-full gap-8 p-4">
+        <Loader count={5} height={50} className="mb-4" />
       </div>
     );
   }

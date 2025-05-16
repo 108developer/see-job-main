@@ -1,10 +1,10 @@
 // "use client";
 
-import { Formik, Form, Field, ErrorMessage } from "formik";
-import * as Yup from "yup";
-import { toast } from "react-toastify";
 import { useApplyToJobMutation } from "@/redux/api/jobApi";
+import { ErrorMessage, Field, Form, Formik } from "formik";
 import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import * as Yup from "yup";
 
 export default function ApplyJobModal({ jobId, questions, closeModal }) {
   const [applyToJob] = useApplyToJobMutation();
@@ -59,7 +59,7 @@ export default function ApplyJobModal({ jobId, questions, closeModal }) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded shadow-lg max-w-lg w-full space-y-4">
+      <div className="bg-white p-6 rounded shadow-lg max-w-lg w-full space-y-4 max-h-svh overflow-y-auto">
         <h2 className="text-xl font-bold mb-4">Job Application</h2>
 
         <Formik

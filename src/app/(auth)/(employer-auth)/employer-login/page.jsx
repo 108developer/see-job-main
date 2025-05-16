@@ -2,12 +2,22 @@
 
 import { useEmployerLoginMutation } from "@/redux/api/employerAuth";
 import { login as loginAction } from "@/redux/slices/authSlice";
+import { setModal } from "@/redux/slices/modalSlice";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import * as Yup from "yup";
+
+const validationSchema = Yup.object({
+  email: Yup.string()
+    .email("Invalid email address")
+    .required("Email is required"),
+  password: Yup.string()
+    .min(6, "Password should be at least 6 characters")
+    .required("Password is required"),
+});
 
 const EmployerLogin = () => {
   const router = useRouter();
@@ -48,14 +58,14 @@ const EmployerLogin = () => {
     }
   };
 
-  const validationSchema = Yup.object({
-    email: Yup.string()
-      .email("Invalid email address")
-      .required("Email is required"),
-    password: Yup.string()
-      .min(6, "Password should be at least 6 characters")
-      .required("Password is required"),
-  });
+  const openForgotPasswordModal = () => {
+    dispatch(
+      setModal({
+        modalType: "forgotPasswordModal",
+        modalProps: { role: "employer" },
+      })
+    );
+  };
 
   return (
     <div className="flex flex-col md:flex-row items-center justify-between gap-8 w-full h-screen px-4 md:px-10 lg:px-28 py-4">
@@ -158,7 +168,10 @@ const EmployerLogin = () => {
                     />
                   </div>
 
-                  <div className="flex items-center w-full justify-end text-sm text-blue-500 font-semibold">
+                  <div
+                    className="flex items-center w-full justify-end text-sm text-blue-500 font-semibold cursor-pointer"
+                    onClick={openForgotPasswordModal}
+                  >
                     Forgot Password?
                   </div>
 

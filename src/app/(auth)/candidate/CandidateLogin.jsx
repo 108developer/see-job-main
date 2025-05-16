@@ -4,6 +4,7 @@
 
 import { useLoginCandidateMutation } from "@/redux/api/candidateAuth";
 import { login as loginAction } from "@/redux/slices/authSlice";
+import { setModal } from "@/redux/slices/modalSlice";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
@@ -52,6 +53,15 @@ const CandidateLogin = ({ closeModal }) => {
     }
   };
 
+  const openForgotPasswordModal = () => {
+    dispatch(
+      setModal({
+        modalType: "forgotPasswordModal",
+        modalProps: { role: "candidate" },
+      })
+    );
+  };
+
   return (
     <div className="flex items-center justify-center w-full min-w-[300px] py-2">
       <div className="w-full">
@@ -93,6 +103,13 @@ const CandidateLogin = ({ closeModal }) => {
                 component="div"
                 className="text-red-500 text-sm mt-1"
               />
+            </div>
+
+            <div
+              className="w-full flex items-center justify-end text-blue-500 font-semibold cursor-pointer"
+              onClick={openForgotPasswordModal}
+            >
+              Forgot Password?
             </div>
 
             <button

@@ -1,3 +1,5 @@
+// import JobApply from "@/app/joblisting/JobApply";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -6,9 +8,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Banknote, CheckCircle, Clock, MapPin, StickyNote } from "lucide-react";
-import ApplyJobModal from "@/app/Joblisting/ApplyJobModal";
+import Link from "next/link";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 
@@ -26,8 +27,6 @@ export default function JobCard({ job, applyUrl } = { applyUrl: "#" }) {
 
   const { userid, role } = useSelector((state) => state.auth);
 
-  console.log("Role : ", role);
-
   if (!job) {
     return (
       <Card className="w-full max-w-2xl">
@@ -43,7 +42,9 @@ export default function JobCard({ job, applyUrl } = { applyUrl: "#" }) {
   return (
     <Card className="w-full rounded-md ">
       <CardHeader className="flex flex-row items-start justify-between space-y-0">
-        <CardTitle className="text-3xl">{job.jobTitle}</CardTitle>
+        <Link href={`/joblisting/${job._id}`}>
+          <CardTitle className="text-3xl">{job.jobTitle}</CardTitle>
+        </Link>
 
         {!(role === "employer" || role === "recruiter") &&
           (job?.hasApplied ? (
@@ -94,13 +95,13 @@ export default function JobCard({ job, applyUrl } = { applyUrl: "#" }) {
           </span>
         </div>
       </CardFooter>
-      {isApplyModalOpen && (
-        <ApplyJobModal
+      {/* {isApplyModalOpen && (
+        <JobApply
           jobId={job._id}
           questions={job.questions}
           closeModal={() => setIsApplyModalOpen(false)}
         />
-      )}
+      )} */}
     </Card>
   );
 }
