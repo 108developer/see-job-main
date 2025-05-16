@@ -55,7 +55,7 @@ export default function ResumeUploadModal({ btntext }) {
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
-                <button className=''>{btntext}</button>
+                <button className='w-full'>{btntext}</button>
             </DialogTrigger>
             <DialogContent className=" sm:max-w-[425px]">
                 <DialogHeader>

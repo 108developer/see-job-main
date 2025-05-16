@@ -1,16 +1,19 @@
+import { closeModal } from "@/redux/slices/modalSlice";
 import { useDispatch, useSelector } from "react-redux";
+import CandidateAuth from "../(auth)/candidate/page";
+import AddQuestionsModal from "../(employer)/post-jobs/AddEditQuestionsModal";
+import CandidateProfileModal from "./auth/CandidateProfileModal";
 import LogoutModal from "./LogOutModal";
 import ModalBase from "./ModalBase";
-import { closeModal } from "@/redux/slices/modalSlice";
-import CandidateAuth from "../(auth)/candidate/page";
-import CandidateProfileModal from "./auth/CandidateProfileModal";
-import CandidateRegisterModal from "./userProfile/CandidateRegisterModal";
+import CandidateEmailSender from "./post-jobs/SendMailsModal";
 import CandidateEducation from "./userProfile/CandidateEducationDetailsModal";
 import CandidateJobPreferences from "./userProfile/CandidateJobPreferenceModal";
+import CandidateRegisterModal from "./userProfile/CandidateRegisterModal";
 import RecruiterProfile from "./userProfile/EmployerProfileModal";
-import AddQuestionsModal from "../(employer)/post-jobs/AddEditQuestionsModal";
+import ForgotPasswordModal from "./userProfile/ForgotPasswordModal";
+import OtpVerification from "./userProfile/OtpVerification";
+import ResetPassword from "./userProfile/ResetPassword";
 import WorkExperienceModal from "./userProfile/WorkExperienceModal";
-import CandidateEmailSender from "./post-jobs/SendMailsModal";
 
 const ModalController = () => {
   const { modalType, modalProps } = useSelector((state) => state.modal);
@@ -41,6 +44,12 @@ const ModalController = () => {
       <AddQuestionsModal closeModal={closeModalHandler} {...modalProps} />
     ) : modalType === "sendMailsModal" ? (
       <CandidateEmailSender closeModal={closeModalHandler} {...modalProps} />
+    ) : modalType === "forgotPasswordModal" ? (
+      <ForgotPasswordModal closeModal={closeModalHandler} {...modalProps} />
+    ) : modalType === "otpVerificationModal" ? (
+      <OtpVerification closeModal={closeModalHandler} {...modalProps} />
+    ) : modalType === "resetPasswordModal" ? (
+      <ResetPassword closeModal={closeModalHandler} {...modalProps} />
     ) : null;
   };
 

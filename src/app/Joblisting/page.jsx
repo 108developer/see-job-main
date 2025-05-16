@@ -3,11 +3,12 @@
 import { Pagination } from "@/components/Pagination";
 
 import JobCard from "@/components/ui/jobCard";
+import { Loader } from "@/components/ui/loader";
 import { useGetAllJobsQuery } from "@/redux/api/jobApi";
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import AdBox from "./AdBox";
 import FilterSidebar from "./FilterSidebar";
-import { useSelector } from "react-redux";
 
 const page = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -59,8 +60,8 @@ const page = () => {
 
   if (isLoading) {
     return (
-      <div className="w-full flex items-center justify-center min-h-screen">
-        Loading...
+      <div className="flex items-center justify-center h-screen w-full gap-8 p-4">
+        <Loader count={5} height={50} className="mb-4" />
       </div>
     );
   }

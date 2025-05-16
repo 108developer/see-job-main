@@ -38,6 +38,31 @@ const candidateAuth = createApi({
       }),
     }),
 
+    // Forgot Password
+    sendCandidateOtp: builder.mutation({
+      query: (emailData) => ({
+        url: "sendCandidateOtp",
+        method: "POST",
+        body: emailData,
+      }),
+    }),
+
+    verifyCandidateOtp: builder.mutation({
+      query: (otpData) => ({
+        url: "verifyCandidateOtp",
+        method: "POST",
+        body: otpData,
+      }),
+    }),
+
+    resetCandidatePassword: builder.mutation({
+      query: (values) => ({
+        url: "resetCandidatePassword",
+        method: "POST",
+        body: values,
+      }),
+    }),
+
     // Register Candidate
     registerCandidate: builder.mutation({
       query: (candidateData) => ({
@@ -154,6 +179,12 @@ export const {
   useSignupCandidateMutation,
   useLoginCandidateMutation,
   useGetCandidateProfileQuery,
+  // Forgot Password
+  useSendCandidateOtpMutation,
+  useVerifyCandidateOtpMutation,
+  useResetCandidatePasswordMutation,
+
+  // Registration process
   useRegisterCandidateMutation,
   useUpdateRegisteredCandidateMutation,
   useSaveJobPreferencesMutation,

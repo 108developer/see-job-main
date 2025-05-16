@@ -113,19 +113,6 @@ const CandidateJobPreference = ({ initialJobPreference }) => {
         </div>
       </div>
 
-      {/* Experience */}
-      <div className="text-sm font-semibold text-gray-700">
-        <h1>Experience (in years)</h1>
-        <div className="flex items-center gap-8 justify-between flex-col lg:flex-row text-gray-500">
-          <div className="mt-1 p-3 w-full border rounded-md">
-            Min: {getValue(initialJobPreference?.experienceYears)}
-          </div>
-          <div className="mt-1 p-3 w-full border rounded-md">
-            Max: {getValue(initialJobPreference?.experienceMonths)}
-          </div>
-        </div>
-      </div>
-
       {/* Gender */}
       <div>
         <label htmlFor="gender" className="text-sm font-semibold text-gray-700">

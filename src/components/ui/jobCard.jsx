@@ -8,9 +8,10 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Banknote, CheckCircle, Clock, MapPin, StickyNote } from "lucide-react";
-import ApplyJobModal from "@/app/Joblisting/ApplyJobModal";
+import ApplyJobModal from "@/app/joblisting/ApplyJobModal";
 import { useState } from "react";
 import { useSelector } from "react-redux";
+import Link from "next/link";
 
 function formatDate(dateString) {
   const date = new Date(dateString);
@@ -25,8 +26,6 @@ export default function JobCard({ job, applyUrl } = { applyUrl: "#" }) {
   const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
 
   const { userid, role } = useSelector((state) => state.auth);
-
-  console.log("Role : ", role);
 
   if (!job) {
     return (
@@ -43,7 +42,9 @@ export default function JobCard({ job, applyUrl } = { applyUrl: "#" }) {
   return (
     <Card className="w-full rounded-md ">
       <CardHeader className="flex flex-row items-start justify-between space-y-0">
-        <CardTitle className="text-3xl">{job.jobTitle}</CardTitle>
+        <Link href={`/joblisting/${job._id}`}>
+          <CardTitle className="text-3xl">{job.jobTitle}</CardTitle>
+        </Link>
 
         {!(role === "employer" || role === "recruiter") &&
           (job?.hasApplied ? (

@@ -1,5 +1,6 @@
 "use client";
 
+import { Loader } from "@/components/ui/loader";
 import PlaceholderImage from "@/images/Profile_avatar_placeholder_large.png";
 import {
   useGetCandidateProfileQuery,
@@ -8,6 +9,7 @@ import {
 } from "@/redux/api/candidateAuth";
 import { Form, Formik } from "formik";
 import { DownloadIcon, Edit2, FileIcon } from "lucide-react";
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
@@ -15,8 +17,6 @@ import * as Yup from "yup";
 import CandidateEducationDetails from "./CandidateEducationDetails";
 import CandidateJobPreference from "./CandidateJobPreference";
 import CandidateRegisterForm from "./CandidateRegisterForm";
-import Image from "next/image";
-import WorkExperienceModal from "@/app/modals/userProfile/WorkExperienceModal";
 import CandidateWorkExperience from "./CandidateWorkExperience";
 
 const profilePicSchema = Yup.object().shape({
@@ -137,8 +137,8 @@ const Page = () => {
 
   if (isLoading)
     return (
-      <div className="min-h-screen w-full flex items-center justify-center">
-        Loading...
+      <div className="flex items-center justify-center h-screen w-full gap-8 p-4">
+        <Loader count={5} height={50} className="mb-4" />
       </div>
     );
   if (error)
