@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import ApplyJobModal from "@/app/joblisting/ApplyJobModal";
+import ApplyJobModal from "@/app/joblisting/JobApplyModal";
 import { Button } from "@/components/ui/button";
 import {
   Card,

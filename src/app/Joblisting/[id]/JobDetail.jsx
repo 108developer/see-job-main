@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useState } from "react";
-import ApplyJobModal from "../ApplyJobModal";
+import ApplyJobModal from "../JobApplyModal";
 import { formatTime } from "@/utils/formatTime";
 import { Loader } from "@/components/ui/loader";
 
