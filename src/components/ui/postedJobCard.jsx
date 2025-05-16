@@ -9,7 +9,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Banknote, CheckCircle, Clock, MapPin, StickyNote } from "lucide-react";
 import { useState } from "react";
-import ApplyJobModal from "@/app/joblisting/JobApplyModal";
+import ApplyJobModal from "../../app/joblisting/JobApplyModal";
 import { useSelector } from "react-redux";
 import Link from "next/link";
 
