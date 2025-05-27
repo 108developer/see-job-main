@@ -195,7 +195,7 @@ const EmployerLogin = () => {
               <div className="w-full flex items-center justify-center gap-2">
                 New User?
                 <Link href={"/employer-signup"}>
-                  <span className="text-red-600 font-semibold">Sign Up</span>
+                  <span className="text-red-600 font-semibold whitespace-nowrap">Sign Up</span>
                 </Link>
               </div>
             </div>

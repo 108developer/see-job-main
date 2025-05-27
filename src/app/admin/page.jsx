@@ -1,15 +1,16 @@
 "use client";
 
 import { LayoutDashboard } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 import Boards from "./content/Boards";
+import Candidates from "./content/Candidates";
 import Degree from "./content/Degree";
 import Industry from "./content/Industry";
 import JobTitle from "./content/JobTitle";
 import Language from "./content/Language";
 import Location from "./content/Location";
 import Skills from "./content/Skills";
-import Candidates from "./content/Candidates";
 
 const dashboardItems = [
   "Candidates",
@@ -50,9 +51,11 @@ const Page = () => {
     <div className="flex h-screen">
       {/* Sidebar */}
       <div className="flex flex-col bg-gradient-to-b from-gray-500 to-gray-700 text-white w-48 p-6 shadow-lg">
-        <h1 className="flex items-center gap-2 text-xl font-semibold mb-6">
-          <LayoutDashboard className="text-red-600 w-8 h-8" /> Dashboard
-        </h1>
+        <Link href={"/admin/dashboard"}>
+          <h1 className="flex items-center gap-2 text-xl font-semibold mb-6">
+            <LayoutDashboard className="text-red-600 w-8 h-8" /> Dashboard
+          </h1>
+        </Link>
         {/* Sidebar Items */}
         {dashboardItems.map((item, idx) => (
           <div
