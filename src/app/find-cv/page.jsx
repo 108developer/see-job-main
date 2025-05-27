@@ -1,10 +1,12 @@
 "use client";
 
 import { Pagination } from "@/components/Pagination";
+import AccessDenied from "@/components/ui/AccessDenied ";
 import { Loader } from "@/components/ui/loader";
 import { UPDATE_CANDIDATE_STATUS } from "@/graphql/mutations/jobApplication";
 import { GET_ALL_CANDIDATES } from "@/graphql/queries/candidate";
 import PlaceholderImage from "@/images/Profile_avatar_placeholder_large.png";
+import { setModal } from "@/redux/slices/modalSlice";
 import { handleDownloadResume } from "@/utils/HandleDownloadResume";
 import { useMutation, useQuery } from "@apollo/client";
 import {
@@ -29,7 +31,6 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import FilterSidebar from "./FilterSidebar";
-import AccessDenied from "@/components/ui/AccessDenied ";
 
 const status = ["All", "Viewed", "Shortlisted", "Rejected", "Hold"];
 

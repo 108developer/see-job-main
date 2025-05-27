@@ -33,14 +33,14 @@ const AccessDenied = ({ title1, title2 }) => {
         {isCandidate ? (
           <button
             onClick={openSignInModal}
-            className="text-white bg-red-600 hover:bg-red-700 font-semibold px-5 py-2 rounded-md transition duration-200"
+            className="text-white bg-red-600 hover:bg-red-700 font-semibold px-5 py-2 rounded-md transition duration-200 whitespace-nowrap"
           >
             Sign In
           </button>
         ) : (
           <Link
             href="/employer-login"
-            className="inline-block bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-5 rounded-md transition duration-200"
+            className="inline-block bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-5 rounded-md transition duration-200 whitespace-nowrap"
           >
             Login Now
           </Link>

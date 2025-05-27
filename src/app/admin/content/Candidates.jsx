@@ -1,7 +1,7 @@
+import { useBulkUploadCandidatesMutation } from "@/redux/api/candidateAuth";
+import { Upload } from "lucide-react";
 import { useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
-import { Upload } from "lucide-react";
-import { useBulkUploadCandidatesMutation } from "@/redux/api/candidateAuth";
 
 const BulkUploadCandidates = () => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -48,7 +48,12 @@ const BulkUploadCandidates = () => {
         toast.error(response?.message || "Bulk upload failed.");
       }
     } catch (error) {
-      toast.error("An error occurred during bulk upload.");
+      const errorMessage =
+        error?.data?.message ||
+        error?.error ||
+        "An error occurred during bulk upload.";
+
+      toast.error(`${errorMessage}`);
     } finally {
       setIsUploading(false);
       setSelectedFile(null);
@@ -65,7 +70,7 @@ const BulkUploadCandidates = () => {
           <Upload size={18} />
           <input
             type="file"
-            accept=".csv,.xlsx"
+            accept=".csv,.xlsx,.xls"
             onChange={handleFileSelect}
             className="hidden"
           />

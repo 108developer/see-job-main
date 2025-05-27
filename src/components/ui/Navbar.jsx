@@ -305,7 +305,7 @@ const UserDropdown = ({
               <li>
                 <button
                   onClick={openLogoutModal}
-                  className="flex items-center gap-2 px-3 py-2 text-red-600 transition duration-300 ease-in-out hover:bg-gray-100"
+                  className="flex items-center gap-2 px-3 py-2 text-red-600 transition duration-300 ease-in-out hover:bg-gray-100 w-full whitespace-nowrap"
                 >
                   Sign Out
                 </button>
@@ -316,7 +316,7 @@ const UserDropdown = ({
       ) : (
         <button
           onClick={openSignInModal}
-          className="text-white bg-red-600 text-lg font-thin px-3 py-1 rounded-md"
+          className="text-white bg-red-600 text-lg font-thin px-3 py-1 rounded-md whitespace-nowrap"
         >
           Sign In
         </button>
