@@ -1,8 +1,11 @@
 "use client";
 
+import AccessDeniedAdmin from "@/components/ui/AccessDeniedAdmin";
+import { Loader } from "@/components/ui/loader";
 import { LayoutDashboard } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import Boards from "./content/Boards";
 import Candidates from "./content/Candidates";
 import Degree from "./content/Degree";
@@ -25,6 +28,30 @@ const dashboardItems = [
 
 const Page = () => {
   const [selectedItem, setSelectedItem] = useState("Skills");
+
+  const [isClient, setIsClient] = useState(false);
+
+  const { useremail } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) {
+    return (
+      <div className="flex items-center justify-center h-screen w-full gap-8 p-4">
+        <Loader count={5} height={50} className="mb-4" />
+      </div>
+    );
+  }
+
+  if (useremail !== "admin@example.com") {
+    return (
+      <div className="flex items-center justify-center w-full p-2">
+        <AccessDeniedAdmin title={"Admin"} />
+      </div>
+    );
+  }
 
   const renderContent = () =>
     selectedItem === "Candidates" ? (

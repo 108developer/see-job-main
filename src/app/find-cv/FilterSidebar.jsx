@@ -12,6 +12,7 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { GET_DEGREES } from "@/graphql/queries/queriesFilter";
 import { useQuery } from "@apollo/client";
+import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { salaryOptions } from "./constant";
 
@@ -20,6 +21,7 @@ const FilterSidebar = ({ filters, onFilterChange }) => {
   const [degrees, setDegrees] = useState([]);
   const [jobTitleSearchTerm, setJobTitleSearchTerm] = useState("");
   const [location, setLocation] = useState("");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const setFieldValue = (field, value) => {
     if (field === "skills") {
@@ -38,9 +40,35 @@ const FilterSidebar = ({ filters, onFilterChange }) => {
   }, [degreeData]);
 
   return (
-    <div className="w-full flex gap-5 border-r h-full">
-      <div className="w-96 bg-background border-r p-4 h-full overflow-y-auto">
-        <h2 className="text-lg font-semibold mb-4">Filters</h2>
+    <div className="w-full lg:w-64 flex-shrink-0">
+      {/* Mobile Sidebar Toggle Button */}
+      <div className="lg:hidden p-4 flex items-center gap-2 font-semibold border-b">
+        <Menu
+          className="w-6 h-6 cursor-pointer"
+          onClick={() => setSidebarOpen(true)}
+        />
+        <span>Filters</span>
+      </div>
+
+      {/* Sidebar */}
+      <div
+        className={`
+          fixed inset-y-0 left-0 z-50 bg-white w-64 p-4 overflow-y-auto transition-transform duration-300 ease-in-out 
+          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+          lg:static lg:translate-x-0 lg:block lg:border-r
+        `}
+      >
+        {/* Header */}
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-lg font-semibold">Filters</h2>
+          <button
+            className="lg:hidden p-1 rounded hover:bg-gray-100"
+            onClick={() => setSidebarOpen(false)}
+            aria-label="Close sidebar"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
         <div className="space-y-4">
           {/* Skills */}

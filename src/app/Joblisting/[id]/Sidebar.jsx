@@ -71,7 +71,7 @@ const Sidebar = () => {
           <span className="text-gray-500">Open: Mon-Thu 10am - 6pm</span>
         </p>
         <h2 className="text-2xl text-blue-600 font-bold mt-2">
-          <i className="fas fa-phone-alt mr-2"></i>888-888-88
+          <i className="fas fa-phone-alt mr-2"></i>91-99588-41077
         </h2>
       </div>
     </div>

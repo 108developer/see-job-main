@@ -84,7 +84,7 @@ export default function JobCard({ job, applyUrl } = { applyUrl: "#" }) {
         </div>
       </CardContent>
       <CardFooter className="p-2 bg-muted text-sm flex justify-center w-full items-center">
-        <div className="flex justify-between items-center w-full">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 w-full">
           <div className="flex items-center">
             <Clock className="mr-1 h-3 w-3" />
             <span>

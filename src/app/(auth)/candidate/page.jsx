@@ -22,7 +22,7 @@ const CandidateAuth = ({ closeModal }) => {
     <div className="flex flex-col items-center  justify-center w-full">
       <div className="flex justify-center w-full text-lg">
         <div
-          className={`cursor-pointer rounded-l-lg py-4 flex gap-2 items-center justify-center w-full ${
+          className={`cursor-pointer rounded-l-lg py-2 md:py-4 flex gap-2 items-center justify-center w-full ${
             !authLogin ? "text-black bg-gray-400" : "text-red-700 bg-gray-300"
           }`}
           onClick={() => setAuthLogin(true)}
@@ -30,7 +30,7 @@ const CandidateAuth = ({ closeModal }) => {
           <User className="h-6 w-6" /> Login
         </div>
         <div
-          className={`cursor-pointer rounded-r-lg py-4 flex gap-2 items-center justify-center w-full ${
+          className={`cursor-pointer rounded-r-lg py-2 md:py-4 flex gap-2 items-center justify-center w-full ${
             authLogin ? "text-black bg-gray-400" : "text-red-700 bg-gray-300"
           }`}
           onClick={() => setAuthLogin(false)}
