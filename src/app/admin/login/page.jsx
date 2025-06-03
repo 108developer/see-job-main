@@ -1,11 +1,12 @@
 "use client";
 
+import AccessDeniedAdmin from "@/components/ui/AccessDeniedAdmin";
 import { useAdminLoginMutation } from "@/redux/api/admin";
 import { login as loginAction } from "@/redux/slices/authSlice";
 import { setModal } from "@/redux/slices/modalSlice";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import { useRouter } from "next/navigation";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
 
@@ -47,7 +48,7 @@ const AdminLogin = ({ closeModal }) => {
         localStorage.setItem("username", data.adminName);
         localStorage.setItem("phone", data.adminPhone);
         localStorage.setItem("role", data.role);
-        router.push("/admin/dashboard");
+        router.push("/");
       } else {
         const message =
           response?.error?.data?.message || "Login failed. Please try again.";

@@ -115,7 +115,7 @@ const CandidateRegister = ({ closeModal }) => {
                 />
               </div>
 
-              <div className="flex items-center justify-between gap-2">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-2">
                 {/* Email Field */}
                 <div className="w-full">
                   <label htmlFor="email" className="block text-sm font-medium">

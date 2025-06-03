@@ -60,39 +60,39 @@ const Navbar = () => {
   return (
     <div className=" w-full mx-auto">
       <TopBar />
-      <div className="flex justify-center items-center  w-full text-sm gap-6 bg-[#E3F2FD]">
-        <div className="flex  justify-between items-center  max-w-6xl w-full text-sm p-5 gap-6 bg-[#E3F2FD]">
-          <div className="flex  items-center gap-6 bg-[#E3F2FD]">
-            <Link href={"/"}>
-              <Image
-                src="https://seejob.netlify.app/images/logo-2.png"
-                alt="logo"
-                width={100}
-                height={100}
-                className="w-fit h-auto"
-              />
-            </Link>
-            <div className="flex gap-6 items-center">
-              <DropdownMenu label="Work From Home" items={wfhData} />
-              <DropdownMenu label="Resume Service" items={ResumeService} />
-              <Link
-                href="/career"
-                className="text-gray-700  text-lg transition duration-300 ease-in-out hover:text-gray-400 "
-              >
-                Career Tips
-              </Link>
-              <DropdownMenu label="Company Profile" items={components} />
-            </div>
-          </div>
-          <div className="w-fit flex items-center gap-5">
-            <ResumeUploadModal btntext="Post Your Resume" />
-            <UserDropdown
-              authLogin={authLogin}
-              role={role}
-              openSignInModal={openSignInModal}
-              openLogoutModal={openLogoutModal}
+      <div className="flex justify-between items-center w-full text-sm gap-6 bg-[#E3F2FD] p-2 md:p-5 lg:px-28">
+        <div className="flex items-center gap-6 bg-[#E3F2FD]">
+          <Link href={"/"}>
+            <Image
+              src="https://seejob.netlify.app/images/logo-2.png"
+              alt="logo"
+              width={100}
+              height={100}
+              className="w-fit h-auto hidden md:block"
             />
+          </Link>
+          <div className="flex flex-wrap gap-3 items-center">
+            <DropdownMenu label="Work From Home" items={wfhData} />
+            <DropdownMenu label="Resume Service" items={ResumeService} />
+            <Link
+              href="/career"
+              className="text-gray-700 flex-nowrap md:text-lg transition duration-300 ease-in-out hover:text-gray-400 "
+            >
+              Career Tips
+            </Link>
+            <DropdownMenu label="Company Profile" items={components} />
           </div>
+        </div>
+        <div className="w-fit flex flex-col md:flex-row items-center gap-5">
+          <div className="hidden md:block">
+            <ResumeUploadModal btntext="Post Your Resume" />
+          </div>
+          <UserDropdown
+            authLogin={authLogin}
+            role={role}
+            openSignInModal={openSignInModal}
+            openLogoutModal={openLogoutModal}
+          />
         </div>
       </div>
     </div>
@@ -100,30 +100,29 @@ const Navbar = () => {
 };
 
 const TopBar = () => (
-  <div className="flex items-center justify-center w-full text-sm gap-2">
-    <div className="flex items-center justify-between max-w-6xl w-full text-sm gap-2">
-      <div className="flex w-fit text-sm p-4 gap-2">
+  <div className="w-full text-sm">
+    <div className="max-w-6xl mx-auto flex items-center justify-between px-4 py-2 gap-2">
+      {/* Contact Info */}
+      <div className="flex items-center flex-wrap gap-4 text-xs md:text-sm">
         <ContactInfo
           icon={<PhoneIcon className="h-4" />}
-          label="011-234-567"
-          link="tel:+011234567"
+          label="91-99588-41077"
+          link="tel:+91-99588-41077"
         />
-
         <ContactInfo
           icon={<WhatsAppIcon />}
           label="WhatsApp Live Chat (10am to 6pm IST)"
           className="text-green-500"
-          link="https://wa.me/011234567"
+          link="https://api.whatsapp.com/send?phone=919958841077&text=Hello%20I%20am%20looking%20for%20enquiry%20regarding"
         />
-
         <ContactInfo
-          icon={<Mail className="h-5" />}
-          label="011-234-567"
+          icon={<Mail className="h-4 text-red-600" />}
+          label="seejob.in@gmail.com"
           className="text-red-600"
-          link="mailto:example@example.com"
+          link="mailto:seejob.in@gmail.com"
         />
       </div>
-      <div className="flex w-fit text-sm p-4 gap-2">
+      <div className="rounded mt-2 md:mt-0">
         <ForEmployers />
       </div>
     </div>
@@ -193,7 +192,7 @@ const ContactInfo = ({ icon, label, className, link }) => (
   >
     <div className={`flex items-center font-bold gap-2 ${className}`}>
       {icon}
-      <span>{label}</span>
+      <span className="hidden md:block">{label}</span>
     </div>
   </a>
 );
@@ -220,7 +219,7 @@ const DropdownMenu = ({ label, items }) => {
       <button
         onClick={() => setIsOpen(!isOpen)}
         onBlur={() => setIsOpen(false)}
-        className="text-gray-500  text-lg font-thin transition duration-300 ease-in-out hover:text-gray-400"
+        className="text-gray-500 flex-nowrap md:text-lg font-thin transition duration-300 ease-in-out hover:text-gray-400"
       >
         {label}
       </button>
@@ -256,8 +255,8 @@ const UserDropdown = ({
       ? (items = [
           { itemTitle: "Profile", href: "/profile/employer" },
           { itemTitle: "Settings", href: "/employer/settings" },
-          { itemTitle: "Post jobs", href: "/post-jobs" },
-          { itemTitle: "Posted jobs", href: "/posted-jobs" },
+          { itemTitle: "Post Jobs", href: "/post-jobs" },
+          { itemTitle: "Posted Jobs", href: "/posted-jobs" },
         ])
       : (items = [
           { itemTitle: "All Jobs", href: "/Joblisting" },

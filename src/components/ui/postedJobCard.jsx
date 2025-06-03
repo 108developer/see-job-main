@@ -43,7 +43,7 @@ export default function PostedJobCard({ job, applyUrl } = { applyUrl: "#" }) {
 
   return (
     <Card className="w-full rounded-md ">
-      <CardHeader className="flex flex-row items-start justify-between space-y-0">
+      <CardHeader className="flex flex-col md:flex-row items-start justify-between space-y-0 gap-2">
         <CardTitle className="text-3xl">{job.jobTitle}</CardTitle>
         <Link
           href={{
@@ -80,7 +80,7 @@ export default function PostedJobCard({ job, applyUrl } = { applyUrl: "#" }) {
         </div>
       </CardContent>
       <CardFooter className="p-2 bg-muted text-sm flex justify-center w-full items-center">
-        <div className="flex justify-between items-center w-full">
+        <div className="flex flex-col md:flex-row gap-2 md:justify-between md:items-center w-full">
           <div className="flex items-center">
             <Clock className="mr-1 h-3 w-3" />
             <span>

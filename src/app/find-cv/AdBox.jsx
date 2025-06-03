@@ -13,7 +13,7 @@ const AdBox = () => {
         </div>
         <div className="text-[#17a2b8] text-2xl items-center flex gap-2">
           <Phone fill="#17a2b8" />
-          888-888-8888
+          91-99588-41077
         </div>
       </div>
       <div className="rounded-md flex items-center justify-center border-gray-300 border  h-fit w-full text-center">

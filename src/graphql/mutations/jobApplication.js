@@ -2,8 +2,16 @@
 import { gql } from "@apollo/client";
 
 export const UPDATE_APPLICATION_STATUS = gql`
-  mutation UpdateApplicationStatus($applicationId: ID!, $status: String!) {
-    updateJobApplicationStatus(applicationId: $applicationId, status: $status) {
+  mutation UpdateApplicationStatus(
+    $applicationId: ID!
+    $status: String!
+    $recruiterId: ID!
+  ) {
+    updateJobApplicationStatus(
+      applicationId: $applicationId
+      status: $status
+      recruiterId: $recruiterId
+    ) {
       success
       message
     }

@@ -66,7 +66,7 @@ export const HeroSection = () => {
         alt="HeroSection"
       />
       <div className="w-full h-full bg-white/70 bg-opacity-95 gap-5 absolute flex items-center justify-center">
-        <div className="max-w-6xl w-full h-full gap-5 absolute flex items-center justify-center">
+        <div className="max-w-6xl w-full h-full gap-5 absolute flex flex-col md:flex-row p-2 items-center justify-center">
           {/* "What" section */}
           <div className="text-start w-full">
             <div className="text-black text-3xl font-semibold">What</div>
@@ -219,7 +219,7 @@ export const ResumeService = () => {
         {[...Array(3)].map((_, index) => (
           <Card
             key={index}
-            className={`p-6  rounded-none hover:shadow-xl transition-shadow rounded-md ${
+            className={`p-6 hover:shadow-xl transition-shadow rounded-md ${
               index == 1 ? "bg-red-400 text-white" : ""
             }`}
           >

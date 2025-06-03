@@ -13,10 +13,12 @@ import { Slider } from "@/components/ui/slider";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Separator } from "../../components/ui/separator";
 import { jobType, salaryOptions } from "./constant";
+import { Menu, X } from "lucide-react";
 
 const FilterSidebar = ({ onFilterChange, children }) => {
   const [selectedJobTypes, setSelectedJobTypes] = useState([]);
   const [selectedJobTitle, setSelectedJobTitle] = useState("");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const [jobTitleSearchTerm, setJobTitleSearchTerm] = useState("");
   const [location, setLocation] = useState("");
@@ -87,8 +89,17 @@ const FilterSidebar = ({ onFilterChange, children }) => {
   }, []);
 
   return (
-    <div className="w-full flex gap-5 border-r h-full">
-      <div className="w-96 bg-background border-r p-4 h-full overflow-y-auto">
+    <div className="w-full flex gap-2 border-r h-full">
+      <div
+        className={`
+      fixed z-40 inset-y-0 left-0 transform bg-background w-80 p-4 overflow-y-auto
+      transition-transform duration-300 ease-in-out
+      ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+      lg:translate-x-0 lg:static lg:transform-none border-r-2
+    `}
+      >
+        {/* Sidebar content here */}
+
         {savedJobTitle && (
           <div className="px-2 py-1 bg-muted text-muted-foreground rounded-md mb-4 flex flex-col gap-2">
             <div className="flex flex-col">
@@ -115,7 +126,17 @@ const FilterSidebar = ({ onFilterChange, children }) => {
           </div>
         )}
 
-        <h2 className="text-lg font-semibold">Filters</h2>
+        <div className="flex justify-between items-center mb-2">
+          <h2 className="text-lg font-semibold">Filters</h2>
+          {/* Close button only on mobile */}
+          <button
+            className="lg:hidden p-1 rounded hover:bg-gray-200"
+            onClick={() => setSidebarOpen(false)}
+            aria-label="Close sidebar"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
         <div className="space-y-4">
           <Separator />
@@ -235,7 +256,15 @@ const FilterSidebar = ({ onFilterChange, children }) => {
         </div>
       </div>
 
-      <div className="w-full flex gap-4 pr-4 py-4">{children}</div>
+      <div className="w-full flex flex-col gap-4 p-4">
+        <div className="lg:hidden h-8 flex gap-2 font-bold">
+          <Menu
+            className="w-6 h-6 cursor-pointer"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+          /> Filters
+        </div>
+        {children}
+      </div>
     </div>
   );
 };

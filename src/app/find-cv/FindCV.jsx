@@ -1,13 +1,10 @@
 "use client";
 
-export const dynamic = "force-dynamic";
-
-import FilterSidebar from "@/app/find-cv/FilterSidebar";
-import SEOModal from "@/app/modals/SEOModal";
 import { Pagination } from "@/components/Pagination";
+import AccessDenied from "@/components/ui/AccessDenied ";
 import { Loader } from "@/components/ui/loader";
-import { UPDATE_APPLICATION_STATUS } from "@/graphql/mutations/jobApplication";
-import { GET_JOB_APPLICATIONS } from "@/graphql/queries/jobApplication";
+import { UPDATE_CANDIDATE_STATUS } from "@/graphql/mutations/jobApplication";
+import { GET_ALL_CANDIDATES } from "@/graphql/queries/candidate";
 import PlaceholderImage from "@/images/Profile_avatar_placeholder_large.png";
 import { setModal } from "@/redux/slices/modalSlice";
 import { handleDownloadResume } from "@/utils/HandleDownloadResume";
@@ -16,8 +13,6 @@ import {
   Banknote,
   Briefcase,
   Calendar,
-  ChevronDownCircle,
-  ChevronUpCircle,
   DownloadIcon,
   Eye,
   EyeOff,
@@ -31,11 +26,12 @@ import {
   UserX,
 } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import SEOModal from "../modals/SEOModal";
+import FilterSidebar from "./FilterSidebar";
 
 const status = ["All", "Viewed", "Shortlisted", "Rejected", "Hold"];
 
@@ -54,51 +50,74 @@ const iconMap = {
   Viewed: <Eye className="w-4 h-4" />,
 };
 
-const formatAnswer = (answer) => {
-  if (Array.isArray(answer)) {
-    return answer.map((opt, idx) => <li key={idx}>{opt}</li>);
-  }
-  return <span>{answer}</span>;
-};
-
-const JobApplications = () => {
-  const searchParams = useSearchParams();
-  const jobId = searchParams.get("jobId");
+const FindCV = () => {
   const router = useRouter();
-  const [selectedStatus, setSelectedStatus] = useState("All");
-  const [loadingStatus, setLoadingStatus] = useState({});
-  const [candidateStatusMap, setCandidateStatusMap] = useState({});
-  const [expandedCandidateId, setExpandedCandidateId] = useState(null);
-  const [selectedCandidates, setSelectedCandidates] = useState([]);
+  const dispatch = useDispatch();
+  const { userid, role } = useSelector((state) => state.auth);
 
+  const [isClient, setIsClient] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const [filters, setFilters] = useState({
+    employerId: userid,
+    salaryMin: 0,
+    salaryMax: 5000000,
+    experienceMin: 0,
+    experienceMax: 15,
+    skills: [],
+    ageMin: 18,
+    ageMax: 60,
+  });
+
+  const [selectedCandidates, setSelectedCandidates] = useState([]);
+  const [candidateStatusMap, setCandidateStatusMap] = useState({});
+  const [loadingStatus, setLoadingStatus] = useState({});
   const [shownEmails, setShownEmails] = useState(new Set());
   const [shownPhones, setShownPhones] = useState(new Set());
   const [shownWhatsApps, setShownWhatsApps] = useState(new Set());
   const [allowedToVisit, setAllowedToVisit] = useState(new Set());
 
-  const [updateStatusMutation] = useMutation(UPDATE_APPLICATION_STATUS);
+  const [updateStatusMutation] = useMutation(UPDATE_CANDIDATE_STATUS);
+  const { data, loading } = useQuery(GET_ALL_CANDIDATES, {
+    variables: { ...filters, page: currentPage, limit: 10 },
+  });
 
-  const { userid, token, role } = useSelector((state) => state.auth);
-
+  useEffect(() => setIsClient(true), []);
+  useEffect(() => setCurrentPage(1), [filters]);
   useEffect(() => {
-    if (token && role !== "employer" && role !== "recruiter") {
-      router.push("/");
-    }
-  }, [token, role, router]);
+    const statusValue = selectedStatus === "All" ? "" : selectedStatus;
+    handleFilterChange({ status: statusValue });
+  }, [selectedStatus]);
+
+  const handleFilterChange = (updatedFilters) => {
+    const merged = { ...filters, ...updatedFilters };
+    Object.keys(merged).forEach((key) => {
+      if (
+        merged[key] === null ||
+        merged[key] === "" ||
+        merged[key] === "null" ||
+        merged[key] === "NaN" ||
+        (Array.isArray(merged[key]) && merged[key].length === 0)
+      ) {
+        delete merged[key];
+      }
+    });
+    setFilters(merged);
+  };
+
+  const toggleCandidateSelection = (id) => {
+    setSelectedCandidates((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
 
   const updateCandidateStatus = async (candidateId, newStatus) => {
     const currentStatus = candidateStatusMap[candidateId] || "All";
+    if (currentStatus === newStatus) return;
 
-    if (currentStatus === newStatus) {
-      return;
-    }
-
+    setLoadingStatus((prev) => ({ ...prev, [candidateId]: true }));
     const previousStatus = currentStatus;
-
-    setLoadingStatus((prev) => ({
-      ...prev,
-      [candidateId]: true,
-    }));
 
     try {
       setCandidateStatusMap((prev) => ({
@@ -107,102 +126,23 @@ const JobApplications = () => {
       }));
 
       const { data } = await updateStatusMutation({
-        variables: {
-          applicationId: candidateId,
-          status: newStatus,
-          recruiterId: userid,
-        },
+        variables: { candidateId, status: newStatus, recruiterId: userid },
       });
 
-      if (data?.updateJobApplicationStatus?.success) {
-        toast.success(data?.updateJobApplicationStatus?.message);
+      if (data?.updateCandidateStatus?.success) {
+        toast.success(data?.updateCandidateStatus?.message);
       } else {
-        toast.error(
-          data?.updateJobApplicationStatus?.message ||
-            "Failed to update status."
-        );
-        setCandidateStatusMap((prev) => ({
-          ...prev,
-          [candidateId]: previousStatus,
-        }));
+        throw new Error(data?.updateCandidateStatus?.message);
       }
-    } catch (error) {
-      toast.error("Failed to update status. Please try again.");
+    } catch (err) {
+      toast.error(err.message || "Failed to update status.");
       setCandidateStatusMap((prev) => ({
         ...prev,
         [candidateId]: previousStatus,
       }));
     } finally {
-      setLoadingStatus((prev) => ({
-        ...prev,
-        [candidateId]: false,
-      }));
+      setLoadingStatus((prev) => ({ ...prev, [candidateId]: false }));
     }
-  };
-
-  useEffect(() => {
-    const statusValue = selectedStatus === "All" ? "" : selectedStatus;
-    handleFilterChange({ status: statusValue });
-  }, [selectedStatus]);
-
-  const [currentPage, setCurrentPage] = useState(1);
-  const [filters, setFilters] = useState({
-    jobId: jobId,
-    skills: [],
-  });
-
-  const { data, error, loading } = useQuery(GET_JOB_APPLICATIONS, {
-    variables: {
-      ...filters,
-      page: currentPage,
-    },
-    // skip: !jobId,
-  });
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [filters]);
-
-  const handleFilterChange = (updatedFilters) => {
-    setFilters((prevFilters) => {
-      const mergedFilters = {
-        ...prevFilters,
-        ...updatedFilters,
-      };
-
-      Object.keys(mergedFilters).forEach((key) => {
-        if (
-          mergedFilters[key] === null ||
-          mergedFilters[key] === "" ||
-          mergedFilters[key] === "null" ||
-          mergedFilters[key] === "NaN" ||
-          (Array.isArray(mergedFilters[key]) && mergedFilters[key].length === 0)
-        ) {
-          delete mergedFilters[key];
-        }
-      });
-
-      setCurrentPage(1);
-      return mergedFilters;
-    });
-  };
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
-
-  const toggleQuestionnaire = (candidateId) => {
-    setExpandedCandidateId((prev) =>
-      prev === candidateId ? null : candidateId
-    );
-  };
-
-  const toggleCandidateSelection = (candidateId) => {
-    setSelectedCandidates((prevSelected) =>
-      prevSelected.includes(candidateId)
-        ? prevSelected.filter((id) => id !== candidateId)
-        : [...prevSelected, candidateId]
-    );
   };
 
   const showEmail = (id) => {
@@ -220,36 +160,42 @@ const JobApplications = () => {
     setAllowedToVisit((prev) => new Set(prev).add(id));
   };
 
-  const dispatch = useDispatch();
+  const handlePageChange = (page) => setCurrentPage(page);
 
   const openSendMailsModal = () => {
-    const selectedCandidatesData = jobApplications
-      .filter((candidate) => selectedCandidates.includes(candidate.id))
-      .map((candidate) => ({
-        id: candidate.id,
-        fullName: candidate.fullName,
-        email: candidate.email,
-      }));
+    const candidates = paginatedCandidates
+      .filter((c) => selectedCandidates.includes(c.id))
+      .map((c) => ({ id: c.id, fullName: c.fullName, email: c.email }));
 
     dispatch(
-      setModal({
-        modalType: "sendMailsModal",
-        modalProps: {
-          candidates: selectedCandidatesData,
-        },
-      })
+      setModal({ modalType: "sendMailsModal", modalProps: { candidates } })
     );
   };
 
-  const jobApplications = data?.getJobApplications?.jobApplications || [];
-  const totalPages = data?.getJobApplications?.totalPages || 1;
+  const paginatedCandidates = data?.getAllCandidates?.candidates || [];
+  const totalPages = data?.getAllCandidates?.totalPages || 1;
+
+  if (!isClient) {
+    return (
+      <div className="flex items-center justify-center h-screen w-full gap-8 p-4">
+        <Loader count={5} height={50} className="mb-4" />
+      </div>
+    );
+  }
+
+  if (!(role === "employer" || role === "recruiter")) {
+    return (
+      <div className="flex items-center justify-center w-full p-2">
+        <AccessDenied title1={"employer"} title2={"recruiter"} />
+      </div>
+    );
+  }
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen">
-      <SEOModal slug="job-applications" />
-
+    <div className="flex flex-col md:flex-row min-h-screen">
       {/* Sidebar */}
       <div className="flex w-64 bg-white shadow-lg border-r">
+        <SEOModal slug="find-cv" />
         <FilterSidebar filters={filters} onFilterChange={handleFilterChange} />
       </div>
 
@@ -275,7 +221,7 @@ const JobApplications = () => {
             <div className="flex items-center gap-2 ml-auto">
               <div
                 onClick={() => {
-                  const allIds = jobApplications.map(
+                  const allIds = paginatedCandidates.map(
                     (candidate) => candidate.id
                   );
                   setSelectedCandidates(allIds);
@@ -305,15 +251,15 @@ const JobApplications = () => {
           <div className="flex items-center justify-center h-screen w-full gap-8 p-4">
             <Loader count={5} height={50} className="mb-4" />
           </div>
-        ) : jobApplications.length === 0 ? (
-          <div className="flex items-center justify-center h-screen text-center text-xl font-semibold text-gray-600">
+        ) : paginatedCandidates.length === 0 ? (
+          <div className="text-center text-xl font-semibold text-gray-600">
             No candidates found for the selected filters.
           </div>
         ) : (
           <div className="flex flex-col gap-6">
-            {jobApplications.map((candidate) => {
+            {paginatedCandidates.map((candidate) => {
               const currentStatus =
-                candidateStatusMap[candidate.id] || candidate.status;
+                candidateStatusMap[candidate.id] || candidate.recruiterStatus;
 
               return (
                 <div key={candidate.id} className="flex flex-col md:flex-row gap-2">
@@ -327,10 +273,10 @@ const JobApplications = () => {
                   </div>
                   <div
                     key={candidate.id}
-                    className="flex flex-col gap-2 bg-white border rounded-lg shadow-md px-8 py-4 w-full mx-auto hover:shadow-lg transition-all"
+                    className="flex flex-col-reverse gap-2  bg-white border rounded-lg shadow-md px-8 py-4 w-full mx-auto hover:shadow-lg transition-all"
                   >
                     {/* Candidate Details */}
-                    <div className="flex flex-col md:flex-row justify-between w-full gap-2">
+                    <div className="flex flex-col md:flex-row md:justify-between w-full gap-2">
                       <div className="flex flex-col w-full gap-2">
                         {/* <div className="flex items-center gap-2"> */}
                         <div className="flex items-center gap-2 w-full">
@@ -349,14 +295,14 @@ const JobApplications = () => {
                         <div className="flex items-center gap-2 w-full">
                           <IndianRupee className="w-4 h-4" />
                           Current Salary : ₹{" "}
-                          {candidate?.currentSalary.toLocaleString() ||
+                          {candidate?.currentSalary?.toLocaleString() ||
                             "Not Available"}
                           /month
                         </div>
                         <div className="flex items-center gap-2 w-full">
                           <Banknote className="w-4 h-4" />
                           Expected Salary : ₹{" "}
-                          {candidate?.expectedSalary.toLocaleString() ||
+                          {candidate?.expectedSalary?.toLocaleString() ||
                             "Not Available"}
                           /month
                         </div>
@@ -368,12 +314,12 @@ const JobApplications = () => {
                           {candidate.degree || "Not Available"}
                         </div>
                         {/* <div className="flex items-center gap-2 w-full">
-                          <Award className="w-4 h-4" />
-                          {candidate.board || "Not Available"}
-                          <Award className="w-4 h-4" />
-                          Medium:
-                          {candidate.medium || "Not Available"}
-                        </div> */}
+                                          <Award className="w-4 h-4" />
+                                          {candidate.board || "Not Available"}
+                                          <Award className="w-4 h-4" />
+                                          Medium:
+                                          {candidate.medium || "Not Available"}
+                                        </div> */}
                         {/* </div> */}
 
                         <div className="flex items-center gap-2 w-full">
@@ -421,24 +367,21 @@ const JobApplications = () => {
                           </div>
 
                           <div className="w-full flex flex-col p-1 ">
-                            <Link
-                              href={{
-                                pathname: `/find-cv/${candidate.candidateId}`,
-                                query: {
-                                  jobId,
-                                },
-                              }}
+                            <button
+                              onClick={() =>
+                                router.push(`/find-cv/${candidate.id}`)
+                              }
                             >
                               <div className="text-xl font-semibold text-red-600 gap-2 flex flex-wrap ">
-                                {candidate.fullName || "Not Available"}
+                                {candidate?.name || "Not Available"}
                               </div>
-                            </Link>
+                            </button>
                             <div className="text-sm text-gray-500 flex">
-                              Age: {candidate.age || "Not Available"} /{" "}
-                              {candidate.gender || "Not Available"}
+                              Age: {candidate?.age || "Not Available"} /{" "}
+                              {candidate?.gender || "Not Available"}
                             </div>
                             <div className="text-sm text-gray-600 flex">
-                              {candidate.mode || "Not Available"}
+                              {candidate?.mode || "Not Available"}
                             </div>
                           </div>
                         </div>
@@ -446,12 +389,12 @@ const JobApplications = () => {
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                           <div className="">
                             <div className="flex text-xs">
-                              Shortlisted by {candidate.shortlistedBy || "0"}{" "}
+                              Shortlisted by {candidate?.shortlistedBy || "0"}{" "}
                               Recruiters
                             </div>
                             <div className="text-xs flex text-gray-500">
                               Last Activity:{" "}
-                              {candidate.lastActivity || "Not Available"}
+                              {candidate?.lastActivity || "Not Available"}
                             </div>
                           </div>
 
@@ -459,9 +402,9 @@ const JobApplications = () => {
                             <button
                               onClick={() =>
                                 handleDownloadResume(
-                                  candidate.resume,
-                                  candidate.fullName,
-                                  candidate.email
+                                  candidate?.resume,
+                                  candidate?.name,
+                                  candidate?.email
                                 )
                               }
                               className="bg-blue-600 text-white font-semibold flex items-center gap-2 px-2 py-1 rounded-lg md:ml-auto"
@@ -475,15 +418,15 @@ const JobApplications = () => {
                         <div className="flex flex-col justify-center gap-2 text-sm">
                           <button
                             onClick={() => {
-                              showEmail(candidate.id);
+                              showEmail(candidate?.id);
                             }}
                             className="flex items-center text-xs gap-2 bg-gray-200 text-gray-700 p-2 rounded-md hover:bg-gray-300"
                           >
                             <Mail className="w-4 h-4" />
-                            {shownEmails.has(candidate.id)
+                            {shownEmails.has(candidate?.id)
                               ? candidate.email
                               : "EMAIL"}
-                            {shownEmails.has(candidate.id) ? (
+                            {shownEmails.has(candidate?.id) ? (
                               <Eye className="w-4 h-4" />
                             ) : (
                               <EyeOff className="w-4 h-4" />
@@ -533,37 +476,43 @@ const JobApplications = () => {
                           </div>
                         </div>
 
-                        <div
-                          onClick={(e) => {
-                            if (!allowedToVisit.has(candidate.id)) {
-                              e.preventDefault();
-                              toast.warn(
-                                "Please reveal contact info to view details."
-                              );
-                              return;
-                            }
-
-                            if (
-                              (candidateStatusMap[candidate.id] ||
-                                candidate.status) !== "Viewed"
-                            ) {
-                              e.stopPropagation();
-                              updateCandidateStatus(candidate.id, "Viewed");
-                            }
-                          }}
-                          className={`flex items-center justify-center w-full cursor-pointer rounded-md text-sm gap-1 px-2 py-1 ${
-                            (candidateStatusMap[candidate.id] ||
-                              candidate.status) === "Viewed"
-                              ? statusStyles["Viewed"]
-                              : "bg-gray-400 text-gray-700 hover:text-white hover:bg-blue-600"
-                          }`}
+                        <button
+                          onClick={() =>
+                            router.push(`/find-cv/${candidate.id}`)
+                          }
                         >
-                          {iconMap["Viewed"]}
-                          {(candidateStatusMap[candidate.id] ||
-                            candidate.status) === "Viewed"
-                            ? "Viewed"
-                            : "View Details"}
-                        </div>
+                          <div
+                            onClick={(e) => {
+                              if (!allowedToVisit.has(candidate.id)) {
+                                e.preventDefault();
+                                toast.warn(
+                                  "Please reveal contact info to view details."
+                                );
+                                return;
+                              }
+
+                              if (
+                                (candidateStatusMap[candidate.id] ||
+                                  candidate.recruiterStatus) !== "Viewed"
+                              ) {
+                                e.stopPropagation();
+                                updateCandidateStatus(candidate.id, "Viewed");
+                              }
+                            }}
+                            className={`flex items-center justify-center w-full cursor-pointer rounded-md text-sm gap-1 px-2 py-1 ${
+                              (candidateStatusMap[candidate.id] ||
+                                candidate.recruiterStatus) === "Viewed"
+                                ? statusStyles["Viewed"]
+                                : "bg-gray-400 text-gray-700 hover:text-white hover:bg-blue-600"
+                            }`}
+                          >
+                            {iconMap["Viewed"]}
+                            {(candidateStatusMap[candidate.id] ||
+                              candidate.recruiterStatus) === "Viewed"
+                              ? "Viewed"
+                              : "View Details"}
+                          </div>
+                        </button>
 
                         <div className="flex flex-col md:flex-row md:items-center md:justify-center gap-2">
                           <button
@@ -576,14 +525,14 @@ const JobApplications = () => {
                             }
                             className={`flex items-center gap-1 p-2 rounded-md ${
                               (candidateStatusMap[candidate.id] ||
-                                candidate.status) === "Shortlisted"
+                                candidate.recruiterStatus) === "Shortlisted"
                                 ? statusStyles["Shortlisted"]
                                 : "bg-green-300 text-gray-700 hover:text-white hover:bg-green-600 text-xs w-24"
                             }`}
                           >
                             {iconMap["Shortlisted"]}
                             {(candidateStatusMap[candidate.id] ||
-                              candidate.status) === "Shortlisted"
+                              candidate.recruiterStatus) === "Shortlisted"
                               ? "Shortlisted"
                               : "Shortlist"}
                           </button>
@@ -598,14 +547,14 @@ const JobApplications = () => {
                             }
                             className={`flex items-center gap-1 w p-2 rounded-md ${
                               (candidateStatusMap[candidate.id] ||
-                                candidate.status) === "Rejected"
+                                candidate.recruiterStatus) === "Rejected"
                                 ? statusStyles["Rejected"]
                                 : "bg-red-300 text-gray-700 hover:text-white hover:bg-red-600 text-xs w-20"
                             }`}
                           >
                             {iconMap["Rejected"]}
                             {(candidateStatusMap[candidate.id] ||
-                              candidate.status) === "Rejected"
+                              candidate.recruiterStatus) === "Rejected"
                               ? "Rejected"
                               : "Reject"}
                           </button>
@@ -620,7 +569,7 @@ const JobApplications = () => {
                             }
                             className={`flex items-center gap-1 p-2 rounded-md ${
                               (candidateStatusMap[candidate.id] ||
-                                candidate.status) === "Hold"
+                                candidate.recruiterStatus) === "Hold"
                                 ? statusStyles["Hold"]
                                 : "bg-yellow-300 text-gray-700 hover:text-white hover:bg-yellow-700 text-xs w-20"
                             }`}
@@ -631,7 +580,7 @@ const JobApplications = () => {
 
                             <span className="whitespace-nowrap">
                               {(candidateStatusMap[candidate.id] ||
-                                candidate.status) === "Hold"
+                                candidate.recruiterStatus) === "Hold"
                                 ? "On Hold"
                                 : "Hold"}
                             </span>
@@ -639,46 +588,6 @@ const JobApplications = () => {
                         </div>
                       </div>
                     </div>
-
-                    <div
-                      className="flex justify-between items-center cursor-pointer"
-                      onClick={() => toggleQuestionnaire(candidate.id)}
-                    >
-                      <h3 className="font-semibold text-lg text-green-500">
-                        Questionnaire
-                      </h3>
-                      {expandedCandidateId === candidate.id ? (
-                        <ChevronUpCircle className="w-5 h-5 text-gray-500" />
-                      ) : (
-                        <ChevronDownCircle className="w-5 h-5 text-gray-500" />
-                      )}
-                    </div>
-                    {expandedCandidateId === candidate.id && (
-                      <div className="mt-2">
-                        {candidate.answers.map((answer, index) => {
-                          return (
-                            <div key={index} className="mb-3">
-                              <strong>
-                                Que {index + 1}: {answer.questionText}
-                              </strong>
-                              <ul className="list-inside list-disc mt-1 ml-4">
-                                {answer.answer && (
-                                  <li>
-                                    {Array.isArray(answer.answer) ? (
-                                      <ul className="list-inside list-disc ml-4">
-                                        {formatAnswer(answer.answer)}
-                                      </ul>
-                                    ) : (
-                                      <span>{answer.answer}</span>
-                                    )}
-                                  </li>
-                                )}
-                              </ul>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
                   </div>
                 </div>
               );
@@ -696,4 +605,4 @@ const JobApplications = () => {
   );
 };
 
-export default JobApplications;
+export default FindCV;

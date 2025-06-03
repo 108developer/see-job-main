@@ -55,7 +55,7 @@ const JobDetail = ({}) => {
       {/* Job Card */}
 
       <div className="bg-white shadow-md rounded-lg p-6">
-        <div className="flex items-center justify-between w-full">
+        <div className="flex flex-col md:flex-row items-center justify-between w-full">
           <div className="flex flex-col w-full">
             <h5 className="text-xl font-semibold mb-1">{job.jobTitle}</h5>
             <p className="text-gray-600 text-sm mb-2">{job.companyName}</p>
@@ -89,7 +89,7 @@ const JobDetail = ({}) => {
           <MapPin className="mr-1 h-3 w-3" />
           {job.jobLocation}
         </p>
-        <div className="flex flex-col w-full text-sm text-gray-500">
+        <div className="flex flex-col w-full text-sm text-gray-500 mt-2">
           <span className="flex gap-2 whitespace-nowrap">
             <em>Openings:</em> <strong>{job?.openings}</strong>
           </span>
@@ -101,8 +101,8 @@ const JobDetail = ({}) => {
         {/*  ------------------------------------------------------ */}
 
         <hr className="my-4" />
-        <div className="flex items-center justify-between w-full">
-          <div className="flex items-center w-full gap-4 text-sm text-gray-500">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between w-full gap-2">
+          <div className="flex flex-col md:flex-row md:items-center w-full gap-2 text-sm text-gray-500">
             <span>
               <em>Posted:</em>{" "}
               <strong>{getTimeSincePosted(job.createdAt)}</strong>
@@ -111,7 +111,7 @@ const JobDetail = ({}) => {
               <em>Job applicants:</em> <strong>111 applicants</strong>
             </span>
           </div>
-          <div className="flex items-center gap-1 justify-end text-blue-600 text-sm cursor-pointer hover:underline w-full">
+          <div className="flex items-center gap-1 md:justify-end text-blue-600 text-sm cursor-pointer hover:underline w-full">
             <Star className="w-4 h-4" /> Send More Jobs Like This
           </div>
         </div>

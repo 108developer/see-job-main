@@ -1,82 +1,52 @@
-"use client";
+import { getSeoMetadata } from "@/lib/getSeoMetadata";
+import PostedJobs from "./PostedJobs";
 
-import { Pagination } from "@/components/Pagination";
-import AccessDenied from "@/components/ui/AccessDenied ";
-import { Loader } from "@/components/ui/loader";
+export async function generateMetadata() {
+  const seo = await getSeoMetadata("posted-jobs");
 
-import PostedJobCard from "@/components/ui/postedJobCard";
-import { useGetJobsPostedByRecruiterQuery } from "@/redux/api/jobApi";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+  if (!seo) {
+    return {
+      title: "Posted Job",
+      description: "Your go-to career platform",
+    };
+  }
 
-const PostedJobs = () => {
-  const router = useRouter();
-  const [currentPage, setCurrentPage] = useState(1);
-
-  const { userid, token, role } = useSelector((state) => state.auth);
-
-  // useEffect(() => {
-  //   if (token && role !== "employer" && role !== "recruiter") {
-  //     router.push("/");
-  //   }
-  // }, [token, role, router]);
-
-  const { data, error, isLoading } = useGetJobsPostedByRecruiterQuery({
-    page: currentPage,
-    userId: userid,
-  });
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, []);
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
+  return {
+    title: seo.metaTitle,
+    description: seo.metaDescription,
+    keywords: seo.metaKeywords,
+    alternates: {
+      canonical: seo.canonicalUrl,
+    },
+    openGraph: {
+      title: seo.og.title,
+      description: seo.og.description,
+      url: seo.og.url,
+      type: seo.og.type,
+      images: [
+        {
+          url: seo.og.image,
+        },
+      ],
+    },
+    twitter: {
+      card: seo.twitter.card,
+      title: seo.twitter.title,
+      description: seo.twitter.description,
+      images: [seo.twitter.image],
+    },
+    ...(seo.structuredData && {
+      other: {
+        "ld+json": JSON.stringify(JSON.parse(seo.structuredData)),
+      },
+    }),
   };
+}
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen w-full gap-8 p-4">
-        <Loader count={5} height={50} className="mb-4" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="w-full flex items-center justify-center min-h-screen">
-        Error loading jobs. Please try again later.
-      </div>
-    );
-  }
-
-  const jobs = data?.data || [];
-  const totalPages = data?.pagination?.totalPages || 1;
-
+export default function Page() {
   return (
-    <div className="flex min-h-screen">
-      {!(role === "employer" || role === "recruiter") ? (
-        <div className="flex items-center justify-center w-full">
-          <AccessDenied title1={"employer"} title2={"recruiter"} />
-        </div>
-      ) : (
-        <div className="flex flex-col w-full space-y-4 px-4 md:px-12 lg:px-24 py-8">
-          {jobs.length === 0 ? (
-            <div>No jobs found for the selected filters.</div>
-          ) : (
-            jobs.map((job) => <PostedJobCard key={job._id} job={job} />)
-          )}
-
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages || 1}
-            onPageChange={handlePageChange}
-          />
-        </div>
-      )}
+    <div>
+      <PostedJobs />
     </div>
   );
-};
-
-export default PostedJobs;
+}
