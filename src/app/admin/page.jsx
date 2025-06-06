@@ -1,11 +1,9 @@
 "use client";
 
 import AccessDeniedAdmin from "@/components/ui/AccessDeniedAdmin";
-import { Loader } from "@/components/ui/loader";
 import { LayoutDashboard } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
 import Boards from "./content/Boards";
 import Candidates from "./content/Candidates";
 import Degree from "./content/Degree";
@@ -29,29 +27,12 @@ const dashboardItems = [
 const Page = () => {
   const [selectedItem, setSelectedItem] = useState("Skills");
 
-  const [isClient, setIsClient] = useState(false);
-
-  const { useremail } = useSelector((state) => state.auth);
+  const [useremail, setUseremail] = useState(null);
 
   useEffect(() => {
-    setIsClient(true);
+    const emailFromStorage = localStorage.getItem("useremail");
+    setUseremail(emailFromStorage);
   }, []);
-
-  if (!isClient) {
-    return (
-      <div className="flex items-center justify-center h-screen w-full gap-8 p-4">
-        <Loader count={5} height={50} className="mb-4" />
-      </div>
-    );
-  }
-
-  if (useremail !== "admin@example.com") {
-    return (
-      <div className="flex items-center justify-center w-full p-2">
-        <AccessDeniedAdmin title={"Admin"} />
-      </div>
-    );
-  }
 
   const renderContent = () =>
     selectedItem === "Candidates" ? (
@@ -74,9 +55,13 @@ const Page = () => {
       <div>Select an item</div>
     );
 
-  return (
+  return useremail !== "admin@example.com" ? (
+    <div className="flex items-center justify-center w-full p-2">
+      <AccessDeniedAdmin title={"admin"} />
+    </div>
+  ) : (
     <div className="flex h-screen">
-      {/* Sidebar */}
+      {/* Sidebar  */}
       <div className="flex flex-col bg-gradient-to-b from-gray-500 to-gray-700 text-white w-48 p-6 shadow-lg">
         <Link href={"/admin/dashboard"}>
           <h1 className="flex items-center gap-2 text-xl font-semibold mb-6">

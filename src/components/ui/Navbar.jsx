@@ -250,18 +250,24 @@ const UserDropdown = ({
 }) => {
   let items = [];
 
-  {
-    role === "employer"
-      ? (items = [
-          { itemTitle: "Profile", href: "/profile/employer" },
-          { itemTitle: "Settings", href: "/employer/settings" },
-          { itemTitle: "Post Jobs", href: "/post-jobs" },
-          { itemTitle: "Posted Jobs", href: "/posted-jobs" },
-        ])
-      : (items = [
-          { itemTitle: "All Jobs", href: "/Joblisting" },
-          { itemTitle: "Profile", href: "/profile/candidate" },
-        ]);
+  if (role === "employer") {
+    items = [
+      { itemTitle: "Profile", href: "/profile/employer" },
+      { itemTitle: "Settings", href: "/employer/settings" },
+      { itemTitle: "Post Jobs", href: "/post-jobs" },
+      { itemTitle: "Posted Jobs", href: "/posted-jobs" },
+    ];
+  } else if (role === "candidate") {
+    items = [
+      { itemTitle: "All Jobs", href: "/Joblisting" },
+      { itemTitle: "Profile", href: "/profile/candidate" },
+    ];
+  } else {
+    // Default (e.g., admin or others)
+    items = [
+      { itemTitle: "Admin Panel", href: "/admin" },
+      { itemTitle: "Admin Dashboard", href: "/admin/dashboard" },
+    ];
   }
 
   const [isOpen, setIsOpen] = useState(false);

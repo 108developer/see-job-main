@@ -6,7 +6,7 @@ export async function generateMetadata() {
 
   if (!seo) {
     return {
-      title: "Profile",
+      title: "Employer Login",
       description: "Your go-to career platform",
     };
   }

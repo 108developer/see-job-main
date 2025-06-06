@@ -1,38 +1,19 @@
 "use client";
 
 import AccessDeniedAdmin from "@/components/ui/AccessDeniedAdmin";
-import { Loader } from "@/components/ui/loader";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
 
 export default function DashboardLayout({ children }) {
   const pathname = usePathname();
 
-  const [isClient, setIsClient] = useState(false);
-
-  const { useremail } = useSelector((state) => state.auth);
+  const [useremail, setUseremail] = useState(null);
 
   useEffect(() => {
-    setIsClient(true);
+    const emailFromStorage = localStorage.getItem("useremail");
+    setUseremail(emailFromStorage);
   }, []);
-
-  if (!isClient) {
-    return (
-      <div className="flex items-center justify-center h-screen w-full gap-8 p-4">
-        <Loader count={5} height={50} className="mb-4" />
-      </div>
-    );
-  }
-
-  if (useremail !== "admin@example.com") {
-    return (
-      <div className="flex items-center justify-center w-full p-2">
-        <AccessDeniedAdmin title={"Admin"} />{" "}
-      </div>
-    );
-  }
 
   const navItems = [
     { name: "Overview", href: "/admin/dashboard" },
@@ -42,7 +23,11 @@ export default function DashboardLayout({ children }) {
     { name: "Bulk Upload", href: "/admin/dashboard/bulk-upload" },
   ];
 
-  return (
+  return useremail !== "admin@example.com" ? (
+    <div className="flex items-center justify-center w-full p-2">
+      <AccessDeniedAdmin title={"admin"} />
+    </div>
+  ) : (
     <div className="flex min-h-screen bg-gray-50 text-gray-900">
       {/* Sidebar */}
       <aside className="w-40 border-r bg-white px-6 py-8 shadow-md">

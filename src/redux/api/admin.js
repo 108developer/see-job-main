@@ -78,6 +78,56 @@ const admin = createApi({
         },
       }),
     }),
+
+    // About, Privacy, & Terms Pages Endpoints
+    getPageData: builder.query({
+      query: (type) => `pages/${type}`,
+    }),
+
+    postPageData: builder.mutation({
+      query: ({ type, description }) => ({
+        url: `pages/${type}`,
+        method: "POST",
+        body: { description },
+      }),
+    }),
+
+    updatePageData: builder.mutation({
+      query: ({ type, description }) => ({
+        url: `pages/${type}`,
+        method: "PUT",
+        body: { description },
+      }),
+    }),
+
+    // Contact Page Endpoints
+    getContactData: builder.query({
+      query: () => "contact",
+    }),
+
+    postContactData: builder.mutation({
+      query: (formData) => ({
+        url: "contact",
+        method: "POST",
+        body: formData,
+      }),
+    }),
+
+    updateContactData: builder.mutation({
+      query: (formData) => ({
+        url: "contact",
+        method: "PUT",
+        body: formData,
+      }),
+    }),
+
+    contactEnquiery: builder.mutation({
+      query: (postData) => ({
+        url: "contactEnquiery",
+        method: "POST",
+        body: postData,
+      }),
+    }),
   }),
 });
 
@@ -88,6 +138,17 @@ export const {
   useGetAllJobsQuery,
   useUpdatePlanMutation,
   useSendNewsLetterMutation,
+
+  // Pages Endpoint
+  useGetPageDataQuery,
+  usePostPageDataMutation,
+  useUpdatePageDataMutation,
+
+  // Contact Page
+  useGetContactDataQuery,
+  usePostContactDataMutation,
+  useUpdateContactDataMutation,
+  useContactEnquieryMutation,
 } = admin;
 
 export default admin;

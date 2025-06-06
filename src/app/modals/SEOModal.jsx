@@ -4,7 +4,6 @@ import Keywords from "@/components/Keywords";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import { PenBoxIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
 
@@ -35,7 +34,12 @@ const SEOModal = ({ slug }) => {
   const [initialValues, setInitialValues] = useState(defaultMetadata(""));
   const [entryExists, setEntryExists] = useState(false);
 
-  const { useremail } = useSelector((state) => state.auth);
+  const [useremail, setUseremail] = useState(null);
+
+  useEffect(() => {
+    const emailFromStorage = localStorage.getItem("useremail");
+    setUseremail(emailFromStorage);
+  }, []);
 
   useEffect(() => {
     if (isOpen && slug) fetchMetadata();
@@ -107,7 +111,7 @@ const SEOModal = ({ slug }) => {
   const closeModal = () => setIsOpen(false);
 
   return (
-    useremail !== "admin@example.com" && (
+    useremail === "admin@example.com" && (
       <>
         <div className="fixed top-1/2 right-4 transform -translate-y-1/2 z-50">
           <button
