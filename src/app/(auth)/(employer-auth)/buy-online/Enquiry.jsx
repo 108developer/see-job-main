@@ -1,35 +1,34 @@
-import React from "react";
-import { Home, Mail, Phone, MessageCircle, Smartphone } from "lucide-react";
+import { Mail, MessageCircle, Phone, Smartphone } from "lucide-react";
 
 const contactInfo = [
   {
     label: "Email",
-    value: "example@domain.com",
+    value: "seejob.in@gmail.com",
     icon: <Mail className="text-gray-600" />,
-    link: "mailto:example@domain.com",
+    link: "mailto:seejob.in@gmail.com",
   },
   {
     label: "Call",
-    value: "+1234567890",
+    value: "+919958841077",
     icon: <Phone className="text-gray-600" />,
-    link: "tel:+1234567890",
+    link: "tel:+919958841077",
   },
   {
     label: "WhatsApp",
-    value: "+1234567890",
+    value: "+919958841077",
     icon: <MessageCircle className="text-gray-600" />,
-    link: "https://wa.me/1234567890",
+    link: "https://api.whatsapp.com/send?phone=919958841077&text=Hello%20I%20am%20looking%20for%20enquiry%20regarding",
   },
   {
     label: "Phone",
-    value: "+1234567890",
+    value: "+919958841077",
     icon: <Smartphone className="text-gray-600" />,
   },
 ];
 
 const Enquiry = () => {
   return (
-    <div className="mx-auto py-8 bg-white">
+    <div className="mx-auto py-8 bg-white px-2">
       <div className="text-center">
         <h2 className="text-2xl font-semibold items-start flex w-full px-8">
           Enquiry
@@ -38,22 +37,25 @@ const Enquiry = () => {
       </div>
 
       {/* Contact information */}
-      <div className="mt-8 flex flex-wrap justify-center space-x-8">
+      <div className="mt-8 flex flex-wrap justify-start md:justify-center gap-x-6 gap-y-4 p-4 rounded-md">
         {contactInfo.map((contact, index) => (
-          <div key={index} className="flex items-center">
+          <div
+            key={index}
+            className="flex items-start sm:items-center w-full sm:w-1/2 md:w-auto p-3 rounded"
+          >
             <span className="text-lg mr-2">{contact.icon}</span>
-            <span className="font-semibold text-gray-700">
+            <span className="font-semibold text-gray-700 mr-1">
               {contact.label}:
             </span>
             {contact.link ? (
               <a
                 href={contact.link}
-                className="ml-2 text-blue-500 hover:underline"
+                className="text-blue-500 hover:underline break-words"
               >
                 {contact.value}
               </a>
             ) : (
-              <span className="ml-2 text-gray-600">{contact.value}</span>
+              <span className="text-gray-600 break-words">{contact.value}</span>
             )}
           </div>
         ))}

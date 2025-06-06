@@ -2,6 +2,8 @@ import { closeModal } from "@/redux/slices/modalSlice";
 import { useDispatch, useSelector } from "react-redux";
 import CandidateAuth from "../(auth)/candidate/page";
 import AddQuestionsModal from "../(employer)/post-jobs/AddEditQuestionsModal";
+import ContactModalForm from "../(pages)/contact/ContactModalForm";
+import ModalForm from "../(pages)/ModalForm";
 import CandidateProfileModal from "./auth/CandidateProfileModal";
 import LogoutModal from "./LogOutModal";
 import ModalBase from "./ModalBase";
@@ -50,6 +52,10 @@ const ModalController = () => {
       <OtpVerification closeModal={closeModalHandler} {...modalProps} />
     ) : modalType === "resetPasswordModal" ? (
       <ResetPassword closeModal={closeModalHandler} {...modalProps} />
+    ) : modalType === "ModalForm" ? (
+      <ModalForm closeModal={closeModalHandler} {...modalProps} />
+    ) : modalType === "ContactModalForm" ? (
+      <ContactModalForm closeModal={closeModalHandler} {...modalProps} />
     ) : null;
   };
 

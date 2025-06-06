@@ -1,5 +1,6 @@
 "use client";
 
+import SEOModal from "@/app/modals/SEOModal";
 import { Loader } from "@/components/ui/loader";
 import PlaceholderImage from "@/images/Profile_avatar_placeholder_large.png";
 import {
@@ -18,7 +19,6 @@ import CandidateEducationDetails from "./CandidateEducationDetails";
 import CandidateJobPreference from "./CandidateJobPreference";
 import CandidateRegisterForm from "./CandidateRegisterForm";
 import CandidateWorkExperience from "./CandidateWorkExperience";
-import SEOModal from "@/app/modals/SEOModal";
 
 const profilePicSchema = Yup.object().shape({
   profilePic: Yup.mixed()
@@ -264,12 +264,12 @@ const CandidateProfile = () => {
                   <div className="w-full bg-white shadow-sm rounded-lg border border-gray-300 p-4">
                     {selectedResume ? (
                       <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 bg-gray-200 flex justify-center items-center rounded-full">
-                            <FileIcon className="text-gray-600 w-6 h-6" />
+                        <div className="flex items-center gap-2 md:gap-4">
+                          <div className="w-6 h-6 md:w-10 md:h-10 bg-gray-200 flex justify-center items-center rounded-full">
+                            <FileIcon className="text-gray-600 w-3 h-3 md:w-6 md:h-6" />
                           </div>
-                          <div className="flex items-center gap-6 text-lg">
-                            <span className="font-semibold text-gray-700">
+                          <div className="flex items-center gap-4 text-lg">
+                            <span className="font-semibold text-xs md:text-base text-gray-700 truncate max-w-[150px] sm:max-w-[250px] md:max-w-[350px] inline-block">
                               {typeof selectedResume === "string"
                                 ? decodeURIComponent(
                                     selectedResume

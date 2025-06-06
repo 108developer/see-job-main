@@ -1,56 +1,48 @@
-"use client";
-import { useState } from "react";
-import DatabaseService from "./DatabaseService";
-import JobPosting from "./JobPosting";
-import ComboPackage from "./ComboPackage";
+import { getSeoMetadata } from "@/lib/getSeoMetadata";
+import BuyOnline from "./BuyOnline";
 
-const categories = ["DataBase", "Job Posting", "Combo Package"];
+export async function generateMetadata() {
+  const seo = await getSeoMetadata("buy-online");
 
-export default function BuyOnline() {
-  const [selectedCategory, setSelectedCategory] = useState("DataBase");
+  if (!seo) {
+    return {
+      title: "Buy Online",
+      description: "Your go-to career platform",
+    };
+  }
 
-  const handleCategory = (value) => {
-    setSelectedCategory(value);
+  return {
+    title: seo.metaTitle,
+    description: seo.metaDescription,
+    keywords: seo.metaKeywords,
+    alternates: {
+      canonical: seo.canonicalUrl,
+    },
+    openGraph: {
+      title: seo.og.title,
+      description: seo.og.description,
+      url: seo.og.url,
+      type: seo.og.type,
+      images: [
+        {
+          url: seo.og.image,
+        },
+      ],
+    },
+    twitter: {
+      card: seo.twitter.card,
+      title: seo.twitter.title,
+      description: seo.twitter.description,
+      images: [seo.twitter.image],
+    },
+    ...(seo.structuredData && {
+      other: {
+        "ld+json": JSON.stringify(JSON.parse(seo.structuredData)),
+      },
+    }),
   };
+}
 
-  const renderContent = () => {
-    return selectedCategory === "DataBase" ? (
-      <DatabaseService />
-    ) : selectedCategory === "Job Posting" ? (
-      <JobPosting />
-    ) : (
-      <ComboPackage />
-    );
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="bg-red-500 text-white text-center p-5">
-        <h1 className="text-3xl font-bold">Buy Services</h1>
-      </div>
-      <div className="lg:px-28 py-4 w-full">
-        <div className="relative flex items-center w-full">
-          {categories.map((item, key) => (
-            <div
-              key={key}
-              className={`cursor-pointer px-4 py-2 relative z-10 ${
-                selectedCategory === item
-                  ? "text-red-500 font-semibold bg-white"
-                  : "text-blue-400 hover:bg-gray-200"
-              }`}
-              onClick={() => handleCategory(item)}
-            >
-              {item}
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-2 relative w-full">
-          <div className="absolute bottom-1 left-0 w-full h-1 border-t-[1px] border-gray-400 z-0" />
-        </div>
-
-        <div className="mt-5">{renderContent()}</div>
-      </div>
-    </div>
-  );
+export default function Page() {
+  return <BuyOnline />;
 }
