@@ -1,7 +1,3 @@
-
-
-
-
 "use client";
 
 import { Pagination } from "@/components/Pagination";
@@ -14,8 +10,8 @@ import JobTable from "./JobTable";
 export default function Jobs() {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [sortBy, setSortBy] = useState("name");
-  const [sortOrder, setSortOrder] = useState("asc");
+  const [sortBy, setSortBy] = useState("updatedAt");
+  const [sortOrder, setSortOrder] = useState("desc");
   const [page, setPage] = useState(1);
   const [limit] = useState(25);
 

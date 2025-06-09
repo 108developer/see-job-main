@@ -47,9 +47,10 @@ const EmployerProfile = () => {
   }
 
   if (error) {
+    console.log("ERROR: ", error);
     return (
       <div className="min-h-screen w-full flex items-center justify-center">
-        Error loading profile data
+        Error loading profile data... {error.data.message}
       </div>
     );
   }

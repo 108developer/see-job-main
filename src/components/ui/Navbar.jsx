@@ -22,24 +22,39 @@ const ResumeService = [
   },
 ];
 const components = [
-  { itemTitle: "About Us", href: "/" },
-  { itemTitle: "Contact Us", href: "/" },
-  { itemTitle: "Company Review", href: "/" },
+  { itemTitle: "About Us", href: "/about" },
+  { itemTitle: "Contact Us", href: "/contact" },
+  { itemTitle: "Company Review", href: "/company_reviews" },
 ];
 const wfhData = [
-  { itemTitle: "Work From Bangalore", href: "/" },
-  { itemTitle: "Work From Delhi", href: "/" },
-  { itemTitle: "Work From Kolkata", href: "/" },
-  { itemTitle: "Work From Chennai", href: "/" },
-  { itemTitle: "Work From Noida", href: "/" },
-  { itemTitle: "Work From Gurugram", href: "/" },
-  { itemTitle: "View All Locations", href: "/" },
+  { itemTitle: "Work From Bangalore", location: "Bangalore" },
+  { itemTitle: "Work From Delhi", location: "Delhi" },
+  { itemTitle: "Work From Kolkata", location: "Kolkata" },
+  { itemTitle: "Work From Chennai", location: "Chennai" },
+  { itemTitle: "Work From Noida", location: "Noida" },
+  { itemTitle: "Work From Gurugram", location: "Gurugram" },
+  { itemTitle: "View All Locations", location: "" },
 ];
 
 const Navbar = () => {
   const [authLogin, setAuthLogin] = useState(false);
   const { token, role } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
+
+  const [userRole, setUserRole] = useState(null);
+
+  const [jobTitleSearchTerm, setJobTitleSearchTerm] = useState("");
+  const [location, setLocation] = useState("");
+
+  const handleFindJobs = () => {
+    localStorage.setItem("jobTitle", jobTitleSearchTerm);
+    localStorage.setItem("location", location);
+  };
+
+  useEffect(() => {
+    const roleFromStorage = localStorage.getItem("role");
+    setUserRole(roleFromStorage);
+  }, []);
 
   useEffect(() => {
     if (token) {
@@ -72,7 +87,15 @@ const Navbar = () => {
             />
           </Link>
           <div className="flex flex-wrap gap-3 items-center">
-            <DropdownMenu label="Work From Home" items={wfhData} />
+            <DropdownMenu
+              label="Work From Home"
+              items={wfhData}
+              onItemClick={(item) => {
+                setLocation(item.location);
+                localStorage.setItem("location", item.location);
+                localStorage.setItem("jobTitle", jobTitleSearchTerm);
+              }}
+            />
             <DropdownMenu label="Resume Service" items={ResumeService} />
             <Link
               href="/career"
@@ -84,9 +107,11 @@ const Navbar = () => {
           </div>
         </div>
         <div className="w-fit flex flex-col md:flex-row items-center gap-5">
-          <div className="hidden md:block">
-            <ResumeUploadModal btntext="Post Your Resume" />
-          </div>
+          {userRole !== "employer" && userRole !== "admin" && (
+            <div className="hidden md:block">
+              <ResumeUploadModal btntext="Post Your Resume" />
+            </div>
+          )}
           <UserDropdown
             authLogin={authLogin}
             role={role}
@@ -211,14 +236,28 @@ const WhatsAppIcon = () => (
   </svg>
 );
 
-const DropdownMenu = ({ label, items }) => {
+const DropdownMenu = ({ label, items, onItemClick }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
-    <div className="relative">
+    <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        onBlur={() => setIsOpen(false)}
+        // onBlur={() => setIsOpen(false)}
         className="text-gray-500 flex-nowrap md:text-lg font-thin transition duration-300 ease-in-out hover:text-gray-400"
       >
         {label}
@@ -226,15 +265,20 @@ const DropdownMenu = ({ label, items }) => {
       {isOpen && (
         <ul className="absolute top-full left-0 bg-white shadow-lg rounded-md w-48 z-10 ">
           {items.map((item, index) => (
-            <Link
-              href={item.href}
-              className="flex items-center border-b border-dashed gap-2 transition duration-300 ease-in-out hover:bg-gray-100 p-3 "
-            >
-              <li key={index}>
+            <li key={index} className="hover:bg-gray-100">
+              <Link
+                href={item?.href || "/Joblisting"}
+                // href="/Joblisting"
+                onClick={() => {
+                  setIsOpen(false);
+                  if (onItemClick) onItemClick(item);
+                }}
+                className="w-full h-full flex items-center border-b border-dashed gap-2 transition duration-300 ease-in-out hover:bg-gray-100 p-3"
+              >
                 <ArrowRight className="h-4 text-red-800" />
                 {item.itemTitle}
-              </li>
-            </Link>
+              </Link>
+            </li>
           ))}
         </ul>
       )}
@@ -253,7 +297,7 @@ const UserDropdown = ({
   if (role === "employer") {
     items = [
       { itemTitle: "Profile", href: "/profile/employer" },
-      { itemTitle: "Settings", href: "/employer/settings" },
+      // { itemTitle: "Settings", href: "/employer/settings" },
       { itemTitle: "Post Jobs", href: "/post-jobs" },
       { itemTitle: "Posted Jobs", href: "/posted-jobs" },
     ];

@@ -45,7 +45,7 @@ export default function ContactForm() {
   };
 
   return (
-    <div className="w-full max-w-lg mx-auto p-6">
+    <div className="w-full md:w-1/2 max-w-lg p-4">
       <h2 className="text-2xl font-semibold mb-4 flex items-center justify-center w-full">
         Enquiry
       </h2>

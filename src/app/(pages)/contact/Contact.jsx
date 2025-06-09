@@ -32,7 +32,7 @@ const Contact = () => {
   };
 
   return (
-    <div className="flex flex-col w-full p-2 md:p-4 lg:p-8 xl:px-28 py-8 space-y-6">
+    <div className="flex flex-col w-full p-4 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold flex items-center justify-center w-full">
           Contact Us
@@ -57,11 +57,13 @@ const Contact = () => {
           {contactFields.map(({ name, label, icon }) => {
             const IconComponent = Icons[icon];
             return (
-              <li key={name} className="flex items-center space-x-2">
-                {IconComponent && (
-                  <IconComponent className="w-5 h-5 text-gray-600" />
-                )}
-                <span className="font-semibold">{label}:</span>
+              <li key={name} className="flex flex-col md:flex-row space-x-2">
+                <div className="flex gap-2 items-center">
+                  {IconComponent && (
+                    <IconComponent className="w-5 h-5 text-gray-600" />
+                  )}
+                  <span className="font-semibold">{label}:</span>
+                </div>
                 <span>{data[name] || "Not Available"}</span>
               </li>
             );
