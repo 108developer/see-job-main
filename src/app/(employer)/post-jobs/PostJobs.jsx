@@ -80,7 +80,7 @@ const PostJob = () => {
     jobDescription: "",
     jobLocation: "",
     openings: 1,
-    deadline: "",
+    // deadline: "",
     // status: "open",
     monthlySalary: { min: "", max: "" },
     experience: { min: "", max: "" },
@@ -126,7 +126,7 @@ const PostJob = () => {
       if (response?.success) {
         toast.success(response?.message || "Job posted successfully!");
         resetForm();
-        router.push("/Joblisting");
+        router.push("/posted-jobs");
       } else {
         toast.error(response?.message || "Failed to post job.");
       }
@@ -319,7 +319,7 @@ const PostJob = () => {
                     htmlFor="jobLocation"
                     className="text-sm font-semibold"
                   >
-                    Current Location
+                    Office Location
                   </label>
                   <LocationSearchBar
                     searchTerm={location}
@@ -359,7 +359,7 @@ const PostJob = () => {
                 </div>
 
                 {/* Application Deadline */}
-                <div>
+                {/* <div>
                   <label htmlFor="deadline" className="text-sm font-semibold">
                     Application Deadline
                   </label>
@@ -375,7 +375,7 @@ const PostJob = () => {
                     component="div"
                     className="text-red-500 text-sm mt-1"
                   />
-                </div>
+                </div> */}
 
                 {/* Status */}
                 {/* <div>
@@ -556,11 +556,16 @@ const PostJob = () => {
                   >
                     Company Website
                   </label>
-                  <Field
-                    name="companyWebsite"
-                    placeholder="https://www.company.com"
-                    className={inputClass}
-                  />
+                  <div className="flex rounded-md shadow-sm">
+                    <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-100 text-gray-500 text-sm">
+                      https://www.
+                    </span>
+                    <Field
+                      name="companyWebsite"
+                      placeholder="company.com"
+                      className={`flex-1 block w-full rounded-none rounded-r-md ${inputClass}`}
+                    />
+                  </div>
                   <ErrorMessage
                     name="companyWebsite"
                     component="div"

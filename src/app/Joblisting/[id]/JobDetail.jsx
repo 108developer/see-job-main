@@ -13,17 +13,33 @@ import {
   Star,
 } from "lucide-react";
 import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import JobApply from "../JobApply";
+
+import { useMemo } from "react";
 
 const JobDetail = ({}) => {
   const searchParams = useParams();
   const id = searchParams.id;
   const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
+  const [userRole, setUserRole] = useState(null);
 
   const { data, error, isLoading } = useGetJobByIdQuery(id, {
     skip: !id,
   });
+
+  const randomApplicantCount = useMemo(() => {
+    const stored = sessionStorage.getItem(`applicantCount-${id}`);
+    if (stored) return parseInt(stored, 10);
+    const newCount = Math.floor(Math.random() * (501 - 100)) + 100;
+    sessionStorage.setItem(`applicantCount-${id}`, newCount);
+    return newCount;
+  }, [id]);
+
+  useEffect(() => {
+    const roleFromStorage = localStorage.getItem("role");
+    setUserRole(roleFromStorage);
+  }, []);
 
   if (isLoading)
     return (
@@ -69,11 +85,12 @@ const JobDetail = ({}) => {
               <Heart className="w-4 h-4" />
               Apply now
             </button>
-
-            <button className="flex items-center gap-2 text-blue-600 border border-red-600 hover:bg-blue-600 hover:text-white transition px-3 py-1 rounded text-sm whitespace-nowrap">
-              <PhoneCall className="w-4 h-4" />
-              Call now
-            </button>
+            {userRole === "candidate" && (
+              <button className="flex items-center gap-2 text-blue-600 border border-red-600 hover:bg-blue-600 hover:text-white transition px-3 py-1 rounded text-sm whitespace-nowrap">
+                <PhoneCall className="w-4 h-4" />
+                Call now
+              </button>
+            )}
           </div>
         </div>
 
@@ -93,9 +110,9 @@ const JobDetail = ({}) => {
           <span className="flex gap-2 whitespace-nowrap">
             <em>Openings:</em> <strong>{job?.openings}</strong>
           </span>
-          <span className="flex gap-2 whitespace-nowrap">
+          {/* <span className="flex gap-2 whitespace-nowrap">
             <em>Deadline:</em> <strong>{formatTime(job?.deadline)}</strong>
-          </span>
+          </span> */}
         </div>
 
         {/*  ------------------------------------------------------ */}
@@ -108,7 +125,8 @@ const JobDetail = ({}) => {
               <strong>{getTimeSincePosted(job.createdAt)}</strong>
             </span>
             <span>
-              <em>Job applicants:</em> <strong>111 applicants</strong>
+              <em>Job applicants:</em>{" "}
+              <strong>{randomApplicantCount} applicants</strong>
             </span>
           </div>
           <div className="flex items-center gap-1 md:justify-end text-blue-600 text-sm cursor-pointer hover:underline w-full">
@@ -125,26 +143,28 @@ const JobDetail = ({}) => {
         <div className="mt-6">
           <h6 className="text-sm text-gray-500 mb-1">Role</h6>
           <p className="text-blue-600 text-sm hover:underline">
-            Interaction Designer
+            {job?.role || "Not Mentioned"}
           </p>
 
-          <h6 className="text-sm text-gray-500 mt-4 mb-1">Industry Type</h6>
+          {/* <h6 className="text-sm text-gray-500 mt-4 mb-1">Industry Type</h6>
           <p className="text-blue-600 text-sm hover:underline">
-            Internet, Ecommerce
-          </p>
+            {job?.industry || "Not Mentioned"}
+          </p> */}
 
-          <h6 className="text-sm text-gray-500 mt-4 mb-1">Function Area</h6>
+          {/* <h6 className="text-sm text-gray-500 mt-4 mb-1">Function Area</h6>
           <p className="text-blue-600 text-sm hover:underline">
-            Creative, Design, User Experience
-          </p>
+            {job?.jobArea || "Not Mentioned"}
+          </p> */}
 
           <h6 className="text-sm text-gray-500 mt-4 mb-1">Employment Type</h6>
           <p className="text-blue-600 text-sm hover:underline">
             {job?.jobType}
           </p>
 
-          <h6 className="text-sm text-gray-500 mt-4 mb-1">Role Category</h6>
-          <p className="text-blue-600 text-sm hover:underline">UI Designer</p>
+          {/* <h6 className="text-sm text-gray-500 mt-4 mb-1">Role Category</h6>
+          <p className="text-blue-600 text-sm hover:underline">
+            {job?.roleCategory || "Not Mentioned"}
+          </p> */}
         </div>
 
         <div className="mt-6">
@@ -210,7 +230,7 @@ const JobDetail = ({}) => {
               rel="noopener noreferrer"
               className="text-blue-600 underline"
             >
-              {job.companyWebsite}
+              {`https://${job.companyWebsite}`}
             </a>
           ) : (
             "Not Mentioned"

@@ -1,7 +1,11 @@
 import { InstagramLogoIcon, TwitterLogoIcon } from "@radix-ui/react-icons";
 import { Facebook } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export const Footer = () => {
+  const router = useRouter();
+
   const categories = [
     {
       title: "About",
@@ -93,9 +97,12 @@ export const Footer = () => {
         <div className="text-lg">
           Make your dream successful through your dream job.
         </div>
-        <button className="text-black px-3 py-2 rounded-md bg-white">
-          Search Job
-        </button>
+
+        <Link href="/Joblisting">
+          <button className="text-black px-3 py-2 rounded-md bg-white">
+            Search Job
+          </button>
+        </Link>
       </div>
 
       <div className="px-4 pt-16 mx-auto sm:max-w-xl md:max-w-full lg:max-w-screen-xl md:px-24 lg:px-8">
@@ -106,12 +113,41 @@ export const Footer = () => {
               <ul className="mt-4 space-y-3">
                 {category.links.map((link, linkIndex) => (
                   <li key={linkIndex}>
-                    <a
-                      href={link.href}
-                      className="text-sm transition-colors duration-300 hover:text-deep-purple-accent-400"
-                    >
-                      {link.label}
-                    </a>
+                    {link.href === "#" ? (
+                      <button
+                        onClick={() => {
+                          if (category.title === "Jobs By Location") {
+                            const city = link.label
+                              .replace("Job in ", "")
+                              .replace("Jobs in ", "");
+                            localStorage.setItem("location", city);
+                            localStorage.removeItem("jobTitle");
+                          } else if (
+                            category.title === "Jobs By Role" ||
+                            category.title === "IT Jobs" ||
+                            category.title === "Non-IT Jobs"
+                          ) {
+                            const jobTitle = link.label
+                              .replace(" Jobs", "")
+                              .replace("Job ", "")
+                              .trim();
+                            localStorage.setItem("jobTitle", jobTitle);
+                            localStorage.removeItem("location");
+                          }
+                          router.push("/Joblisting");
+                        }}
+                        className="text-left text-sm text-white transition-colors duration-300 hover:text-deep-purple-accent-400"
+                      >
+                        {link.label}
+                      </button>
+                    ) : (
+                      <Link
+                        href={link.href}
+                        className="text-sm transition-colors duration-300 hover:text-deep-purple-accent-400"
+                      >
+                        {link.label}
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>

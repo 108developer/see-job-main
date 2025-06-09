@@ -54,7 +54,7 @@ export default function PostedJobCard({ job, applyUrl } = { applyUrl: "#" }) {
           }}
         >
           <Button variant="destructive" size="sm" asChild>
-            <span className="text-white no-underline">Find Applications</span>
+            <span className="text-white no-underline">View Applications</span>
           </Button>
         </Link>
       </CardHeader>
