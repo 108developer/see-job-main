@@ -1,5 +1,5 @@
 import { getSeoMetadata } from "@/lib/getSeoMetadata";
-import About from "./About";
+import ClientWrapper from "./ClientWrapper";
 
 export async function generateMetadata() {
   const seo = await getSeoMetadata("about");
@@ -41,7 +41,7 @@ export async function generateMetadata() {
 }
 
 const Page = () => {
-  return <About />;
+  return <ClientWrapper />;
 };
 
 export default Page;

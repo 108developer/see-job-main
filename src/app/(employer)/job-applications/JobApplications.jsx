@@ -1,10 +1,9 @@
 "use client";
 
-export const dynamic = "force-dynamic";
-
 import FilterSidebar from "@/app/find-cv/FilterSidebar";
 import SEOModal from "@/app/modals/SEOModal";
 import { Pagination } from "@/components/Pagination";
+import AccessDenied from "@/components/ui/AccessDenied ";
 import { Loader } from "@/components/ui/loader";
 import { UPDATE_APPLICATION_STATUS } from "@/graphql/mutations/jobApplication";
 import { GET_JOB_APPLICATIONS } from "@/graphql/queries/jobApplication";
@@ -31,9 +30,8 @@ import {
   UserX,
 } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
@@ -63,8 +61,11 @@ const formatAnswer = (answer) => {
 
 const JobApplications = () => {
   const searchParams = useSearchParams();
+  const dispatch = useDispatch();
   const jobId = searchParams.get("jobId");
-  const router = useRouter();
+  const { userid, token, role } = useSelector((state) => state.auth);
+
+  const [filters, setFilters] = useState({ jobId, skills: [] });
   const [selectedStatus, setSelectedStatus] = useState("All");
   const [loadingStatus, setLoadingStatus] = useState({});
   const [candidateStatusMap, setCandidateStatusMap] = useState({});
@@ -75,89 +76,31 @@ const JobApplications = () => {
   const [shownPhones, setShownPhones] = useState(new Set());
   const [shownWhatsApps, setShownWhatsApps] = useState(new Set());
   const [allowedToVisit, setAllowedToVisit] = useState(new Set());
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const skillNames = useMemo(() => {
+    return (filters.skills || [])
+      .map((s) => s.name)
+      .filter((name) => typeof name === "string");
+  }, [filters.skills]);
+
+  const { data, loading, refetch } = useQuery(GET_JOB_APPLICATIONS, {
+    variables: {
+      ...filters,
+      skills: skillNames,
+      recruiterId: userid,
+      page: currentPage,
+      limit: 10,
+    },
+    fetchPolicy: "network-only",
+  });
 
   const [updateStatusMutation] = useMutation(UPDATE_APPLICATION_STATUS);
-
-  const { userid, token, role } = useSelector((state) => state.auth);
-
-  useEffect(() => {
-    if (token && role !== "employer" && role !== "recruiter") {
-      router.push("/");
-    }
-  }, [token, role, router]);
-
-  const updateCandidateStatus = async (candidateId, newStatus) => {
-    const currentStatus = candidateStatusMap[candidateId] || "All";
-
-    if (currentStatus === newStatus) {
-      return;
-    }
-
-    const previousStatus = currentStatus;
-
-    setLoadingStatus((prev) => ({
-      ...prev,
-      [candidateId]: true,
-    }));
-
-    try {
-      setCandidateStatusMap((prev) => ({
-        ...prev,
-        [candidateId]: newStatus,
-      }));
-
-      const { data } = await updateStatusMutation({
-        variables: {
-          applicationId: candidateId,
-          status: newStatus,
-          recruiterId: userid,
-        },
-      });
-
-      if (data?.updateJobApplicationStatus?.success) {
-        toast.success(data?.updateJobApplicationStatus?.message);
-      } else {
-        toast.error(
-          data?.updateJobApplicationStatus?.message ||
-            "Failed to update status."
-        );
-        setCandidateStatusMap((prev) => ({
-          ...prev,
-          [candidateId]: previousStatus,
-        }));
-      }
-    } catch (error) {
-      toast.error("Failed to update status. Please try again.");
-      setCandidateStatusMap((prev) => ({
-        ...prev,
-        [candidateId]: previousStatus,
-      }));
-    } finally {
-      setLoadingStatus((prev) => ({
-        ...prev,
-        [candidateId]: false,
-      }));
-    }
-  };
 
   useEffect(() => {
     const statusValue = selectedStatus === "All" ? "" : selectedStatus;
     handleFilterChange({ status: statusValue });
   }, [selectedStatus]);
-
-  const [currentPage, setCurrentPage] = useState(1);
-  const [filters, setFilters] = useState({
-    jobId: jobId,
-    skills: [],
-  });
-
-  const { data, error, loading } = useQuery(GET_JOB_APPLICATIONS, {
-    variables: {
-      ...filters,
-      page: currentPage,
-    },
-    // skip: !jobId,
-  });
 
   useEffect(() => {
     setCurrentPage(1);
@@ -220,7 +163,68 @@ const JobApplications = () => {
     setAllowedToVisit((prev) => new Set(prev).add(id));
   };
 
-  const dispatch = useDispatch();
+  const updateCandidateStatus = async (candidateId, newStatus) => {
+    const currentStatus = candidateStatusMap[candidateId] || "All";
+
+    if (currentStatus === newStatus) {
+      return;
+    }
+
+    const previousStatus = currentStatus;
+
+    setLoadingStatus((prev) => ({
+      ...prev,
+      [candidateId]: true,
+    }));
+
+    try {
+      setCandidateStatusMap((prev) => ({
+        ...prev,
+        [candidateId]: newStatus,
+      }));
+
+      const { data } = await updateStatusMutation({
+        variables: {
+          applicationId: candidateId,
+          status: newStatus,
+          recruiterId: userid,
+        },
+      });
+
+      if (data?.updateJobApplicationStatus?.success) {
+        toast.success(data?.updateJobApplicationStatus?.message);
+
+        await refetch({
+          ...filters,
+          skills: skillNames,
+          recruiterId: userid,
+          page: currentPage,
+          limit: 10,
+          fetchPolicy: "network-only",
+        });
+      } else {
+        toast.error(
+          data?.updateJobApplicationStatus?.message ||
+            "Failed to update status."
+        );
+        setCandidateStatusMap((prev) => ({
+          ...prev,
+          [candidateId]: previousStatus,
+        }));
+      }
+    } catch (error) {
+      toast.error("Failed to update status. Please try again.");
+      setCandidateStatusMap((prev) => ({
+        ...prev,
+        [candidateId]: previousStatus,
+      }));
+    } finally {
+      setLoadingStatus((prev) => ({
+        ...prev,
+        [candidateId]: false,
+      }));
+    }
+  };
 
   const openSendMailsModal = () => {
     const selectedCandidatesData = jobApplications
@@ -241,8 +245,31 @@ const JobApplications = () => {
     );
   };
 
+  const counts = {
+    Viewed: data?.getJobApplications?.viewedCount || 0,
+    Shortlisted: data?.getJobApplications?.shortlistedCount || 0,
+    Rejected: data?.getJobApplications?.rejectedCount || 0,
+    Hold: data?.getJobApplications?.holdCount || 0,
+  };
+
   const jobApplications = data?.getJobApplications?.jobApplications || [];
   const totalPages = data?.getJobApplications?.totalPages || 1;
+
+  // if (loading) {
+  //   return (
+  //     <div className="flex items-center justify-center h-screen w-full gap-8 p-4">
+  //       <Loader count={5} height={50} className="mb-4" />
+  //     </div>
+  //   );
+  // }
+
+  if (!(role === "employer" || role === "recruiter")) {
+    return (
+      <div className="flex items-center justify-center w-full p-2">
+        <AccessDenied title1={"employer"} title2={"recruiter"} />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col lg:flex-row min-h-screen">
@@ -259,6 +286,8 @@ const JobApplications = () => {
           {status.map((label, idx) => {
             const isActive = selectedStatus === label;
             const activeColor = statusStyles[label];
+            const count = label !== "All" ? counts[label] ?? 0 : null;
+
             return (
               <button
                 key={idx}
@@ -267,7 +296,12 @@ const JobApplications = () => {
                   isActive ? activeColor : "bg-gray-400 text-gray-600"
                 } px-4 py-2 rounded-md font-semibold hover:${activeColor} flex items-center gap-2 transition-colors duration-300`}
               >
-                {iconMap[label]} {label}
+                {iconMap[label]} {label}{" "}
+                {count !== null && (
+                  <span className="ml-1 text-sm bg-white text-gray-700 rounded-full px-2">
+                    {count}
+                  </span>
+                )}
               </button>
             );
           })}
@@ -291,12 +325,12 @@ const JobApplications = () => {
                 Cancel
               </div>
 
-              <div
+              {/* <div
                 onClick={openSendMailsModal}
                 className="ml-auto bg-emerald-500 text-white hover:bg-emerald-600 px-4 py-2 rounded-md font-semibold flex items-center gap-2 transition-colors duration-300 cursor-pointer"
               >
                 Send Mail
-              </div>
+              </div> */}
             </div>
           )}
         </div>
@@ -316,7 +350,10 @@ const JobApplications = () => {
                 candidateStatusMap[candidate.id] || candidate.status;
 
               return (
-                <div key={candidate.id} className="flex flex-col md:flex-row gap-2">
+                <div
+                  key={candidate.id}
+                  className="flex flex-col md:flex-row gap-2"
+                >
                   <div className="">
                     <input
                       type="checkbox"
@@ -421,18 +458,27 @@ const JobApplications = () => {
                           </div>
 
                           <div className="w-full flex flex-col p-1 ">
-                            <Link
+                            {/* <Link
                               href={{
                                 pathname: `/find-cv/${candidate.candidateId}`,
                                 query: {
                                   jobId,
                                 },
                               }}
+                            > */}
+                            <button
+                              onClick={() =>
+                                window.open(
+                                  `/find-cv/${candidate.candidateId}?jobId=${jobId}`,
+                                  "_blank"
+                                )
+                              }
                             >
                               <div className="text-xl font-semibold text-red-600 gap-2 flex flex-wrap ">
                                 {candidate.fullName || "Not Available"}
                               </div>
-                            </Link>
+                            </button>
+                            {/* </Link> */}
                             <div className="text-sm text-gray-500 flex">
                               Age: {candidate.age || "Not Available"} /{" "}
                               {candidate.gender || "Not Available"}
@@ -550,6 +596,10 @@ const JobApplications = () => {
                               e.stopPropagation();
                               updateCandidateStatus(candidate.id, "Viewed");
                             }
+                            window.open(
+                              `/find-cv/${candidate.id}?jobId=${jobId}`,
+                              "_blank"
+                            );
                           }}
                           className={`flex items-center justify-center w-full cursor-pointer rounded-md text-sm gap-1 px-2 py-1 ${
                             (candidateStatusMap[candidate.id] ||

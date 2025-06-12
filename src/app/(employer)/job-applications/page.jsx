@@ -1,11 +1,10 @@
 // /app/(employer)/job-applications/page.jsx
 
+import { Loader } from "@/components/ui/loader";
 import { formatSeoMetadata } from "@/lib/formatSeoMetadata";
 import { getSeoMetadata } from "@/lib/getSeoMetadata";
 import { Suspense } from "react";
-import JobApplications from "./JobApplications";
-
-export const dynamic = "force-dynamic";
+import JobApplicationsWrapper from "./JobApplicationsWrapper";
 
 export async function generateMetadata() {
   const seo = await getSeoMetadata("job-applications");
@@ -18,8 +17,16 @@ export async function generateMetadata() {
 
 export default function Page() {
   return (
-    <Suspense fallback={<div>Loading job applications...</div>}>
-      <JobApplications />
-    </Suspense>
+    <div className="min-h-screen">
+      <Suspense
+        fallback={
+          <div className="flex h-full items-center justify-center w-full gap-8 p-4">
+            <Loader count={5} height={50} className="mb-4" />
+          </div>
+        }
+      >
+        <JobApplicationsWrapper />
+      </Suspense>
+    </div>
   );
 }

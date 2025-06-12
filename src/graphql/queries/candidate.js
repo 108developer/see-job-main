@@ -44,6 +44,10 @@ export const GET_ALL_CANDIDATES = gql`
       currentPage
       totalPages
       totalCandidates
+      viewedCount
+      shortlistedCount
+      rejectedCount
+      holdCount
       candidates {
         id
         name
