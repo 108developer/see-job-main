@@ -1,5 +1,7 @@
+import { Loader } from "@/components/ui/loader";
 import { getSeoMetadata } from "@/lib/getSeoMetadata";
-import BuyOnline from "./BuyOnline";
+import { Suspense } from "react";
+import Wrapper from "./Wrapper";
 
 export async function generateMetadata() {
   const seo = await getSeoMetadata("buy-online");
@@ -44,5 +46,17 @@ export async function generateMetadata() {
 }
 
 export default function Page() {
-  return <BuyOnline />;
+  return (
+    <div className="min-h-screen">
+      <Suspense
+        fallback={
+          <div className="flex h-full items-center justify-center w-full gap-8 p-4">
+            <Loader count={5} height={50} className="mb-4" />
+          </div>
+        }
+      >
+        <Wrapper />
+      </Suspense>
+    </div>
+  );
 }

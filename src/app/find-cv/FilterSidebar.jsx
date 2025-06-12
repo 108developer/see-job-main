@@ -1,6 +1,6 @@
 import CityStateCountrySearchBar from "@/components/graphql-ui/CityStateCountrySearchBar";
-import JobTitleSearchBar from "@/components/graphql-ui/JobTitleSearchBar";
-import SkillDropdown from "@/components/graphql-ui/SkillsDropdown";
+// import JobTitleSearchBar from "@/components/graphql-ui/JobTitleSearchBar";
+// import SkillDropdown from "@/components/graphql-ui/SkillsDropdown";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -15,6 +15,7 @@ import { useQuery } from "@apollo/client";
 import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { salaryOptions } from "./constant";
+import SearchAll from "@/components/graphql-ui/SearchAll";
 
 const FilterSidebar = ({ filters, onFilterChange }) => {
   const [skillSet, setSkillSet] = useState("");
@@ -71,8 +72,41 @@ const FilterSidebar = ({ filters, onFilterChange }) => {
         </div>
 
         <div className="space-y-4">
-          {/* Skills */}
+          {/* Search All */}
           <div className="space-y-2">
+            <Label>Search</Label>
+            <SearchAll
+              searchTerm={skillSet}
+              onSearchChange={(value) => setSkillSet(value)}
+              setFieldValue={setFieldValue}
+              selectedSkillsFromParent={filters.skills}
+              onSkillSelect={(selectedItem) => {
+                const current = filters.skills || [];
+
+                const exists = current.some(
+                  (item) =>
+                    item.name === selectedItem.name &&
+                    item.type === selectedItem.type
+                );
+
+                if (!exists) {
+                  const updated = [...current, selectedItem];
+                  onFilterChange({ skills: updated });
+                }
+              }}
+              onRemoveSkill={(itemToRemove) => {
+                const updated = filters.skills.filter(
+                  (item) =>
+                    item.name !== itemToRemove.name ||
+                    item.type !== itemToRemove.type
+                );
+                onFilterChange({ skills: updated });
+              }}
+            />
+          </div>
+
+          {/* Skills */}
+          {/* <div className="space-y-2">
             <Label>Skills</Label>
             <SkillDropdown
               searchTerm={skillSet}
@@ -93,7 +127,7 @@ const FilterSidebar = ({ filters, onFilterChange }) => {
                 onFilterChange({ skills: updated });
               }}
             />
-          </div>
+          </div> */}
 
           {/* Location */}
           <div className="space-y-2">
@@ -111,7 +145,7 @@ const FilterSidebar = ({ filters, onFilterChange }) => {
           </div>
 
           {/* Job Title */}
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <Label>Job Title</Label>
             <JobTitleSearchBar
               searchTerm={jobTitleSearchTerm}
@@ -123,7 +157,7 @@ const FilterSidebar = ({ filters, onFilterChange }) => {
                 onFilterChange({ jobTitle: selectedJobTitle.label });
               }}
             />
-          </div>
+          </div> */}
 
           {/* Job Role */}
           {/* <div className="space-y-2">
@@ -170,7 +204,26 @@ const FilterSidebar = ({ filters, onFilterChange }) => {
           </div> */}
 
           {/* Salary */}
+          {/* Salary */}
           <div className="space-y-2">
+            <Label>Salary (₹)</Label>
+            <div className="text-sm text-gray-600 w-full flex items-center justify-between">
+              <div className="">₹{filters.salaryMin ?? 10000}</div>
+              <div className="">₹{filters.salaryMax ?? 250000}</div>
+            </div>
+            <Slider
+              min={10000}
+              max={250000}
+              step={5000}
+              value={[filters.salaryMin ?? 10000, filters.salaryMax ?? 5000000]}
+              minStepsBetweenThumbs={1}
+              onValueChange={([min, max]) =>
+                onFilterChange({ salaryMin: min, salaryMax: max })
+              }
+            />
+          </div>
+
+          {/* <div className="space-y-2">
             <Label>Salary</Label>
             <Select
               onValueChange={(value) => {
@@ -196,7 +249,7 @@ const FilterSidebar = ({ filters, onFilterChange }) => {
                 ))}
               </SelectContent>
             </Select>
-          </div>
+          </div> */}
 
           {/* Experience */}
           <div className="space-y-2">

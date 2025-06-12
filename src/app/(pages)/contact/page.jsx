@@ -1,6 +1,6 @@
 import { getSeoMetadata } from "@/lib/getSeoMetadata";
-import Contact from "./Contact";
 import ContactForm from "./ContactForm";
+import ContactClientWrapper from "./ContactClientWrapper";
 
 export async function generateMetadata() {
   const seo = await getSeoMetadata("contact");
@@ -47,7 +47,7 @@ export async function generateMetadata() {
 const Page = () => {
   return (
     <div className="flex flex-col md:flex-row items-center justify-between w-full min-h-screen md:h-screen md:p-4 lg:p-8 xl:px-28">
-      <Contact />
+      <ContactClientWrapper />
       <div className="my-4 md:my-0 md:mx-4 w-full h-px md:w-px md:h-3/4 bg-gray-300"></div>
       <ContactForm />
     </div>

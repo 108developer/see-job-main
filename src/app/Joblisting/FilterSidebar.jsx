@@ -261,7 +261,8 @@ const FilterSidebar = ({ onFilterChange, children }) => {
           <Menu
             className="w-6 h-6 cursor-pointer"
             onClick={() => setSidebarOpen(!sidebarOpen)}
-          /> Filters
+          />{" "}
+          Filters
         </div>
         {children}
       </div>

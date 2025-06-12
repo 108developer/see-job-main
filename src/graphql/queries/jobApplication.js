@@ -3,6 +3,7 @@ import { gql } from "@apollo/client";
 
 export const GET_JOB_APPLICATIONS = gql`
   query GetJobApplications(
+    $recruiterId: ID
     $jobId: ID!
     $skills: [String]
     $location: String
@@ -22,6 +23,7 @@ export const GET_JOB_APPLICATIONS = gql`
     $limit: Int
   ) {
     getJobApplications(
+      recruiterId: $recruiterId
       jobId: $jobId
       skills: $skills
       location: $location
@@ -45,6 +47,10 @@ export const GET_JOB_APPLICATIONS = gql`
       currentPage
       totalPages
       totalApplications
+      viewedCount
+      shortlistedCount
+      rejectedCount
+      holdCount
       jobApplications {
         id
         candidateId

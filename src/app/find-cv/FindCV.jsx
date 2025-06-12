@@ -6,6 +6,8 @@ import { Loader } from "@/components/ui/loader";
 import { UPDATE_CANDIDATE_STATUS } from "@/graphql/mutations/jobApplication";
 import { GET_ALL_CANDIDATES } from "@/graphql/queries/candidate";
 import PlaceholderImage from "@/images/Profile_avatar_placeholder_large.png";
+import BoyPlaceholderImage from "@/images/boy_default_img.jpg";
+import GirlPlaceholderImage from "@/images/girl_default_img.jpg";
 import { setModal } from "@/redux/slices/modalSlice";
 import { handleDownloadResume } from "@/utils/HandleDownloadResume";
 import { useMutation, useQuery } from "@apollo/client";
@@ -26,10 +28,10 @@ import {
   UserX,
 } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import * as XLSX from "xlsx";
 import SEOModal from "../modals/SEOModal";
 import FilterSidebar from "./FilterSidebar";
 
@@ -51,25 +53,12 @@ const iconMap = {
 };
 
 const FindCV = () => {
-  const router = useRouter();
   const dispatch = useDispatch();
   const { userid, role } = useSelector((state) => state.auth);
 
-  const [isClient, setIsClient] = useState(false);
+  const [filters, setFilters] = useState({ employerId: userid, skills: [] });
   const [selectedStatus, setSelectedStatus] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
-
-  const [filters, setFilters] = useState({
-    employerId: userid,
-    salaryMin: 0,
-    salaryMax: 5000000,
-    experienceMin: 0,
-    experienceMax: 15,
-    skills: [],
-    ageMin: 18,
-    ageMax: 60,
-  });
-
   const [selectedCandidates, setSelectedCandidates] = useState([]);
   const [candidateStatusMap, setCandidateStatusMap] = useState({});
   const [loadingStatus, setLoadingStatus] = useState({});
@@ -78,17 +67,30 @@ const FindCV = () => {
   const [shownWhatsApps, setShownWhatsApps] = useState(new Set());
   const [allowedToVisit, setAllowedToVisit] = useState(new Set());
 
-  const [updateStatusMutation] = useMutation(UPDATE_CANDIDATE_STATUS);
-  const { data, loading } = useQuery(GET_ALL_CANDIDATES, {
-    variables: { ...filters, page: currentPage, limit: 10 },
+  const skillNames = useMemo(() => {
+    return (filters.skills || [])
+      .map((s) => s.name)
+      .filter((name) => typeof name === "string");
+  }, [filters.skills]);
+
+  const { data, loading, refetch } = useQuery(GET_ALL_CANDIDATES, {
+    variables: {
+      ...filters,
+      skills: skillNames,
+      page: currentPage,
+      limit: 10,
+    },
+    fetchPolicy: "network-only",
   });
 
-  useEffect(() => setIsClient(true), []);
-  useEffect(() => setCurrentPage(1), [filters]);
+  const [updateStatusMutation] = useMutation(UPDATE_CANDIDATE_STATUS);
+
   useEffect(() => {
     const statusValue = selectedStatus === "All" ? "" : selectedStatus;
     handleFilterChange({ status: statusValue });
   }, [selectedStatus]);
+
+  useEffect(() => setCurrentPage(1), [filters]);
 
   const handleFilterChange = (updatedFilters) => {
     const merged = { ...filters, ...updatedFilters };
@@ -103,7 +105,7 @@ const FindCV = () => {
         delete merged[key];
       }
     });
-    setFilters(merged);
+    setFilters({ ...merged, skills: [...(merged.skills || [])] });
   };
 
   const toggleCandidateSelection = (id) => {
@@ -131,6 +133,16 @@ const FindCV = () => {
 
       if (data?.updateCandidateStatus?.success) {
         toast.success(data?.updateCandidateStatus?.message);
+
+        await refetch({
+          ...filters,
+          skills: skillNames,
+          page: currentPage,
+          limit: 10,
+          fetchPolicy: "network-only",
+        });
+
+        window.open(`/find-cv/${candidateId}`, "_blank");
       } else {
         throw new Error(data?.updateCandidateStatus?.message);
       }
@@ -172,18 +184,42 @@ const FindCV = () => {
     );
   };
 
+  const downloadCandidateInfo = () => {
+    const candidates = paginatedCandidates
+      .filter((c) => selectedCandidates.includes(c.id))
+      .map((c) => ({
+        ID: c.id,
+        Name: c.fullName || c.name,
+        Gender: c.gender,
+        Email: c.email,
+        Phone: c.phone || "N/A",
+        Location: c.location,
+        "Preferred JobLocation": c.preferredJobLocation,
+        "Date of Birth": c.dob,
+        "Permanent Address": c.permanentAddress,
+        "Experience Years": c.experienceYears,
+        "Highest Qualification": c.highestQualification,
+        Skills: c.skills?.join(", ") || "N/A",
+        Status: candidateStatusMap[c.id] || "N/A",
+      }));
+
+    const worksheet = XLSX.utils.json_to_sheet(candidates);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Candidates");
+    XLSX.writeFile(workbook, "Candidate_List.xlsx");
+  };
+
+  const counts = {
+    Viewed: data?.getAllCandidates?.viewedCount || 0,
+    Shortlisted: data?.getAllCandidates?.shortlistedCount || 0,
+    Rejected: data?.getAllCandidates?.rejectedCount || 0,
+    Hold: data?.getAllCandidates?.holdCount || 0,
+  };
+
   const paginatedCandidates = data?.getAllCandidates?.candidates || [];
   const totalPages = data?.getAllCandidates?.totalPages || 1;
 
-  if (!isClient) {
-    return (
-      <div className="flex items-center justify-center h-screen w-full gap-8 p-4">
-        <Loader count={5} height={50} className="mb-4" />
-      </div>
-    );
-  }
-
-  if (!(role === "employer" || role === "recruiter")) {
+  if (!(role === "employer" || role === "recruiter" || role === "admin")) {
     return (
       <div className="flex items-center justify-center w-full p-2">
         <AccessDenied title1={"employer"} title2={"recruiter"} />
@@ -205,15 +241,22 @@ const FindCV = () => {
           {status.map((label, idx) => {
             const isActive = selectedStatus === label;
             const activeColor = statusStyles[label];
+            const count = label !== "All" ? counts[label] ?? 0 : null;
+
             return (
               <button
                 key={idx}
                 onClick={() => setSelectedStatus(label)}
                 className={`${
                   isActive ? activeColor : "bg-gray-400 text-gray-600"
-                } px-4 py-2 rounded-md font-semibold hover:${activeColor} flex items-center gap-2 transition-colors duration-300`}
+                } p-2 rounded-md hover:${activeColor} flex items-center gap-2 transition-colors duration-300`}
               >
-                {iconMap[label]} {label}
+                {iconMap[label]} {label}{" "}
+                {count !== null && (
+                  <span className="ml-1 text-sm bg-white text-gray-700 rounded-full px-2">
+                    {count}
+                  </span>
+                )}
               </button>
             );
           })}
@@ -226,22 +269,28 @@ const FindCV = () => {
                   );
                   setSelectedCandidates(allIds);
                 }}
-                className="ml-auto bg-blue-500 text-white hover:bg-blue-600 px-4 py-2 rounded-md font-semibold flex items-center gap-2 transition-colors duration-300 cursor-pointer"
+                className="ml-auto bg-blue-500 text-white hover:bg-blue-600 p-2 rounded-md flex items-center gap-2 transition-colors duration-300 cursor-pointer"
               >
                 Select All
               </div>
               <div
                 onClick={() => setSelectedCandidates([])}
-                className="ml-auto bg-red-500 text-white hover:bg-red-600 px-4 py-2 rounded-md font-semibold flex items-center gap-2 transition-colors duration-300 cursor-pointer"
+                className="ml-auto bg-red-500 text-white hover:bg-red-600 p-2 rounded-md flex items-center gap-2 transition-colors duration-300 cursor-pointer"
               >
                 Cancel
               </div>
 
-              <div
+              {/* <div
                 onClick={openSendMailsModal}
                 className="ml-auto bg-emerald-500 text-white hover:bg-emerald-600 px-4 py-2 rounded-md font-semibold flex items-center gap-2 transition-colors duration-300 cursor-pointer"
               >
                 Send Mail
+              </div> */}
+              <div
+                onClick={downloadCandidateInfo}
+                className="ml-auto bg-emerald-500 text-white hover:bg-emerald-600 p-2 rounded-md flex items-center gap-2 transition-colors duration-300 cursor-pointer"
+              >
+                Download Details
               </div>
             </div>
           )}
@@ -262,7 +311,10 @@ const FindCV = () => {
                 candidateStatusMap[candidate.id] || candidate.recruiterStatus;
 
               return (
-                <div key={candidate.id} className="flex flex-col md:flex-row gap-2">
+                <div
+                  key={candidate.id}
+                  className="flex flex-col md:flex-row gap-2"
+                >
                   <div className="">
                     <input
                       type="checkbox"
@@ -355,7 +407,15 @@ const FindCV = () => {
                         <div className="flex space-x-2 w-full">
                           <div className="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0">
                             <Image
-                              src={candidate.profilePic || PlaceholderImage}
+                              src={
+                                candidate.profilePic
+                                  ? candidate.profilePic
+                                  : candidate.gender === "Male"
+                                  ? BoyPlaceholderImage
+                                  : candidate.gender === "Female"
+                                  ? GirlPlaceholderImage
+                                  : PlaceholderImage
+                              }
                               alt={
                                 candidate.fullName ||
                                 "Candidate Profile Picture"
@@ -369,7 +429,10 @@ const FindCV = () => {
                           <div className="w-full flex flex-col p-1 ">
                             <button
                               onClick={() =>
-                                router.push(`/find-cv/${candidate.id}`)
+                                window.open(
+                                  `/find-cv/${candidate.id}`,
+                                  "_blank"
+                                )
                               }
                             >
                               <div className="text-xl font-semibold text-red-600 gap-2 flex flex-wrap ">
@@ -476,43 +539,43 @@ const FindCV = () => {
                           </div>
                         </div>
 
-                        <button
+                        {/* <button
                           onClick={() =>
                             router.push(`/find-cv/${candidate.id}`)
                           }
-                        >
-                          <div
-                            onClick={(e) => {
-                              if (!allowedToVisit.has(candidate.id)) {
-                                e.preventDefault();
-                                toast.warn(
-                                  "Please reveal contact info to view details."
-                                );
-                                return;
-                              }
+                        > */}
+                        <div
+                          onClick={(e) => {
+                            if (!allowedToVisit.has(candidate.id)) {
+                              e.preventDefault();
+                              toast.warn(
+                                "Please reveal contact info to view details."
+                              );
+                              return;
+                            }
 
-                              if (
-                                (candidateStatusMap[candidate.id] ||
-                                  candidate.recruiterStatus) !== "Viewed"
-                              ) {
-                                e.stopPropagation();
-                                updateCandidateStatus(candidate.id, "Viewed");
-                              }
-                            }}
-                            className={`flex items-center justify-center w-full cursor-pointer rounded-md text-sm gap-1 px-2 py-1 ${
+                            if (
                               (candidateStatusMap[candidate.id] ||
-                                candidate.recruiterStatus) === "Viewed"
-                                ? statusStyles["Viewed"]
-                                : "bg-gray-400 text-gray-700 hover:text-white hover:bg-blue-600"
-                            }`}
-                          >
-                            {iconMap["Viewed"]}
-                            {(candidateStatusMap[candidate.id] ||
+                                candidate.recruiterStatus) !== "Viewed"
+                            ) {
+                              e.stopPropagation();
+                              updateCandidateStatus(candidate.id, "Viewed");
+                            }
+                          }}
+                          className={`flex items-center justify-center w-full cursor-pointer rounded-md text-sm gap-1 px-2 py-1 ${
+                            (candidateStatusMap[candidate.id] ||
                               candidate.recruiterStatus) === "Viewed"
-                              ? "Viewed"
-                              : "View Details"}
-                          </div>
-                        </button>
+                              ? statusStyles["Viewed"]
+                              : "bg-gray-400 text-gray-700 hover:text-white hover:bg-blue-600"
+                          }`}
+                        >
+                          {iconMap["Viewed"]}
+                          {(candidateStatusMap[candidate.id] ||
+                            candidate.recruiterStatus) === "Viewed"
+                            ? "Viewed"
+                            : "View Details"}
+                        </div>
+                        {/* </button> */}
 
                         <div className="flex flex-col md:flex-row md:items-center md:justify-center gap-2">
                           <button

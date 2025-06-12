@@ -95,6 +95,17 @@ export const GET_DEGREES = gql`
   }
 `;
 
+// Query for searching all iin one
+export const SEARCH_ALL = gql`
+  query searchAll($query: String) {
+    searchAll(query: $query) {
+      _id
+      name
+      type
+    }
+  }
+`;
+
 // Query for searching skills
 export const SEARCH_SKILLS = gql`
   query searchSkills($query: String) {
