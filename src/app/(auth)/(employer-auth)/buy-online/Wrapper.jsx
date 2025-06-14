@@ -2,6 +2,7 @@
 import { Loader } from "@/components/ui/loader";
 import { useEffect, useState } from "react";
 import BuyOnline from "./BuyOnline";
+import Write from "./Write";
 
 export default function Wrapper() {
   const [hasMounted, setHasMounted] = useState(false);
@@ -18,5 +19,5 @@ export default function Wrapper() {
     );
   }
 
-  return <BuyOnline />;
+  return <Write />;
 }

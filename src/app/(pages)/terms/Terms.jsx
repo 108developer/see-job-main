@@ -7,7 +7,7 @@ import { setModal } from "@/redux/slices/modalSlice";
 import { useDispatch, useSelector } from "react-redux";
 
 const Terms = () => {
-  const userEmail = useSelector((state) => state.auth.user?.email);
+  const { useremail } = useSelector((state) => state.auth);
   const { data, isLoading } = useGetPageDataQuery("terms");
   const dispatch = useDispatch();
 
@@ -27,7 +27,7 @@ const Terms = () => {
         <h1 className="text-2xl font-bold flex items-center justify-center w-full">
           Terms & Condition
         </h1>
-        {userEmail === "admin@example.com" && (
+        {useremail === "admin@example.com" && (
           <button
             onClick={openTermsModal}
             className="py-1 px-4 bg-blue-600 text-white rounded hover:bg-blue-700"
