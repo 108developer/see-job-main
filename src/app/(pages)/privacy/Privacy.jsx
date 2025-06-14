@@ -7,7 +7,7 @@ import { setModal } from "@/redux/slices/modalSlice";
 import { useDispatch, useSelector } from "react-redux";
 
 const Privacy = () => {
-  const userEmail = useSelector((state) => state.auth.user?.email);
+  const { useremail } = useSelector((state) => state.auth);
   const { data, isLoading } = useGetPageDataQuery("privacy");
 
   const dispatch = useDispatch();
@@ -28,7 +28,7 @@ const Privacy = () => {
         <h1 className="text-2xl font-bold w-full items-center justify-center flex">
           Privacy Policy
         </h1>
-        {userEmail === "admin@example.com" && (
+        {useremail === "admin@example.com" && (
           <button
             onClick={openPrivacyModal}
             className="py-1 px-4 bg-blue-600 text-white rounded hover:bg-blue-700"

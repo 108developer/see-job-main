@@ -210,6 +210,7 @@ const FindCV = () => {
   };
 
   const counts = {
+    All: data?.getAllCandidates?.totalCandidates || 0,
     Viewed: data?.getAllCandidates?.viewedCount || 0,
     Shortlisted: data?.getAllCandidates?.shortlistedCount || 0,
     Rejected: data?.getAllCandidates?.rejectedCount || 0,
@@ -241,7 +242,7 @@ const FindCV = () => {
           {status.map((label, idx) => {
             const isActive = selectedStatus === label;
             const activeColor = statusStyles[label];
-            const count = label !== "All" ? counts[label] ?? 0 : null;
+            const count = counts[label] ?? 0;
 
             return (
               <button

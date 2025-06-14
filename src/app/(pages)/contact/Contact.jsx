@@ -18,7 +18,7 @@ const contactFields = [
 ];
 
 const Contact = () => {
-  const userEmail = useSelector((state) => state.auth.user?.email);
+  const { useremail } = useSelector((state) => state.auth);
   const { data, isLoading, isError } = useGetContactDataQuery();
   const dispatch = useDispatch();
 
@@ -37,7 +37,7 @@ const Contact = () => {
         <h1 className="text-2xl font-bold flex items-center justify-center w-full">
           Contact Us
         </h1>
-        {userEmail === "admin@example.com" && (
+        {useremail === "admin@example.com" && (
           <button
             onClick={openContactModal}
             className="py-1 px-4 bg-blue-600 text-white rounded hover:bg-blue-700"
