@@ -51,7 +51,7 @@ export const Footer = () => {
       title: "Reach To Us",
       links: [
         { label: "+91-99588-41077", href: "tel:+91-99588-41077" },
-        { label: "seejob.in@gmail.com", href: "mailto:seejob.in@gmail.com" },
+        { label: "sale@seejob.in", href: "mailto:sale@seejob.in" },
       ],
     },
     {
