@@ -122,7 +122,7 @@ const CandidateRegisterModal = ({ initialRegisterForm, closeModal }) => {
               id="email"
               name="email"
               className="mt-1 p-3 w-full border rounded-md"
-              placeholder="abc@gmail.com"
+              placeholder="sale@seejob.in"
             />
             <ErrorMessage
               name="email"

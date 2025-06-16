@@ -142,9 +142,9 @@ const TopBar = () => (
         />
         <ContactInfo
           icon={<Mail className="h-4 text-red-600" />}
-          label="seejob.in@gmail.com"
+          label="sale@seejob.in"
           className="text-red-600"
-          link="mailto:seejob.in@gmail.com"
+          link="mailto:sale@seejob.in"
         />
       </div>
       <div className="rounded mt-2 md:mt-0">

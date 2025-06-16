@@ -3,9 +3,9 @@ import { Mail, MessageCircle, Phone, Smartphone } from "lucide-react";
 const contactInfo = [
   {
     label: "Email",
-    value: "seejob.in@gmail.com",
+    value: "sale@seejob.in",
     icon: <Mail className="text-gray-600" />,
-    link: "mailto:seejob.in@gmail.com",
+    link: "mailto:sale@seejob.in",
   },
   {
     label: "Call",
