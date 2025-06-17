@@ -328,6 +328,25 @@ const FilterSidebar = ({ filters, onFilterChange }) => {
               }
             />
           </div>
+
+          {/* Freshness */}
+          <div className="space-y-2">
+            <Label>Freshness</Label>
+            <Select
+              onValueChange={(value) => onFilterChange({ freshness: value })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Last Active" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="24h">Yesterday</SelectItem>
+                <SelectItem value="3d">3 Days</SelectItem>
+                <SelectItem value="7d">7 Days</SelectItem>
+                <SelectItem value="15d">15 Days</SelectItem>
+                <SelectItem value="30d">30 Days</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
     </div>

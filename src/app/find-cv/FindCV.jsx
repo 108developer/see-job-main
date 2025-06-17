@@ -27,6 +27,7 @@ import {
   UserPlus,
   UserX,
 } from "lucide-react";
+import moment from "moment";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -50,6 +51,38 @@ const iconMap = {
   Rejected: <UserX className="w-4 h-4" />,
   Hold: <UserCheck className="w-4 h-4" />,
   Viewed: <Eye className="w-4 h-4" />,
+};
+
+const getTimeAgo = (timestamp) => {
+  const now = moment();
+  const updated = moment(Number(timestamp));
+  const years = now.diff(updated, "years");
+  const months = now.diff(updated, "months") % 12;
+  const weeks = now.diff(updated, "weeks");
+  const days = now.diff(updated, "days");
+
+  if (years > 0) {
+    if (months > 0) {
+      return `${years} year${years > 1 ? "s" : ""} ${months} month${
+        months > 1 ? "s" : ""
+      } ago`;
+    }
+    return `${years} year${years > 1 ? "s" : ""} ago`;
+  }
+
+  if (months > 0) {
+    return `${months} month${months > 1 ? "s" : ""} ago`;
+  }
+
+  if (weeks > 0) {
+    return `${weeks} week${weeks > 1 ? "s" : ""} ago`;
+  }
+
+  if (days > 0) {
+    return `${days} day${days > 1 ? "s" : ""} ago`;
+  }
+
+  return "Today";
 };
 
 const FindCV = () => {
@@ -428,7 +461,8 @@ const FindCV = () => {
                           </div>
 
                           <div className="w-full flex flex-col p-1 ">
-                            <button
+                            <div
+                              className="text-xl font-semibold text-red-600 gap-2 flex flex-wrap "
                               onClick={() =>
                                 window.open(
                                   `/find-cv/${candidate.id}`,
@@ -436,16 +470,22 @@ const FindCV = () => {
                                 )
                               }
                             >
-                              <div className="text-xl font-semibold text-red-600 gap-2 flex flex-wrap ">
-                                {candidate?.name || "Not Available"}
+                              {candidate?.name || "Not Available"}
+                            </div>
+
+                            <div className="flex gap-2">
+                              <div className="text-sm text-gray-500 flex">
+                                Age: {candidate?.age || "N/A"}
                               </div>
-                            </button>
-                            <div className="text-sm text-gray-500 flex">
-                              Age: {candidate?.age || "Not Available"} /{" "}
-                              {candidate?.gender || "Not Available"}
+                              <div className="text-sm text-gray-500 flex">
+                                /
+                              </div>
+                              <div className="text-sm text-gray-500 flex">
+                                {candidate?.gender || "Not Available"}
+                              </div>
                             </div>
                             <div className="text-sm text-gray-600 flex">
-                              {candidate?.mode || "Not Available"}
+                              {candidate?.mode}
                             </div>
                           </div>
                         </div>
@@ -458,7 +498,9 @@ const FindCV = () => {
                             </div>
                             <div className="text-xs flex text-gray-500">
                               Last Activity:{" "}
-                              {candidate?.lastActivity || "Not Available"}
+                              {candidate?.updatedAt
+                                ? getTimeAgo(candidate.updatedAt)
+                                : "Not Available"}
                             </div>
                           </div>
 

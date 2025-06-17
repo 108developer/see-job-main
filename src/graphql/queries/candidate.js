@@ -17,6 +17,7 @@ export const GET_ALL_CANDIDATES = gql`
     $ageMin: Int
     $ageMax: Int
     $status: String
+    $freshness: String
     $page: Int
     $limit: Int
   ) {
@@ -36,6 +37,7 @@ export const GET_ALL_CANDIDATES = gql`
       ageMin: $ageMin
       ageMax: $ageMax
       status: $status
+      freshness: $freshness
       page: $page
       limit: $limit
     ) {
@@ -73,6 +75,7 @@ export const GET_ALL_CANDIDATES = gql`
         medium
         mode
         recruiterStatus
+        updatedAt
       }
     }
   }
