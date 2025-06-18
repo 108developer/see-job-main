@@ -14,7 +14,7 @@ const experienceOptions = Array.from({ length: 11 }, (_, i) => i);
 
 const CandidateRegisterModal = ({ initialRegisterForm, closeModal }) => {
   const [location, setLocation] = useState(initialRegisterForm.location || "");
-  const [industry, setIndustry] = useState(initialRegisterForm.industry || "");
+  // const [industry, setIndustry] = useState(initialRegisterForm.industry || "");
   const [minExp, setMinExp] = useState(initialRegisterForm.minexp || "");
   const [maxExp, setMaxExp] = useState(initialRegisterForm.maxexp || "");
 
@@ -53,11 +53,12 @@ const CandidateRegisterModal = ({ initialRegisterForm, closeModal }) => {
       minexp: values.minexp,
       maxexp: values.maxexp,
       skills: JSON.stringify(selectedSkills),
-      industry: values.industry,
+      // industry: values.industry,
       jobDescription: values.jobDescription,
     };
 
     try {
+      console.log("BODY: ", body);
       const response = await updateRegisteredCandidate({
         userid: userId,
         token: authToken,
@@ -237,7 +238,7 @@ const CandidateRegisterModal = ({ initialRegisterForm, closeModal }) => {
           </div>
 
           {/* Preferred Industry */}
-          <div>
+          {/* <div>
             <label htmlFor="industry" className=" text-sm font-semibold">
               Preferred Industry*
             </label>
@@ -255,12 +256,12 @@ const CandidateRegisterModal = ({ initialRegisterForm, closeModal }) => {
               component="div"
               className="text-red-500 text-sm mt-1"
             />
-          </div>
+          </div> */}
 
           {/* Job Description */}
           <div>
             <label htmlFor="jobDescription" className=" text-sm font-semibold">
-              Job Description
+              Summary
             </label>
             <Field
               type="text"

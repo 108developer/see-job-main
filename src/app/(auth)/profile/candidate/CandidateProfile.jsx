@@ -241,7 +241,7 @@ const CandidateProfile = () => {
             minexp: data?.registration?.minexp || "",
             maxexp: data?.registration?.maxexp || "",
             skills: data?.registration?.skills || [],
-            industry: data?.registration?.industry || "",
+            // industry: data?.registration?.industry || "",
             jobDescription: data?.registration?.jobDescription || "",
             terms: data?.registration?.terms || false,
             resume: data?.registration?.resume || null,

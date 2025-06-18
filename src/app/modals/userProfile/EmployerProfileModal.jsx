@@ -15,7 +15,7 @@ const LEVELS = ["Junior", "Mid-level", "Senior", "Lead"];
 
 const RecruiterProfile = ({ employerData, closeModal }) => {
   const [location, setLocation] = useState(employerData.location || "");
-  const [industry, setIndustry] = useState(employerData.industry || "");
+  // const [industry, setIndustry] = useState(employerData.industry || "");
   const [skillSet, setSkillSet] = useState("");
 
   const [updateRecruiter, { isLoading }] = useUpdateRecruiterMutation();
@@ -50,7 +50,7 @@ const RecruiterProfile = ({ employerData, closeModal }) => {
         state: values.state,
         totalExperience: values.totalExperience,
         level: values.level,
-        industry: values.industry,
+        // industry: values.industry,
         achievements: values.achievements,
         description: values.description,
       };
@@ -345,7 +345,7 @@ const RecruiterProfile = ({ employerData, closeModal }) => {
           </div>
 
           {/* Preferred Industry */}
-          <div className="w-full mb-auto">
+          {/* <div className="w-full mb-auto">
             <label htmlFor="industry" className="block text-sm font-medium">
               Preferred Industry*
             </label>
@@ -363,7 +363,7 @@ const RecruiterProfile = ({ employerData, closeModal }) => {
               component="div"
               className="text-red-500 text-sm mt-1"
             />
-          </div>
+          </div> */}
 
           {/* Achievements */}
           <div>

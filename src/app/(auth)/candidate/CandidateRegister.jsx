@@ -100,7 +100,7 @@ const CandidateRegister = ({ closeModal }) => {
               {/* Username Field */}
               <div>
                 <label htmlFor="fullName" className="block text-sm font-medium">
-                  Username
+                  Full Name
                 </label>
                 <Field
                   type="text"

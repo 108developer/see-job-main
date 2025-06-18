@@ -45,9 +45,9 @@ const Page = () => {
       <Degree />
     ) : selectedItem === "Boards" ? (
       <Boards />
-    ) : selectedItem === "Industry" ? (
-      <Industry />
-    ) : selectedItem === "Language" ? (
+    ) : // ) : selectedItem === "Industry" ? (
+    //   <Industry />
+    selectedItem === "Language" ? (
       <Language />
     ) : selectedItem === "Location" ? (
       <Location />
