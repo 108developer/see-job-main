@@ -12,7 +12,7 @@ const getInitialValues = (initialJobPreferences) => ({
   jobTitle: initialJobPreferences?.jobTitle || "",
   jobRoles: initialJobPreferences?.jobRoles || [],
   jobType: initialJobPreferences?.jobType || "",
-  jobIndustry: initialJobPreferences?.jobIndustry || "",
+  // jobIndustry: initialJobPreferences?.jobIndustry || "",
   jobLocation: initialJobPreferences?.jobLocation || [],
 });
 
@@ -96,7 +96,7 @@ const UpdateJobPreferencesForm = ({ initialJobPreferences, closeModal }) => {
           />
 
           {/* Preferred Industry */}
-          <div className="w-full mb-auto">
+          {/* <div className="w-full mb-auto">
             <label htmlFor="jobIndustry" className="block text-sm font-medium">
               Preferred Industry*
             </label>
@@ -113,7 +113,7 @@ const UpdateJobPreferencesForm = ({ initialJobPreferences, closeModal }) => {
               component="div"
               className="text-red-500 text-sm mt-1"
             />
-          </div>
+          </div> */}
 
           {/* Preferred Job Locations */}
           <div>

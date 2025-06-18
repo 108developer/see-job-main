@@ -1,7 +1,7 @@
 "use client";
 
 import LocationSearchBar from "@/components/graphql-ui/LocationSearchBar";
-import IndustrySelectDropDown from "@/components/graphql-ui/IndustrySelectDropDown";
+// import IndustrySelectDropDown from "@/components/graphql-ui/IndustrySelectDropDown";
 import SkillDropdown from "@/components/graphql-ui/SkillsDropdown";
 import { useRegisterCandidateMutation } from "@/redux/api/candidateAuth";
 import { ErrorMessage, Field, Form, Formik } from "formik";
@@ -27,7 +27,7 @@ const validationSchema = Yup.object({
   minexp: Yup.number().required("Experience Min is required"),
   maxexp: Yup.number().required("Experience Max is required"),
   skills: Yup.array().min(1, "At least one skill is required"),
-  industry: Yup.string().required("Preferred Industry is required"),
+  // industry: Yup.string().required("Preferred Industry is required"),
   file: Yup.mixed()
     .required("File is required")
     .test("fileSize", "File size is too large", (value) =>
@@ -90,7 +90,7 @@ const CandidateRegister = () => {
   const [registerCandidate, { isLoading }] = useRegisterCandidateMutation();
   const [location, setLocation] = useState("");
   const [permanentAddress, setPermanentAddress] = useState("");
-  const [industry, setIndustry] = useState("");
+  // const [industry, setIndustry] = useState("");
   const [minExp, setMinExp] = useState("");
   const [maxExp, setMaxExp] = useState("");
   const [selectedSkills, setSelectedSkills] = useState([]);
@@ -118,7 +118,7 @@ const CandidateRegister = () => {
     minexp: "",
     maxexp: "",
     skills: [],
-    industry: "",
+    // industry: "",
     file: null,
     jobDescription: "",
     terms: false,
@@ -136,7 +136,7 @@ const CandidateRegister = () => {
       "skills",
       selectedSkills.map((skill) => skill.name)
     );
-    formData.append("industry", values.industry);
+    // formData.append("industry", values.industry);
     formData.append("jobDescription", values.jobDescription);
     formData.append("terms", values.terms);
 
@@ -370,7 +370,7 @@ const CandidateRegister = () => {
             </div>
 
             {/* Preferred Industry */}
-            <div className="w-full mb-auto">
+            {/* <div className="w-full mb-auto">
               <label htmlFor="industry" className="block text-sm font-medium">
                 Preferred Industry*
               </label>
@@ -388,7 +388,7 @@ const CandidateRegister = () => {
                 component="div"
                 className="text-red-500 text-sm mt-1"
               />
-            </div>
+            </div> */}
 
             {/* File Upload (Resume Only) */}
             <div>

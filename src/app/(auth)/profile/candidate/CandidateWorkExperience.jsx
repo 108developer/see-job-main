@@ -112,10 +112,10 @@ const CandidateWorkExperience = ({ initialWorkExperience }) => {
             </div>
 
             <div className="flex flex-col md:flex-row items-center justify-between w-full">
-              <div className="w-full">
+              {/* <div className="w-full">
                 <span className="font-semibold text-gray-700">Industry:</span>{" "}
                 {getValue(exp.industry)}
-              </div>
+              </div> */}
               <div className="w-full">
                 <span className="font-semibold text-gray-700">
                   Notice Period:

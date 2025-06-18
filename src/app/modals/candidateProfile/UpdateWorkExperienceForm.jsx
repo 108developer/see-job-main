@@ -14,7 +14,7 @@ const getInitialValues = () => ({
   endDate: initialWorkExperience?.endDate || "",
   currentlyEmployed: initialWorkExperience?.currentlyEmployed || false,
   jobDescription: initialWorkExperience?.jobDescription || "",
-  industry: initialWorkExperience?.industry || "",
+  // industry: initialWorkExperience?.industry || "",
   location: initialWorkExperience?.location || "",
 });
 
@@ -162,7 +162,7 @@ const UpdateWorkExperienceForm = ({ initialWorkExperience, closeModal }) => {
           </div>
 
           {/* Industry */}
-          <div>
+          {/* <div>
             <label htmlFor="industry" className="text-sm font-medium">
               Industry
             </label>
@@ -179,7 +179,7 @@ const UpdateWorkExperienceForm = ({ initialWorkExperience, closeModal }) => {
               component="div"
               className="text-red-500 text-sm"
             />
-          </div>
+          </div> */}
 
           {/* Location */}
           <div>

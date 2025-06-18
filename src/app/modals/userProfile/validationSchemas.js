@@ -19,7 +19,7 @@ export const recruiterValidationSchema = Yup.object({
   state: Yup.string().required("State is required"),
   totalExperience: Yup.string().required("Total Experience is required"),
   level: Yup.string().required("Level is required"),
-  industry: Yup.string().required("Industry is required"),
+  // industry: Yup.string().required("Industry is required"),
   skills: Yup.array().min(1, "At least one skill is required"),
   achievements: Yup.string(),
   description: Yup.string(),
@@ -37,7 +37,7 @@ export const validationRegisterForm = Yup.object({
   minexp: Yup.number().required("Experience Min is required"),
   maxexp: Yup.number().required("Experience Max is required"),
   skills: Yup.array().min(1, "At least one skill is required"),
-  industry: Yup.string().required("Preferred Industry is required"),
+  // industry: Yup.string().required("Preferred Industry is required"),
   jobDescription: Yup.string().required("Job Description is required"),
 });
 
@@ -96,6 +96,6 @@ export const validationWorkExperienceForm = Yup.object({
     .required("Job Description is required")
     .max(1000, "Job Description must be at most 1000 characters"),
   location: Yup.string().required("Location is required"),
-  industry: Yup.string().required("Industry is required"),
+  // industry: Yup.string().required("Industry is required"),
   noticePeriod: Yup.string().required("Notice Period is required"),
 });

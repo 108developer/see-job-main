@@ -9,7 +9,7 @@ import {
   useUpdateWorkExperienceMutation,
 } from "@/redux/api/candidateAuth";
 import LocationSearchBar from "@/components/graphql-ui/LocationSearchBar";
-import IndustrySelectDropDown from "@/components/graphql-ui/IndustrySelectDropDown";
+// import IndustrySelectDropDown from "@/components/graphql-ui/IndustrySelectDropDown";
 import { useSelector } from "react-redux";
 
 const formatDate = (date) => {
@@ -22,7 +22,7 @@ const WorkExperienceModal = ({ experience = null, closeModal }) => {
   const { userid } = useSelector((state) => state.auth);
 
   const [location, setLocation] = useState(experience?.location || "");
-  const [industry, setIndustry] = useState(experience?.industry || "");
+  // const [industry, setIndustry] = useState(experience?.industry || "");
 
   const [addWorkExperience, { isLoading: isAdding }] =
     useAddWorkExperienceMutation();
@@ -32,12 +32,12 @@ const WorkExperienceModal = ({ experience = null, closeModal }) => {
   const initialValues = {
     companyName: experience?.companyName || "",
     jobTitle: experience?.jobTitle || "",
-    startDate: formatDate(experience?.startDate), 
-    endDate: experience?.endDate ? formatDate(experience?.endDate) : "", 
+    startDate: formatDate(experience?.startDate),
+    endDate: experience?.endDate ? formatDate(experience?.endDate) : "",
     currentlyEmployed: experience?.currentlyEmployed || true,
     jobDescription: experience?.jobDescription || "",
     location: experience?.location || "",
-    industry: experience?.industry || "",
+    // industry: experience?.industry || "",
     noticePeriod: experience?.noticePeriod || "",
   };
 
@@ -46,7 +46,7 @@ const WorkExperienceModal = ({ experience = null, closeModal }) => {
       const body = {
         ...values,
         location,
-        industry,
+        // industry,
       };
 
       if (isEdit) {
@@ -186,7 +186,7 @@ const WorkExperienceModal = ({ experience = null, closeModal }) => {
             />
           </div>
 
-          <div>
+          {/* <div>
             <label className="text-sm font-semibold">Industry</label>
             <IndustrySelectDropDown
               searchTerm={industry}
@@ -202,7 +202,7 @@ const WorkExperienceModal = ({ experience = null, closeModal }) => {
               component="div"
               className="text-red-500 text-sm"
             />
-          </div>
+          </div> */}
 
           <div>
             <label className="text-sm font-semibold">Notice Period</label>

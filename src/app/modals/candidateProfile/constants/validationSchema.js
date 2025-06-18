@@ -20,7 +20,7 @@ export const jobPreferencesValidationSchema = Yup.object({
     .required("Job Role is required")
     .min(1, "Job Role must be at least 2 characters"),
   jobType: Yup.string().required("Job Type is required"),
-  jobIndustry: Yup.string().required("Preferred Industry is required"),
+  // jobIndustry: Yup.string().required("Preferred Industry is required"),
   jobLocation: Yup.array()
     .of(Yup.string().required("preferred Location is required"))
     .min(1, "At least one preferred job location is required"),

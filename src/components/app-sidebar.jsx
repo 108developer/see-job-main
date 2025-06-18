@@ -1,5 +1,14 @@
-import * as React from "react"
-import { BookDashed, GalleryVerticalEnd, LayoutDashboard, LucidePodcast, PanelTopDashed, PodcastIcon, SearchCheck, User } from "lucide-react"
+import * as React from "react";
+import {
+  BookDashed,
+  GalleryVerticalEnd,
+  LayoutDashboard,
+  LucidePodcast,
+  PanelTopDashed,
+  PodcastIcon,
+  SearchCheck,
+  User,
+} from "lucide-react";
 
 import {
   Sidebar,
@@ -13,7 +22,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
   SidebarRail,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 
 // This is sample data.
 const data = {
@@ -40,7 +49,7 @@ const data = {
           title: "Today's Job Post",
           url: "/dashboard/JobPost/now",
           icon: <LucidePodcast />,
-        }
+        },
       ],
     },
     {
@@ -54,24 +63,21 @@ const data = {
       ],
     },
   ],
-}
+};
 
-export function AppSidebar({
-  ...props
-}) {
+export function AppSidebar({ ...props }) {
   return (
-    (<Sidebar {...props}>
+    <Sidebar {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <a href="#">
-                <div
-                  className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                   <User className="size-4" />
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-semibold">Username</span>
+                  <span className="font-semibold">Full Name</span>
                   <span className="">role</span>
                 </div>
               </a>
@@ -109,6 +115,6 @@ export function AppSidebar({
         </SidebarGroup>
       </SidebarContent>
       <SidebarRail />
-    </Sidebar>)
+    </Sidebar>
   );
 }

@@ -148,10 +148,10 @@ const CandidateDetailPage = () => {
           <p>
             <strong>Functional Area:</strong> Other
           </p>
-          <p>
+          {/* <p>
             <strong>Industry:</strong>{" "}
             {registration.industry || "Not Available"}
-          </p>
+          </p> */}
         </div>
         <div className="space-y-2">
           <p>
@@ -271,10 +271,10 @@ const CandidateDetailPage = () => {
               </div>
 
               <div className="flex flex-col md:flex-row items-center justify-between w-full">
-                <div className="w-full">
+                {/* <div className="w-full">
                   <span className="font-semibold text-gray-700">Industry:</span>{" "}
                   {getValue(exp.industry)}
-                </div>
+                </div> */}
                 <div className="w-full">
                   <span className="font-semibold text-gray-700">
                     Notice Period:

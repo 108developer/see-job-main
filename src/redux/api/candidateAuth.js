@@ -17,6 +17,13 @@ const candidateAuth = createApi({
         body: formData,
       }),
     }),
+    uploadResume: builder.mutation({
+      query: (candidateData) => ({
+        url: "signup",
+        method: "POST",
+        body: candidateData,
+      }),
+    }),
     signupCandidate: builder.mutation({
       query: (candidateData) => ({
         url: "signup",
@@ -72,10 +79,10 @@ const candidateAuth = createApi({
       }),
     }),
     updateRegisteredCandidate: builder.mutation({
-      query: ({ userId, token, jobData }) => ({
-        url: `updateRegisteredCandidate/${userId}`,
+      query: ({ userid, token, registerData }) => ({
+        url: `updateRegisteredCandidate/${userid}`,
         method: "PUT",
-        body: jobData,
+        body: registerData,
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -177,6 +184,7 @@ const candidateAuth = createApi({
 export const {
   useBulkUploadCandidatesMutation,
   useSignupCandidateMutation,
+  useUploadResumeMutation,
   useLoginCandidateMutation,
   useGetCandidateProfileQuery,
   // Forgot Password

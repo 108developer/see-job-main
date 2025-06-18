@@ -111,7 +111,7 @@ const CandidateRegister = ({ initialRegisterForm }) => {
       </div>
 
       {/* Preferred Industry */}
-      <div>
+      {/* <div>
         <label
           htmlFor="industry"
           className="text-sm font-semibold text-gray-700"
@@ -121,7 +121,7 @@ const CandidateRegister = ({ initialRegisterForm }) => {
         <div className="mt-1 p-3 w-full border rounded-md text-gray-500">
           {getValue(initialRegisterForm?.industry)}
         </div>
-      </div>
+      </div> */}
 
       {/* Job Description */}
       <div>

@@ -1,6 +1,6 @@
 "use client";
 
-import IndustrySelectDropDown from "@/components/graphql-ui/IndustrySelectDropDown";
+// import IndustrySelectDropDown from "@/components/graphql-ui/IndustrySelectDropDown";
 import LocationSearchBar from "@/components/graphql-ui/LocationSearchBar";
 import SkillDropdown from "@/components/graphql-ui/SkillsDropdown";
 import { useEmployerRegistrationMutation } from "@/redux/api/employerAuth";
@@ -36,7 +36,7 @@ const validationSchema = Yup.object({
   state: Yup.string().required("State is required"),
   totalExperience: Yup.string().required("Total Experience is required"),
   level: Yup.string().required("Level is required"),
-  industry: Yup.string().required("Industry is required"),
+  // industry: Yup.string().required("Industry is required"),
   skills: Yup.array().min(1, "At least one skill is required"),
   achievements: Yup.string(),
   description: Yup.string(),
@@ -51,7 +51,7 @@ const LEVELS = ["Junior", "Mid-level", "Senior", "Lead"];
 
 const RecruiterProfile = () => {
   const [location, setLocation] = useState("");
-  const [industry, setIndustry] = useState("");
+  // const [industry, setIndustry] = useState("");
   const [selectedSkills, setSelectedSkills] = useState([]);
   const [skillSet, setSkillSet] = useState("");
   const router = useRouter();
@@ -82,7 +82,7 @@ const RecruiterProfile = () => {
     state: "",
     totalExperience: "",
     level: "",
-    industry: "",
+    // industry: "",
     achievements: "",
     description: "",
     terms: false,
@@ -106,7 +106,7 @@ const RecruiterProfile = () => {
         state: values.state,
         totalExperience: values.totalExperience,
         level: values.level,
-        industry: values.industry,
+        // industry: values.industry,
         achievements: values.achievements,
         description: values.description,
         terms: values.terms,
@@ -412,7 +412,7 @@ const RecruiterProfile = () => {
             </div>
 
             {/* Preferred Industry */}
-            <div className="w-full mb-auto">
+            {/* <div className="w-full mb-auto">
               <label htmlFor="industry" className="block text-sm font-medium">
                 Preferred Industry*
               </label>
@@ -430,7 +430,7 @@ const RecruiterProfile = () => {
                 component="div"
                 className="text-red-500 text-sm mt-1"
               />
-            </div>
+            </div> */}
 
             {/* Achievements */}
             <div>

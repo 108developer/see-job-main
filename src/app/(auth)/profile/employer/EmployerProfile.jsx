@@ -213,14 +213,14 @@ const EmployerProfile = () => {
         </div>
 
         {/* Industry */}
-        <div>
+        {/* <div>
           <label htmlFor="industry" className="text-sm font-semibold">
             Industry
           </label>
           <div className="mt-1 p-3 w-full border rounded-md">
             {employerData?.industry || "Not available"}
           </div>
-        </div>
+        </div> */}
 
         {/* Achievements */}
         <div>
