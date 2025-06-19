@@ -1,5 +1,6 @@
 "use client";
 
+import CityStateCountrySearchBar from "@/components/graphql-ui/CityStateCountrySearchBar";
 import JobTitleSearchBar from "@/components/graphql-ui/JobTitle";
 import JobTypeSearchBar from "@/components/graphql-ui/JobType";
 import LocationSearchBar from "@/components/graphql-ui/LocationSearchBar";
@@ -301,13 +302,14 @@ const JobPreferences = () => {
               <label htmlFor="location" className="text-sm font-medium">
                 Preferred Job Location
               </label>
-              <LocationSearchBar
+              <CityStateCountrySearchBar
                 searchTerm={locationSearch}
                 onSearchChange={(value) => setLocationSearch(value)}
                 setFieldValue={setFieldValue}
                 onLocationSelect={(selectedLocation) =>
                   handleLocationSelect(selectedLocation, setFieldValue)
                 }
+                fieldName="preferredJobLocation"
               />
               <ErrorMessage
                 name="preferredJobLocation"

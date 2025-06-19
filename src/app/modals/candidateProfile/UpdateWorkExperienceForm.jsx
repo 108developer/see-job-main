@@ -192,6 +192,7 @@ const UpdateWorkExperienceForm = ({ initialWorkExperience, closeModal }) => {
               onLocationSelect={(selectedLocation) =>
                 setFieldValue("location", selectedLocation.fullAddress)
               }
+              fieldName="location"
             />
             <ErrorMessage
               name="location"

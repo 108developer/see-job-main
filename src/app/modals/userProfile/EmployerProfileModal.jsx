@@ -167,6 +167,7 @@ const RecruiterProfile = ({ employerData, closeModal }) => {
                 setLocation(selectedLocation.fullAddress);
                 setFieldValue("location", selectedLocation.fullAddress);
               }}
+              fieldName="location"
             />
             <ErrorMessage
               name="location"

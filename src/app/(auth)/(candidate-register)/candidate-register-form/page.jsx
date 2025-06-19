@@ -3,6 +3,7 @@
 import LocationSearchBar from "@/components/graphql-ui/LocationSearchBar";
 // import IndustrySelectDropDown from "@/components/graphql-ui/IndustrySelectDropDown";
 import SkillDropdown from "@/components/graphql-ui/SkillsDropdown";
+import { Input } from "@/components/ui/input";
 import { useRegisterCandidateMutation } from "@/redux/api/candidateAuth";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import { useRouter } from "next/navigation";
@@ -24,8 +25,8 @@ const fileValidation = (value, maxSize, allowedTypes) => {
 const validationSchema = Yup.object({
   location: Yup.string().required("Current Location is required"),
   permanentAddress: Yup.string().required("Permanent Address is required"),
-  minexp: Yup.number().required("Experience Min is required"),
-  maxexp: Yup.number().required("Experience Max is required"),
+  minexp: Yup.number().required("Required"),
+  maxexp: Yup.number().required("Required"),
   skills: Yup.array().min(1, "At least one skill is required"),
   // industry: Yup.string().required("Preferred Industry is required"),
   file: Yup.mixed()
@@ -33,7 +34,7 @@ const validationSchema = Yup.object({
     .test("fileSize", "File size is too large", (value) =>
       fileValidation(value, 5000000, ["application/pdf", "application/msword"])
     ),
-  jobDescription: Yup.string().required("Job Description is required"),
+  jobDescription: Yup.string().required("Summary is required"),
   terms: Yup.boolean()
     .oneOf([true], "You must agree to the terms")
     .required("You must agree to the terms"),
@@ -274,6 +275,7 @@ const CandidateRegister = () => {
                   setLocation(selectedLocation.fullAddress);
                   setFieldValue("location", selectedLocation.fullAddress);
                 }}
+                fieldName="location"
               />
               <ErrorMessage
                 name="location"
@@ -298,6 +300,7 @@ const CandidateRegister = () => {
                     selectedPermanentAddress.fullAddress
                   );
                 }}
+                fieldName="permanentAddress"
               />
               <ErrorMessage
                 name="permanentAddress"
@@ -395,16 +398,22 @@ const CandidateRegister = () => {
               <label htmlFor="file" className="block text-sm font-medium">
                 Upload Your Resume
               </label>
-              <input
+              {/* <input
                 type="file"
                 id="file"
                 name="file"
                 className="mt-1 p-3 w-full border rounded-md"
                 accept=".pdf, .doc, .docx"
+              /> */}
+              <Input
+                id="file"
+                type="file"
                 onChange={(event) => {
                   setFieldValue("file", event.currentTarget.files[0]);
                 }}
+                accept=".pdf,.doc,.docx"
               />
+
               <ErrorMessage
                 name="file"
                 component="div"
@@ -417,14 +426,14 @@ const CandidateRegister = () => {
                 htmlFor="jobDescription"
                 className="block text-sm font-medium"
               >
-                Job Description
+                Summary
               </label>
               <Field
                 type="text"
                 id="jobDescription"
                 name="jobDescription"
                 className="mt-1 p-3 w-full border rounded-md"
-                placeholder="Job Description"
+                placeholder="Summary"
               />
               <ErrorMessage
                 name="jobDescription"

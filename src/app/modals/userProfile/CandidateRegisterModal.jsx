@@ -43,6 +43,10 @@ const CandidateRegisterModal = ({ initialRegisterForm, closeModal }) => {
     return;
   }
 
+  const skillsArray = selectedSkills.map((skill) =>
+    typeof skill === "string" ? skill : skill.name
+  );
+
   const handleRegister = async (values, { resetForm }) => {
     const body = {
       candidateId: userId,
@@ -52,7 +56,7 @@ const CandidateRegisterModal = ({ initialRegisterForm, closeModal }) => {
       location: values.location,
       minexp: values.minexp,
       maxexp: values.maxexp,
-      skills: JSON.stringify(selectedSkills),
+      skills: skillsArray,
       // industry: values.industry,
       jobDescription: values.jobDescription,
     };
@@ -169,6 +173,7 @@ const CandidateRegisterModal = ({ initialRegisterForm, closeModal }) => {
                 setLocation(selectedLocation.fullAddress);
                 setFieldValue("location", selectedLocation.fullAddress);
               }}
+              fieldName="location"
             />
             <ErrorMessage
               name="location"

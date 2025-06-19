@@ -1,8 +1,9 @@
 "use client";
 
 // import IndustrySelectDropDown from "@/components/graphql-ui/IndustrySelectDropDown";
-import LocationSearchBar from "@/components/graphql-ui/LocationSearchBar";
-import SkillDropdown from "@/components/graphql-ui/SkillsDropdown";
+// import LocationSearchBar from "@/components/graphql-ui/LocationSearchBar";
+import CityStateCountrySearchBar from "@/components/graphql-ui/CityStateCountrySearchBar";
+// import SkillDropdown from "@/components/graphql-ui/SkillsDropdown";
 import { useEmployerRegistrationMutation } from "@/redux/api/employerAuth";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import { useRouter } from "next/navigation";
@@ -28,18 +29,18 @@ const validationSchema = Yup.object({
     .matches(/^[0-9]{10}$/, "Mobile Number must be 10 digits")
     .required("Mobile Number is required"),
   location: Yup.string().required("Location is required"),
-  companyName: Yup.string().required("Current Company Name is required"),
-  designation: Yup.string().required("Current Designation is required"),
-  address: Yup.string().required("Address is required"),
-  city: Yup.string().required("City is required"),
-  zipCode: Yup.string().required("Zip Code is required"),
-  state: Yup.string().required("State is required"),
-  totalExperience: Yup.string().required("Total Experience is required"),
-  level: Yup.string().required("Level is required"),
+  companyName: Yup.string().required("Company Name is required"),
+  designation: Yup.string().required("Designation is required"),
+  description: Yup.string().required("Description is required"),
+  // address: Yup.string().required("Address is required"),
+  // city: Yup.string().required("City is required"),
+  // zipCode: Yup.string().required("Zip Code is required"),
+  // state: Yup.string().required("State is required"),
+  // totalExperience: Yup.string().required("Total Experience is required"),
+  // level: Yup.string().required("Level is required"),
   // industry: Yup.string().required("Industry is required"),
-  skills: Yup.array().min(1, "At least one skill is required"),
-  achievements: Yup.string(),
-  description: Yup.string(),
+  // skills: Yup.array().min(1, "At least one skill is required"),
+  // achievements: Yup.string(),
   terms: Yup.boolean()
     .oneOf([true], "You must agree to the terms")
     .required("You must agree to the terms"),
@@ -73,17 +74,17 @@ const RecruiterProfile = () => {
     mobileNumber: "",
     password: "",
     location: "",
-    skills: [],
+    // skills: [],
     companyName: "",
     designation: "",
     address: "",
     city: "",
     zipCode: "",
     state: "",
-    totalExperience: "",
-    level: "",
+    // totalExperience: "",
+    // level: "",
     // industry: "",
-    achievements: "",
+    // achievements: "",
     description: "",
     terms: false,
   };
@@ -97,17 +98,17 @@ const RecruiterProfile = () => {
         mobileNumber: values.mobileNumber,
         password: values.password,
         location: values.location,
-        skills: selectedSkills.map((skill) => skill.name),
+        // skills: selectedSkills.map((skill) => skill.name),
         companyName: values.companyName,
         designation: values.designation,
         address: values.address,
         city: values.city,
         zipCode: values.zipCode,
         state: values.state,
-        totalExperience: values.totalExperience,
-        level: values.level,
+        // totalExperience: values.totalExperience,
+        // level: values.level,
         // industry: values.industry,
-        achievements: values.achievements,
+        // achievements: values.achievements,
         description: values.description,
         terms: values.terms,
       };
@@ -116,7 +117,7 @@ const RecruiterProfile = () => {
 
       if (response.data && response.data.success) {
         resetForm();
-        router.push("/candidate-education-details");
+        router.push("/employer-login");
         toast.success(response.data.message);
       } else {
         toast.error(
@@ -142,8 +143,12 @@ const RecruiterProfile = () => {
       >
         {({ setFieldValue }) => (
           <Form className="space-y-6 w-full">
+            <h1 className="font-bold text-lg">Recruiter Details</h1>
             {/* First Name */}
             <div>
+              <label htmlFor="firstName" className="block text-sm font-medium">
+                First Name
+              </label>
               <Field
                 type="text"
                 id="firstName"
@@ -160,6 +165,9 @@ const RecruiterProfile = () => {
 
             {/* Last Name */}
             <div>
+              <label htmlFor="lastName" className="block text-sm font-medium">
+                Last Name
+              </label>
               <Field
                 type="text"
                 id="lastName"
@@ -176,6 +184,9 @@ const RecruiterProfile = () => {
 
             {/* Email */}
             <div>
+              <label htmlFor="email" className="block text-sm font-medium">
+                Email
+              </label>
               <Field
                 type="email"
                 id="email"
@@ -192,12 +203,18 @@ const RecruiterProfile = () => {
 
             {/* Mobile Number */}
             <div>
+              <label
+                htmlFor="mobileNumber"
+                className="block text-sm font-medium"
+              >
+                Phone
+              </label>
               <Field
                 type="text"
                 id="mobileNumber"
                 name="mobileNumber"
                 className="mt-1 p-3 w-full border rounded-md"
-                placeholder="Mobile Number"
+                placeholder="Phone"
               />
               <ErrorMessage
                 name="mobileNumber"
@@ -208,6 +225,9 @@ const RecruiterProfile = () => {
 
             {/* Password */}
             <div>
+              <label htmlFor="password" className="block text-sm font-medium">
+                Password
+              </label>
               <Field
                 type="password"
                 id="password"
@@ -222,29 +242,8 @@ const RecruiterProfile = () => {
               />
             </div>
 
-            {/* Current Location */}
-            <div>
-              <label htmlFor="location" className="block text-sm font-medium">
-                Current Location
-              </label>
-              <LocationSearchBar
-                searchTerm={location}
-                onSearchChange={(value) => setLocation(value)}
-                setFieldValue={setFieldValue}
-                onLocationSelect={(selectedLocation) => {
-                  setLocation(selectedLocation.fullAddress);
-                  setFieldValue("location", selectedLocation.fullAddress);
-                }}
-              />
-              <ErrorMessage
-                name="location"
-                component="div"
-                className="text-red-500 text-sm mt-1"
-              />
-            </div>
-
             {/* Key Skills */}
-            <div className="w-full mb-auto">
+            {/* <div className="w-full mb-auto">
               <label htmlFor="skills" className="block text-sm font-medium">
                 Key Skills*
               </label>
@@ -269,10 +268,16 @@ const RecruiterProfile = () => {
                 component="div"
                 className="text-red-500 text-sm mt-1"
               />
-            </div>
+            </div> */}
 
             {/* Current Company Name */}
             <div>
+              <label
+                htmlFor="companyName"
+                className="block text-sm font-medium"
+              >
+                Company Name
+              </label>
               <Field
                 type="text"
                 id="companyName"
@@ -289,6 +294,12 @@ const RecruiterProfile = () => {
 
             {/* Current Designation */}
             <div>
+              <label
+                htmlFor="designation"
+                className="block text-sm font-medium"
+              >
+                Current Designation
+              </label>
               <Field
                 type="text"
                 id="designation"
@@ -303,8 +314,58 @@ const RecruiterProfile = () => {
               />
             </div>
 
+            {/* Description */}
+            <div>
+              <label
+                htmlFor="description"
+                className="block text-sm font-medium"
+              >
+                About Company
+              </label>
+              <Field
+                type="text"
+                id="description"
+                name="description"
+                className="mt-1 p-3 w-full border rounded-md"
+                placeholder="Description"
+              />
+              <ErrorMessage
+                name="description"
+                component="div"
+                className="text-red-500 text-sm mt-1"
+              />
+            </div>
+
+            {/* Current Location */}
+            <div>
+              <label htmlFor="location" className="block text-sm font-medium">
+                Company Location
+              </label>
+              <CityStateCountrySearchBar
+                searchTerm={location}
+                onSearchChange={(value) => setLocation(value)}
+                setFieldValue={setFieldValue}
+                onLocationSelect={(selectedLocation) => {
+                  setLocation(selectedLocation.fullAddress);
+                  setFieldValue("location", selectedLocation.fullAddress);
+                }}
+                fieldName="location"
+              />
+              <ErrorMessage
+                name="location"
+                component="div"
+                className="text-red-500 text-sm mt-1"
+              />
+            </div>
+
             {/* Address */}
             <div>
+              <label
+                htmlFor="description"
+                className="block text-sm font-medium"
+              >
+                Full Address
+              </label>
               <Field
                 type="text"
                 id="address"
@@ -320,7 +381,7 @@ const RecruiterProfile = () => {
             </div>
 
             {/* City */}
-            <div>
+            {/* <div>
               <Field
                 type="text"
                 id="city"
@@ -333,10 +394,10 @@ const RecruiterProfile = () => {
                 component="div"
                 className="text-red-500 text-sm mt-1"
               />
-            </div>
+            </div> */}
 
             {/* Zip Code */}
-            <div>
+            {/* <div>
               <Field
                 type="text"
                 id="zipCode"
@@ -349,10 +410,10 @@ const RecruiterProfile = () => {
                 component="div"
                 className="text-red-500 text-sm mt-1"
               />
-            </div>
+            </div> */}
 
             {/* State */}
-            <div>
+            {/* <div>
               <Field
                 type="text"
                 id="state"
@@ -365,10 +426,10 @@ const RecruiterProfile = () => {
                 component="div"
                 className="text-red-500 text-sm mt-1"
               />
-            </div>
+            </div> */}
 
             {/* Total Experience (Dropdown) */}
-            <div>
+            {/* <div>
               <Field
                 as="select"
                 id="totalExperience"
@@ -387,10 +448,10 @@ const RecruiterProfile = () => {
                 component="div"
                 className="text-red-500 text-sm mt-1"
               />
-            </div>
+            </div> */}
 
             {/* Level (Dropdown) */}
-            <div>
+            {/* <div>
               <Field
                 as="select"
                 id="level"
@@ -409,7 +470,7 @@ const RecruiterProfile = () => {
                 component="div"
                 className="text-red-500 text-sm mt-1"
               />
-            </div>
+            </div> */}
 
             {/* Preferred Industry */}
             {/* <div className="w-full mb-auto">
@@ -433,7 +494,7 @@ const RecruiterProfile = () => {
             </div> */}
 
             {/* Achievements */}
-            <div>
+            {/* <div>
               <Field
                 type="text"
                 id="achievements"
@@ -446,23 +507,7 @@ const RecruiterProfile = () => {
                 component="div"
                 className="text-red-500 text-sm mt-1"
               />
-            </div>
-
-            {/* Description */}
-            <div>
-              <Field
-                type="text"
-                id="description"
-                name="description"
-                className="mt-1 p-3 w-full border rounded-md"
-                placeholder="Description"
-              />
-              <ErrorMessage
-                name="description"
-                component="div"
-                className="text-red-500 text-sm mt-1"
-              />
-            </div>
+            </div> */}
 
             {/* Terms and Conditions */}
             <div>

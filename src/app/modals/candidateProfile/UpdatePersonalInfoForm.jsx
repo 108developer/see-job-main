@@ -95,6 +95,7 @@ const UpdatePersonalInfoForm = ({ initialPersonalInfo, closeModal }) => {
               onLocationSelect={(selectedLocation) => {
                 setFieldValue("currentLocation", selectedLocation.fullAddress);
               }}
+              fieldName="currentLocation"
             />
             <ErrorMessage
               name="currentLocation"
@@ -123,6 +124,7 @@ const UpdatePersonalInfoForm = ({ initialPersonalInfo, closeModal }) => {
                   selectedPermanentAddress.fullAddress
                 );
               }}
+              fieldName="permanentAddress"
             />
             <ErrorMessage
               name="permanentAddress"

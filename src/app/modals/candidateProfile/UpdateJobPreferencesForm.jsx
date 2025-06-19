@@ -136,6 +136,7 @@ const UpdateJobPreferencesForm = ({ initialJobPreferences, closeModal }) => {
                   selectedLocation.fullAddress,
                 ]);
               }}
+              fieldName="jobLocation"
             />
             <ErrorMessage
               name="jobLocation"
