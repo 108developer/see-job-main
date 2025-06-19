@@ -178,6 +178,7 @@ const WorkExperienceModal = ({ experience = null, closeModal }) => {
                 setLocation(loc.fullAddress);
                 setFieldValue("location", loc.fullAddress);
               }}
+              fieldName="location"
             />
             <ErrorMessage
               name="location"

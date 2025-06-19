@@ -1,6 +1,15 @@
 "use client";
 import { setModal } from "@/redux/slices/modalSlice";
-import { ArrowRight, Bell, Mail, PhoneIcon, UserCircle } from "lucide-react";
+import {
+  ArrowRight,
+  Bell,
+  File,
+  Mail,
+  Notebook,
+  PhoneIcon,
+  Upload,
+  UserCircle,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -10,15 +19,18 @@ import ResumeUploadModal from "./Resume-modal";
 const ResumeService = [
   {
     itemTitle: "Career Booster Resume",
-    href: "https://solvehub.in/infoedge/services.html",
+    href: "",
+    // href: "https://solvehub.in/infoedge/services.html",
   },
   {
     itemTitle: "National Resume",
-    href: "https://solvehub.in/infoedge/services.html",
+    href: "",
+    // href: "https://solvehub.in/infoedge/services.html",
   },
   {
     itemTitle: "International Resume",
-    href: "https://solvehub.in/infoedge/services.html",
+    href: "",
+    // href: "https://solvehub.in/infoedge/services.html",
   },
 ];
 const components = [
@@ -107,11 +119,14 @@ const Navbar = () => {
           </div>
         </div>
         <div className="w-fit flex flex-col md:flex-row items-center gap-5">
-          {userRole !== "employer" && userRole !== "admin" && (
-            <div className="hidden md:block">
-              <ResumeUploadModal btntext="Post Your Resume" />
-            </div>
-          )}
+          {userRole !== "employer" &&
+            userRole !== "candidate" &&
+            userRole !== "admin" && (
+              <div className="hidden md:flex gap-2">
+                <Upload />
+                <ResumeUploadModal btntext="Upload Your Resume" />
+              </div>
+            )}
           <UserDropdown
             authLogin={authLogin}
             role={role}
@@ -189,6 +204,7 @@ const ForEmployers = () => {
             <li>
               <Link
                 href="/buy-online"
+                onClick={() => setIsBoxOpen(false)}
                 className="flex items-center border-b border-dashed gap-2 px-3 py-2 transition duration-300 ease-in-out hover:bg-gray-100"
               >
                 Buy Online
@@ -197,6 +213,7 @@ const ForEmployers = () => {
             <li>
               <Link
                 href="/employer-login"
+                onClick={() => setIsBoxOpen(false)}
                 className="flex items-center gap-2 px-3 py-2 transition duration-300 ease-in-out hover:bg-gray-100"
               >
                 Employer Login
@@ -367,7 +384,7 @@ const UserDropdown = ({
           onClick={openSignInModal}
           className="text-white bg-red-600 text-lg font-thin px-3 py-1 rounded-md whitespace-nowrap"
         >
-          Sign In
+          Job Seeker
         </button>
       )}
     </div>

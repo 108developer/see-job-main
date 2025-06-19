@@ -320,8 +320,29 @@ const CandidateProfile = () => {
                         </div>
                       </div>
                     ) : (
-                      <div className="text-center text-gray-500">
+                      <div className="flex flex-col items-center gap-2 text-gray-500">
                         <span>No resume uploaded yet.</span>
+                        <button
+                          type="button"
+                          onClick={handleResumeClick}
+                          className="mt-2 px-4 py-2 bg-blue-500 text-white text-sm rounded-md hover:bg-blue-600"
+                        >
+                          Upload Resume
+                        </button>
+                        {/* Hidden file input for resume upload */}
+                        <input
+                          type="file"
+                          id="resume"
+                          name="resume"
+                          accept=".pdf,.doc,.docx"
+                          className="hidden"
+                          ref={resumeInputRef}
+                          onChange={(e) => {
+                            handleResumeUpload(e);
+                            setFieldValue("resume", e.target.files[0]);
+                            setSelectedResume(e.target.files[0]);
+                          }}
+                        />
                       </div>
                     )}
                   </div>

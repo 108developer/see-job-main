@@ -74,7 +74,7 @@ const FilterSidebar = ({ filters, onFilterChange }) => {
         <div className="space-y-4">
           {/* Search All */}
           <div className="space-y-2">
-            <Label>Search</Label>
+            <Label>Skill / Post</Label>
             <SearchAll
               searchTerm={skillSet}
               onSearchChange={(value) => setSkillSet(value)}

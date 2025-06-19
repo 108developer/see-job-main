@@ -332,6 +332,7 @@ const PostJob = () => {
                         selectedLocation.fullAddress
                       );
                     }}
+                    fieldName="jobLocation"
                   />
                   <ErrorMessage
                     name="jobLocation"

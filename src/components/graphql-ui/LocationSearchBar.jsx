@@ -7,6 +7,7 @@ const SearchBar = ({
   onSearchChange,
   onLocationSelect,
   setFieldValue,
+  fieldName,
   placeholder = "Search for locations",
   noResultsMessage = "No results found",
 }) => {
@@ -67,6 +68,9 @@ const SearchBar = ({
         placeholder={placeholder}
         value={searchTerm}
         onChange={handleChange}
+        onBlur={() => {
+          setFieldValue(fieldName, searchTerm);
+        }}
       />
       {loading && <p className="text-gray-500 text-sm mt-2">Loading...</p>}
       {error && (

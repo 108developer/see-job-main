@@ -88,6 +88,7 @@ const getTimeAgo = (timestamp) => {
 const FindCV = () => {
   const dispatch = useDispatch();
   const { userid, role } = useSelector((state) => state.auth);
+  const isPlanActive = useSelector((state) => state.auth?.user?.isPlanActive);
 
   const [filters, setFilters] = useState({ employerId: userid, skills: [] });
   const [selectedStatus, setSelectedStatus] = useState("All");
@@ -145,6 +146,14 @@ const FindCV = () => {
     setSelectedCandidates((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
+  };
+
+  const checkAccess = (candidateId, action) => {
+    if (!isPlanActive) {
+      toast.warn(`Please upgrade your plan to ${action} this candidate`);
+      return false;
+    }
+    return true;
   };
 
   const updateCandidateStatus = async (candidateId, newStatus) => {
@@ -320,12 +329,15 @@ const FindCV = () => {
               >
                 Send Mail
               </div> */}
-              <div
-                onClick={downloadCandidateInfo}
-                className="ml-auto bg-emerald-500 text-white hover:bg-emerald-600 p-2 rounded-md flex items-center gap-2 transition-colors duration-300 cursor-pointer"
-              >
-                Download Details
-              </div>
+
+              {role === "admin" && (
+                <div
+                  onClick={downloadCandidateInfo}
+                  className="ml-auto bg-emerald-500 text-white hover:bg-emerald-600 p-2 rounded-md flex items-center gap-2 transition-colors duration-300 cursor-pointer"
+                >
+                  Download Details
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -462,13 +474,30 @@ const FindCV = () => {
 
                           <div className="w-full flex flex-col p-1 ">
                             <div
-                              className="text-xl font-semibold text-red-600 gap-2 flex flex-wrap "
-                              onClick={() =>
+                              className="text-xl font-semibold text-red-600 gap-2 flex flex-wrap cursor-pointer hover:underline"
+                              onClick={(e) => {
+                                const currentStatus =
+                                  candidateStatusMap[candidate.id] ||
+                                  candidate.recruiterStatus ||
+                                  "All";
+
+                                if (
+                                  !checkAccess(
+                                    candidate.id,
+                                    "view this candidate"
+                                  )
+                                )
+                                  return;
+
+                                if (currentStatus !== "Viewed") {
+                                  updateCandidateStatus(candidate.id, "Viewed");
+                                }
+
                                 window.open(
                                   `/find-cv/${candidate.id}`,
                                   "_blank"
-                                )
-                              }
+                                );
+                              }}
                             >
                               {candidate?.name || "Not Available"}
                             </div>
@@ -524,7 +553,9 @@ const FindCV = () => {
                         <div className="flex flex-col justify-center gap-2 text-sm">
                           <button
                             onClick={() => {
-                              showEmail(candidate?.id);
+                              if (!checkAccess(candidate.id, "view email of"))
+                                return;
+                              showEmail(candidate.id);
                             }}
                             className="flex items-center text-xs gap-2 bg-gray-200 text-gray-700 p-2 rounded-md hover:bg-gray-300"
                           >
@@ -543,6 +574,8 @@ const FindCV = () => {
                             {/* Phone Button */}
                             <button
                               onClick={() => {
+                                if (!checkAccess(candidate.id, "view phone of"))
+                                  return;
                                 showPhone(candidate.id);
                               }}
                               className="flex items-center text-xs font-semibold gap-2 bg-orange-600 text-white p-2 rounded-md hover:bg-orange-700"
@@ -559,26 +592,29 @@ const FindCV = () => {
                             </button>
 
                             {/* WhatsApp Button */}
-                            <a
-                              className="scale-75 hover:scale-105 transform transition duration-300 ease-in-out"
-                              href={`https://api.whatsapp.com/send?phone=${candidate.phone}&text=Hello%20I%20saw%20your%20profile%20on%20see%20job!`}
-                              target="_blank"
+                            <button
+                              onClick={() => {
+                                if (
+                                  !checkAccess(candidate.id, "view WhatsApp of")
+                                )
+                                  return;
+                                showWhatsApp(candidate.id);
+
+                                const whatsappUrl = `https://api.whatsapp.com/send?phone=${candidate.phone}&text=Hello%20I%20saw%20your%20profile%20on%20see%20job!`;
+                                window.open(whatsappUrl, "_blank");
+                              }}
+                              className="flex items-center text-xs font-semibold gap-2 bg-emerald-600 text-white p-2 rounded-md hover:bg-emerald-700 scale-75 hover:scale-105 transform transition duration-300 ease-in-out"
                             >
-                              <button
-                                onClick={() => showWhatsApp(candidate.id)}
-                                className="flex items-center text-xs font-semibold gap-2 bg-emerald-600 text-white p-2 rounded-md hover:bg-emerald-700"
-                              >
-                                <MessageCircle className="w-4 h-4" />
-                                {shownWhatsApps.has(candidate.id)
-                                  ? candidate.phone
-                                  : "WHATSAPP"}
-                                {shownWhatsApps.has(candidate.id) ? (
-                                  <Eye className="w-4 h-4" />
-                                ) : (
-                                  <EyeOff className="w-4 h-4" />
-                                )}
-                              </button>
-                            </a>
+                              <MessageCircle className="w-4 h-4" />
+                              {shownWhatsApps.has(candidate.id)
+                                ? candidate.phone
+                                : "WHATSAPP"}
+                              {shownWhatsApps.has(candidate.id) ? (
+                                <Eye className="w-4 h-4" />
+                              ) : (
+                                <EyeOff className="w-4 h-4" />
+                              )}
+                            </button>
                           </div>
                         </div>
 
@@ -622,9 +658,14 @@ const FindCV = () => {
 
                         <div className="flex flex-col md:flex-row md:items-center md:justify-center gap-2">
                           <button
-                            onClick={() =>
-                              updateCandidateStatus(candidate.id, "Shortlisted")
-                            }
+                            onClick={() => {
+                              if (!checkAccess(candidate.id, "shortlist"))
+                                return;
+                              updateCandidateStatus(
+                                candidate.id,
+                                "Shortlisted"
+                              );
+                            }}
                             disabled={
                               currentStatus === "Shortlisted" ||
                               loadingStatus[candidate.id]
@@ -644,9 +685,10 @@ const FindCV = () => {
                           </button>
 
                           <button
-                            onClick={() =>
-                              updateCandidateStatus(candidate.id, "Rejected")
-                            }
+                            onClick={() => {
+                              if (!checkAccess(candidate.id, "reject")) return;
+                              updateCandidateStatus(candidate.id, "Rejected");
+                            }}
                             disabled={
                               currentStatus === "Rejected" ||
                               loadingStatus[candidate.id]
@@ -666,9 +708,10 @@ const FindCV = () => {
                           </button>
 
                           <button
-                            onClick={() =>
-                              updateCandidateStatus(candidate.id, "Hold")
-                            }
+                            onClick={() => {
+                              if (!checkAccess(candidate.id, "hold")) return;
+                              updateCandidateStatus(candidate.id, "Hold");
+                            }}
                             disabled={
                               currentStatus === "Hold" ||
                               loadingStatus[candidate.id]

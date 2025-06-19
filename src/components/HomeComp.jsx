@@ -212,37 +212,53 @@ export const Sliding = () => {
 };
 
 export const ResumeService = () => {
+  const resumeOptions = [
+    {
+      title: "Career Booster Resume",
+      description:
+        "Perfect for job seekers looking to revamp their resumes for better visibility. Tailored formatting, keyword optimization, and professional design to increase interview chances.",
+    },
+    {
+      title: "National Resume",
+      description:
+        "Ideal for applying to companies across India. This resume format meets the expectations of local recruiters, focusing on clarity, education, and industry-specific experience.",
+    },
+    {
+      title: "International Resume",
+      description:
+        "Designed for global job markets, this resume highlights your strengths and experience in a format accepted in countries like the USA, Canada, UK, and Europe.",
+    },
+  ];
+
   return (
     <div className="flex flex-col gap-5 items-center justify-center p-6">
       <div className="text-2xl font-semibold">Resume Service</div>
-      <div className="flex gap-5 max-w-5xl">
-        {[...Array(3)].map((_, index) => (
+      <div className="flex gap-5 flex-wrap justify-center max-w-5xl">
+        {resumeOptions.map((option, index) => (
           <Card
             key={index}
-            className={`p-6 hover:shadow-xl transition-shadow rounded-md ${
-              index == 1 ? "bg-red-400 text-white" : ""
+            className={`p-6 hover:shadow-xl transition-shadow rounded-md w-80 ${
+              index === 1 ? "bg-red-400 text-white" : ""
             }`}
           >
-            <CardHeader className="flex flex-row items-center gap-2 mb-4">
-              <Check className="text-green-500" />
-              <CardTitle className="text-lg font-semibold">
-                Career Booster Resume
+            <CardHeader className="flex items-center gap-2 mb-4 w-full">
+              {/* <Check className="text-green-500" /> */}
+              <CardTitle className="text-lg font-semibold w-full flex">
+                {option.title}
               </CardTitle>
             </CardHeader>
             <CardDescription
-              className={`mb-4 text-sm ${index == 1 ? "text-white" : ""}`}
+              className={`mb-4 text-sm ${index === 1 ? "text-white" : ""}`}
             >
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-              enim ad minim veniam.
+              {option.description}
             </CardDescription>
             <a
               href="/"
               className={`${
-                index == 1 ? "text-white" : "text-blue-600"
+                index === 1 ? "text-white" : "text-blue-600"
               } hover:underline text-sm font-medium`}
             >
-              Read More
+              Connect with Sales Team
             </a>
           </Card>
         ))}

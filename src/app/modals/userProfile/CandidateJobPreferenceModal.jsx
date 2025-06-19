@@ -185,6 +185,7 @@ const CandidateJobPreferences = ({ initialJobPreference, closeModal }) => {
               onLocationSelect={(selectedLocation) =>
                 handleLocationSelect(selectedLocation, setFieldValue)
               }
+              fieldName="preferredJobLocation"
             />
             <ErrorMessage
               name="preferredJobLocation"
