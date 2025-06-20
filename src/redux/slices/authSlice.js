@@ -11,6 +11,10 @@ const initialState = {
   role: typeof window !== "undefined" ? localStorage.getItem("role") : null,
   expiresIn:
     typeof window !== "undefined" ? localStorage.getItem("expiresIn") : null,
+  subscription:
+    typeof window !== "undefined" && localStorage.getItem("subscription")
+      ? JSON.parse(localStorage.getItem("subscription"))
+      : null,
 };
 
 const authSlice = createSlice({

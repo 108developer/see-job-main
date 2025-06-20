@@ -88,8 +88,6 @@ const getTimeAgo = (timestamp) => {
 const FindCV = () => {
   const dispatch = useDispatch();
   const { userid, role } = useSelector((state) => state.auth);
-  const isPlanActive = useSelector((state) => state.auth?.user?.isPlanActive);
-
   const [filters, setFilters] = useState({ employerId: userid, skills: [] });
   const [selectedStatus, setSelectedStatus] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
@@ -118,6 +116,34 @@ const FindCV = () => {
   });
 
   const [updateStatusMutation] = useMutation(UPDATE_CANDIDATE_STATUS);
+
+  const revealedStatuses = new Set([
+    "Viewed",
+    "Shortlisted",
+    "Rejected",
+    "Hold",
+  ]);
+
+  useEffect(() => {
+    if (!data?.getAllCandidates?.candidates) return;
+
+    const emails = new Set();
+    const phones = new Set();
+    const whatsApps = new Set();
+
+    data.getAllCandidates.candidates.forEach((candidate) => {
+      if (revealedStatuses.has(candidate.recruiterStatus)) {
+        emails.add(candidate.id);
+        phones.add(candidate.id);
+        whatsApps.add(candidate.id);
+      }
+    });
+
+    setShownEmails(emails);
+    setShownPhones(phones);
+    setShownWhatsApps(whatsApps);
+    setAllowedToVisit(emails); // since revealing contact info allows viewing resume
+  }, [data]);
 
   useEffect(() => {
     const statusValue = selectedStatus === "All" ? "" : selectedStatus;
@@ -148,12 +174,41 @@ const FindCV = () => {
     );
   };
 
-  const checkAccess = (candidateId, action) => {
-    if (!isPlanActive) {
-      toast.warn(`Please upgrade your plan to ${action} this candidate`);
-      return false;
+  const checkAccess = (candidateId) => {
+    return (
+      shownEmails.has(candidateId) ||
+      shownPhones.has(candidateId) ||
+      shownWhatsApps.has(candidateId)
+    );
+  };
+
+  const fireCandidateAction = async (candidateId, action) => {
+    try {
+      const { data } = await updateStatusMutation({
+        variables: { candidateId, recruiterId: userid, status: action },
+      });
+
+      const result = data?.updateCandidateStatus;
+
+      if (!result?.success) {
+        toast.error(result?.message || "Failed to perform action.");
+        return;
+      }
+
+      toast.success(result.message);
+      setAllowedToVisit((prev) => new Set(prev).add(candidateId));
+
+      // ✅ Update frontend state so UI reflects it
+      if (action === "email") {
+        showEmail(candidateId);
+      } else if (action === "phone") {
+        showPhone(candidateId);
+      } else if (action === "whatsapp") {
+        showWhatsApp(candidateId);
+      }
+    } catch (error) {
+      toast.error("Something went wrong");
     }
-    return true;
   };
 
   const updateCandidateStatus = async (candidateId, newStatus) => {
@@ -200,18 +255,42 @@ const FindCV = () => {
   };
 
   const showEmail = (id) => {
-    setShownEmails((prev) => new Set(prev).add(id));
-    setAllowedToVisit((prev) => new Set(prev).add(id));
+    setShownEmails((prev) => {
+      const newSet = new Set(prev);
+      newSet.add(id);
+      return newSet;
+    });
+    setAllowedToVisit((prev) => {
+      const newSet = new Set(prev);
+      newSet.add(id);
+      return newSet;
+    });
   };
 
   const showPhone = (id) => {
-    setShownPhones((prev) => new Set(prev).add(id));
-    setAllowedToVisit((prev) => new Set(prev).add(id));
+    setShownPhones((prev) => {
+      const newSet = new Set(prev);
+      newSet.add(id);
+      return newSet;
+    });
+    setAllowedToVisit((prev) => {
+      const newSet = new Set(prev);
+      newSet.add(id);
+      return newSet;
+    });
   };
 
   const showWhatsApp = (id) => {
-    setShownWhatsApps((prev) => new Set(prev).add(id));
-    setAllowedToVisit((prev) => new Set(prev).add(id));
+    setShownWhatsApps((prev) => {
+      const newSet = new Set(prev);
+      newSet.add(id);
+      return newSet;
+    });
+    setAllowedToVisit((prev) => {
+      const newSet = new Set(prev);
+      newSet.add(id);
+      return newSet;
+    });
   };
 
   const handlePageChange = (page) => setCurrentPage(page);
@@ -549,14 +628,11 @@ const FindCV = () => {
                             </button>
                           </div>
                         </div>
-
                         <div className="flex flex-col justify-center gap-2 text-sm">
                           <button
-                            onClick={() => {
-                              if (!checkAccess(candidate.id, "view email of"))
-                                return;
-                              showEmail(candidate.id);
-                            }}
+                            onClick={() =>
+                              fireCandidateAction(candidate.id, "email")
+                            }
                             className="flex items-center text-xs gap-2 bg-gray-200 text-gray-700 p-2 rounded-md hover:bg-gray-300"
                           >
                             <Mail className="w-4 h-4" />
@@ -573,11 +649,9 @@ const FindCV = () => {
                           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 text-sm w-full">
                             {/* Phone Button */}
                             <button
-                              onClick={() => {
-                                if (!checkAccess(candidate.id, "view phone of"))
-                                  return;
-                                showPhone(candidate.id);
-                              }}
+                              onClick={() =>
+                                fireCandidateAction(candidate.id, "phone")
+                              }
                               className="flex items-center text-xs font-semibold gap-2 bg-orange-600 text-white p-2 rounded-md hover:bg-orange-700"
                             >
                               <Phone className="w-4 h-4" />
@@ -594,11 +668,7 @@ const FindCV = () => {
                             {/* WhatsApp Button */}
                             <button
                               onClick={() => {
-                                if (
-                                  !checkAccess(candidate.id, "view WhatsApp of")
-                                )
-                                  return;
-                                showWhatsApp(candidate.id);
+                                fireCandidateAction(candidate.id, "whatsapp");
 
                                 const whatsappUrl = `https://api.whatsapp.com/send?phone=${candidate.phone}&text=Hello%20I%20saw%20your%20profile%20on%20see%20job!`;
                                 window.open(whatsappUrl, "_blank");
@@ -659,8 +729,12 @@ const FindCV = () => {
                         <div className="flex flex-col md:flex-row md:items-center md:justify-center gap-2">
                           <button
                             onClick={() => {
-                              if (!checkAccess(candidate.id, "shortlist"))
+                              if (!checkAccess(candidate.id)) {
+                                toast.warn(
+                                  "Please reveal contact info to take this action."
+                                );
                                 return;
+                              }
                               updateCandidateStatus(
                                 candidate.id,
                                 "Shortlisted"
@@ -686,7 +760,12 @@ const FindCV = () => {
 
                           <button
                             onClick={() => {
-                              if (!checkAccess(candidate.id, "reject")) return;
+                              if (!checkAccess(candidate.id)) {
+                                toast.warn(
+                                  "Please reveal contact info to take this action."
+                                );
+                                return;
+                              }
                               updateCandidateStatus(candidate.id, "Rejected");
                             }}
                             disabled={
@@ -709,7 +788,12 @@ const FindCV = () => {
 
                           <button
                             onClick={() => {
-                              if (!checkAccess(candidate.id, "hold")) return;
+                              if (!checkAccess(candidate.id)) {
+                                toast.warn(
+                                  "Please reveal contact info to take this action."
+                                );
+                                return;
+                              }
                               updateCandidateStatus(candidate.id, "Hold");
                             }}
                             disabled={
