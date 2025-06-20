@@ -44,6 +44,7 @@ const EmployerLogin = () => {
             username: data.fullName,
             phone: data.phone,
             role: data.role,
+            subscription: data.subscription,
           })
         );
         localStorage.setItem("token", data.token);
@@ -52,6 +53,7 @@ const EmployerLogin = () => {
         localStorage.setItem("username", data.fullName);
         localStorage.setItem("phone", data.phone);
         localStorage.setItem("role", data.role);
+        localStorage.setItem("subscription", JSON.stringify(data.subscription));
         router.push("/");
       }
     } catch (err) {

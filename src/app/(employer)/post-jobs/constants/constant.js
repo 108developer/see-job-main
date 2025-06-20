@@ -72,7 +72,7 @@ export const validationSchema = Yup.object({
   openings: Yup.number()
     .min(1, "At least one opening is required")
     .required("Openings are required"),
-  deadline: Yup.date().required("Deadline is required"),
+  // deadline: Yup.date().required("Deadline is required"),
   // status: Yup.string()
   //   .oneOf(["open", "closed"], "Invalid status")
   //   .required("Status is required"),
@@ -91,8 +91,8 @@ export const validationSchema = Yup.object({
     .email("Invalid email format")
     .required("Company email is required"),
   companyPhone: Yup.string().required("Company phone is required"),
-  companyWebsite: Yup.string()
-    .url("Invalid website URL format")
-    .required("Company website is required"),
+  // companyWebsite: Yup.string()
+  //   .url("Invalid website URL format")
+  //   .required("Company website is required"),
   companyDescription: Yup.string().required("Company description is required"),
 });
