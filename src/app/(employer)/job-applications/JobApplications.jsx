@@ -386,14 +386,14 @@ const JobApplications = () => {
                         <div className="flex items-center gap-2 w-full">
                           <IndianRupee className="w-4 h-4" />
                           Current Salary : ₹{" "}
-                          {candidate?.currentSalary.toLocaleString() ||
+                          {candidate?.currentSalary?.toLocaleString() ||
                             "Not Available"}
                           /month
                         </div>
                         <div className="flex items-center gap-2 w-full">
                           <Banknote className="w-4 h-4" />
                           Expected Salary : ₹{" "}
-                          {candidate?.expectedSalary.toLocaleString() ||
+                          {candidate?.expectedSalary?.toLocaleString() ||
                             "Not Available"}
                           /month
                         </div>

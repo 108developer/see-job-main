@@ -54,7 +54,7 @@ const EmployerLogin = () => {
         localStorage.setItem("phone", data.phone);
         localStorage.setItem("role", data.role);
         localStorage.setItem("subscription", JSON.stringify(data.subscription));
-        router.push("/");
+        // router.push("/");
       }
     } catch (err) {
       console.error("Login Failed: ", err);
