@@ -55,8 +55,10 @@ const CandidateProfile = () => {
   const [selectedResume, setSelectedResume] = useState(null);
 
   const resumeInputRef = useRef(null);
+  const imageInputRef = useRef(null);
 
-  const [updateProfilePic] = useUpdateProfilePicMutation();
+  const [updateProfilePic, { isLoading: isSubmittingProfilePic }] =
+    useUpdateProfilePicMutation();
   const [updateResume] = useUpdateResumeMutation();
 
   const { userid, token } = useSelector((state) => state.auth);
@@ -91,6 +93,11 @@ const CandidateProfile = () => {
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
+      const validTypes = ["image/jpeg", "image/jpg", "image/png"];
+      if (!validTypes.includes(file.type)) {
+        toast.error("Only JPG, JPEG, and PNG files are allowed.");
+        return; // don't proceed if invalid
+      }
       setSelectedImage(file);
       setShowImage(URL.createObjectURL(file));
     }
@@ -164,28 +171,38 @@ const CandidateProfile = () => {
             <Form className="space-y-6 w-full">
               {/* Upload Image */}
               <div className="flex justify-center items-center">
-                <label htmlFor="image" className="relative">
+                <label
+                  htmlFor="image"
+                  className="relative cursor-pointer group"
+                >
                   <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-gray-300">
-                    {showImage?.startsWith("blob:") ? (
+                    {showImage?.startsWith("blob:") ||
+                    showImage?.startsWith("http") ? (
                       <img
                         src={showImage}
-                        alt="Upload"
+                        alt="Profile"
                         className="w-full h-full object-cover"
                       />
                     ) : (
                       <Image
-                        src={showImage || PlaceholderImage}
-                        alt="Upload"
+                        src={PlaceholderImage}
+                        alt="Profile"
                         width={96}
                         height={96}
-                        className="rounded-full object-cover"
+                        className="w-full h-full object-cover"
                       />
                     )}
                   </div>
-                  <div className="absolute bottom-2 right-0 p-1 bg-blue-800 rounded-full cursor-pointer">
+
+                  {/* Edit icon overlay */}
+                  <div className="absolute bottom-1 right-1 p-1 bg-blue-800 rounded-full opacity-90 group-hover:opacity-100 transition-opacity">
                     <Edit2
-                      className="w-4 h-4 text-white font-bold"
-                      onClick={() => setIsEditingImage(true)}
+                      className="w-4 h-4 text-white"
+                      onClick={(e) => {
+                        e.preventDefault(); // prevent label default
+                        setIsEditingImage(true);
+                        imageInputRef.current?.click();
+                      }}
                     />
                   </div>
                 </label>
@@ -194,6 +211,7 @@ const CandidateProfile = () => {
                   id="image"
                   name="profilePic"
                   accept="image/*"
+                  ref={imageInputRef}
                   className="hidden"
                   onChange={(e) => {
                     handleImageUpload(e);
@@ -218,9 +236,9 @@ const CandidateProfile = () => {
                   <button
                     type="submit"
                     className="w-fit px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-                    disabled={isLoading}
+                    disabled={isSubmittingProfilePic}
                   >
-                    {isLoading ? "Loading..." : "Submit"}
+                    {isSubmittingProfilePic ? "Submitting..." : "Submit"}
                   </button>
                 </div>
               )}

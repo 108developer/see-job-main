@@ -34,75 +34,84 @@ const CandidateEducationDetails = ({ initialEducationDetails }) => {
         </div>
       </div>
 
-      {/* Highest Qualification */}
-      <div>
-        <label
-          htmlFor="highestQualification"
-          className="text-sm font-semibold text-gray-700"
-        >
-          Highest Qualification
-        </label>
-        <div className="mt-1 p-3 w-full border rounded-md text-gray-500">
-          {getValue(initialEducationDetails?.highestQualification)}
+      <div className="flex flex-col md:flex-row gap-2 items-center justify-between w-full">
+        {/* Highest Qualification */}
+        <div className="w-full">
+          <label
+            htmlFor="highestQualification"
+            className="text-sm font-semibold text-gray-700"
+          >
+            Highest Qualification
+          </label>
+          <div className="text-gray-500">
+            {getValue(initialEducationDetails?.highestQualification)}
+          </div>
+        </div>
+
+        {/* Year of Education */}
+        <div className="w-full">
+          <label
+            htmlFor="yearOfEducation"
+            className="text-sm font-semibold text-gray-700"
+          >
+            Year of Education
+          </label>
+          <div className="text-gray-500">
+            {getValue(initialEducationDetails?.yearOfEducation)}
+          </div>
         </div>
       </div>
 
-      {/* Medium */}
-      <div>
-        <label htmlFor="medium" className="text-sm font-semibold text-gray-700">
-          Medium
-        </label>
-        <div className="mt-1 p-3 w-full border rounded-md text-gray-500">
-          {getValue(initialEducationDetails?.medium)}
+      <div className="flex flex-col md:flex-row gap-2 items-center justify-between w-full">
+        {/* Board of Education */}
+        <div className="w-full">
+          <label
+            htmlFor="boardOfEducation"
+            className="text-sm font-semibold text-gray-700"
+          >
+            Board of Education
+          </label>
+          <div className="text-gray-500">
+            {getValue(initialEducationDetails?.boardOfEducation)}
+          </div>
+        </div>
+
+        {/* Medium */}
+        <div className="w-full">
+          <label
+            htmlFor="medium"
+            className="text-sm font-semibold text-gray-700"
+          >
+            Medium
+          </label>
+          <div className="text-gray-500">
+            {getValue(initialEducationDetails?.medium)}
+          </div>
         </div>
       </div>
 
-      {/* Board of Education */}
-      <div>
-        <label
-          htmlFor="boardOfEducation"
-          className="text-sm font-semibold text-gray-700"
-        >
-          Board of Education
-        </label>
-        <div className="mt-1 p-3 w-full border rounded-md text-gray-500">
-          {getValue(initialEducationDetails?.boardOfEducation)}
+      <div className="flex flex-col md:flex-row gap-2 items-center justify-between w-full">
+        {/* Education Mode */}
+        <div className="w-full">
+          <label className="text-sm font-semibold text-gray-700">
+            Education Mode
+          </label>
+          <div className="text-gray-500">
+            {getValue(initialEducationDetails?.educationMode)}
+          </div>
         </div>
-      </div>
 
-      {/* Percentage */}
-      <div>
-        <label
-          htmlFor="percentage"
-          className="text-sm font-semibold text-gray-700"
-        >
-          Percentage
-        </label>
-        <div className="mt-1 p-3 w-full border rounded-md text-gray-500">
-          {getValue(initialEducationDetails?.percentage)}
-        </div>
-      </div>
-
-      {/* Year of Education */}
-      <div>
-        <label
-          htmlFor="yearOfEducation"
-          className="text-sm font-semibold text-gray-700"
-        >
-          Year of Education
-        </label>
-        <div className="mt-1 p-3 w-full border rounded-md text-gray-500">
-          {getValue(initialEducationDetails?.yearOfEducation)}
-        </div>
-      </div>
-
-      {/* Education Mode */}
-      <div>
-        <label className="text-sm font-semibold text-gray-700">
-          Education Mode
-        </label>
-        <div className="mt-1 p-3 w-full border rounded-md text-gray-500">
-          {getValue(initialEducationDetails?.educationMode)}
+        {/* Percentage */}
+        <div className="w-full">
+          <label
+            htmlFor="percentage"
+            className="text-sm font-semibold text-gray-700"
+          >
+            Percentage
+          </label>
+          <div className="text-gray-500">
+            {getValue(initialEducationDetails?.percentage)}
+          </div>
         </div>
       </div>
     </div>

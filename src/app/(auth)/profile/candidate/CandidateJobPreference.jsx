@@ -35,29 +35,114 @@ const CandidateJobPreference = ({ initialJobPreference }) => {
         </div>
       </div>
 
-      {/* Profile Title */}
-      <div>
-        <label
-          htmlFor="profileTitle"
-          className="text-sm font-semibold text-gray-700"
-        >
-          Profile Title
-        </label>
-        <div className="mt-1 p-3 w-full border rounded-md text-gray-500">
-          {getValue(initialJobPreference?.profileTitle)}
+      <div className="flex flex-col md:flex-row gap-2 items-center justify-between w-full">
+        {/* Profile Title */}
+        <div className="w-full">
+          <label
+            htmlFor="profileTitle"
+            className="text-sm font-semibold text-gray-700"
+          >
+            Profile Title
+          </label>
+          <div className="text-gray-500">
+            {getValue(initialJobPreference?.profileTitle)}
+          </div>
+        </div>
+
+        {/* Job Type */}
+        <div className="w-full">
+          <label
+            htmlFor="jobType"
+            className="text-sm font-semibold text-gray-700"
+          >
+            Job Type
+          </label>
+          <div className="text-gray-500">
+            {getValue(initialJobPreference?.jobType)}
+          </div>
         </div>
       </div>
 
-      {/* Job Type */}
-      <div>
-        <label
-          htmlFor="jobType"
-          className="text-sm font-semibold text-gray-700"
-        >
-          Job Type
-        </label>
-        <div className="mt-1 p-3 w-full border rounded-md text-gray-500">
-          {getValue(initialJobPreference?.jobType)}
+      <div className="flex flex-col md:flex-row gap-2 items-center justify-between w-full">
+        {/* Current Salary */}
+        <div className="w-full">
+          <label
+            htmlFor="currentSalary"
+            className="text-sm font-semibold text-gray-700"
+          >
+            Current Salary
+          </label>
+          <div className="text-gray-500">
+            {getValue(initialJobPreference?.currentSalary)}
+          </div>
+        </div>
+
+        {/* Expected Salary */}
+        <div className="w-full">
+          <label
+            htmlFor="expectedSalary"
+            className="text-sm font-semibold text-gray-700"
+          >
+            Expected Salary
+          </label>
+          <div className="text-gray-500">
+            {getValue(initialJobPreference?.expectedSalary)}
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-col md:flex-row gap-2 items-center justify-between w-full">
+        {/* Gender */}
+        <div className="w-full">
+          <label
+            htmlFor="gender"
+            className="text-sm font-semibold text-gray-700"
+          >
+            Gender
+          </label>
+          <div className="text-gray-500">
+            {getValue(initialJobPreference?.gender)}
+          </div>
+        </div>
+
+        {/* Marital Status */}
+        <div className="w-full">
+          <label
+            htmlFor="maritalStatus"
+            className="text-sm font-semibold text-gray-700"
+          >
+            Marital Status
+          </label>
+          <div className="text-gray-500">
+            {getValue(initialJobPreference?.maritalStatus)}
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-col md:flex-row gap-2 items-center justify-between w-full">
+        {/* Language */}
+        <div className="w-full">
+          <label
+            htmlFor="language"
+            className="text-sm font-semibold text-gray-700"
+          >
+            Language
+          </label>
+          <div className="text-gray-500">
+            {getValue(initialJobPreference?.language)}
+          </div>
+        </div>
+
+        {/* Date of Birth */}
+        <div className="w-full">
+          <label htmlFor="dob" className="text-sm font-semibold text-gray-700">
+            Date of Birth
+          </label>
+          <div className="text-gray-500">
+            {initialJobPreference?.dob
+              ? moment(initialJobPreference.dob).format("DD/MM/YYYY")
+              : "Not Available"}
+          </div>
         </div>
       </div>
 
@@ -69,7 +154,7 @@ const CandidateJobPreference = ({ initialJobPreference }) => {
         >
           Preferred Job Location
         </label>
-        <div className="mt-1 p-3 w-full border rounded-md text-gray-500">
+        <div className="text-gray-500">
           {initialJobPreference?.preferredJobLocation?.length > 0 ? (
             initialJobPreference.preferredJobLocation.map((location, index) => (
               <div
@@ -84,80 +169,6 @@ const CandidateJobPreference = ({ initialJobPreference }) => {
               <span>Not Available</span>
             </div>
           )}
-        </div>
-      </div>
-
-      {/* Current Salary */}
-      <div>
-        <label
-          htmlFor="currentSalary"
-          className="text-sm font-semibold text-gray-700"
-        >
-          Current Salary
-        </label>
-        <div className="mt-1 p-3 w-full border rounded-md text-gray-500">
-          {getValue(initialJobPreference?.currentSalary)}
-        </div>
-      </div>
-
-      {/* Expected Salary */}
-      <div>
-        <label
-          htmlFor="expectedSalary"
-          className="text-sm font-semibold text-gray-700"
-        >
-          Expected Salary
-        </label>
-        <div className="mt-1 p-3 w-full border rounded-md text-gray-500">
-          {getValue(initialJobPreference?.expectedSalary)}
-        </div>
-      </div>
-
-      {/* Gender */}
-      <div>
-        <label htmlFor="gender" className="text-sm font-semibold text-gray-700">
-          Gender
-        </label>
-        <div className="mt-1 p-3 w-full border rounded-md text-gray-500">
-          {getValue(initialJobPreference?.gender)}
-        </div>
-      </div>
-
-      {/* Date of Birth */}
-      <div>
-        <label htmlFor="dob" className="text-sm font-semibold text-gray-700">
-          Date of Birth
-        </label>
-        <div className="mt-1 p-3 w-full border rounded-md text-gray-500">
-          {initialJobPreference?.dob
-            ? moment(initialJobPreference.dob).format("DD/MM/YYYY")
-            : "Not Available"}
-        </div>
-      </div>
-
-      {/* Marital Status */}
-      <div>
-        <label
-          htmlFor="maritalStatus"
-          className="text-sm font-semibold text-gray-700"
-        >
-          Marital Status
-        </label>
-        <div className="mt-1 p-3 w-full border rounded-md text-gray-500">
-          {getValue(initialJobPreference?.maritalStatus)}
-        </div>
-      </div>
-
-      {/* Language */}
-      <div>
-        <label
-          htmlFor="language"
-          className="text-sm font-semibold text-gray-700"
-        >
-          Language
-        </label>
-        <div className="mt-1 p-3 w-full border rounded-md text-gray-500">
-          {getValue(initialJobPreference?.language)}
         </div>
       </div>
     </div>

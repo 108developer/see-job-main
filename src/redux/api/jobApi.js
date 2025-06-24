@@ -42,6 +42,14 @@ export const jobApi = createApi({
       }),
     }),
 
+    autoApplyToJobs: builder.mutation({
+      query: (body) => ({
+        url: "autoApplyToJobs",
+        method: "POST",
+        body,
+      }),
+    }),
+
     getJobApplicants: builder.query({
       query: (jobId) => `applicants/${jobId}`,
     }),
@@ -69,6 +77,7 @@ export const {
   useGetJobDetailsQuery,
   usePostJobMutation,
   useApplyToJobMutation,
+  useAutoApplyToJobsMutation,
   useGetJobApplicantsQuery,
   useGetJobsPostedByRecruiterQuery,
   useGetJobsAppliedByCandidateQuery,

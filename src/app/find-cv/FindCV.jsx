@@ -182,7 +182,7 @@ const FindCV = () => {
     );
   };
 
-  const fireCandidateAction = async (candidateId, action) => {
+  const fireCandidateAction = async (candidateId, action, phone) => {
     try {
       const { data } = await updateStatusMutation({
         variables: { candidateId, recruiterId: userid, status: action },
@@ -205,6 +205,8 @@ const FindCV = () => {
         showPhone(candidateId);
       } else if (action === "whatsapp") {
         showWhatsApp(candidateId);
+        const whatsappUrl = `https://api.whatsapp.com/send?phone=${phone}&text=Hello%20I%20saw%20your%20profile%20on%20see%20job!`;
+        window.open(whatsappUrl, "_blank");
       }
     } catch (error) {
       toast.error("Something went wrong");
@@ -668,10 +670,11 @@ const FindCV = () => {
                             {/* WhatsApp Button */}
                             <button
                               onClick={() => {
-                                fireCandidateAction(candidate.id, "whatsapp");
-
-                                const whatsappUrl = `https://api.whatsapp.com/send?phone=${candidate.phone}&text=Hello%20I%20saw%20your%20profile%20on%20see%20job!`;
-                                window.open(whatsappUrl, "_blank");
+                                fireCandidateAction(
+                                  candidate.id,
+                                  "whatsapp",
+                                  candidate.phone
+                                );
                               }}
                               className="flex items-center text-xs font-semibold gap-2 bg-emerald-600 text-white p-2 rounded-md hover:bg-emerald-700 scale-75 hover:scale-105 transform transition duration-300 ease-in-out"
                             >
