@@ -19,17 +19,17 @@ import ResumeUploadModal from "./Resume-modal";
 const ResumeService = [
   {
     itemTitle: "Career Booster Resume",
-    href: "",
+    href: "/resume-service",
     // href: "https://solvehub.in/infoedge/services.html",
   },
   {
     itemTitle: "National Resume",
-    href: "",
+    href: "/resume-service",
     // href: "https://solvehub.in/infoedge/services.html",
   },
   {
     itemTitle: "International Resume",
-    href: "",
+    href: "/resume-service",
     // href: "https://solvehub.in/infoedge/services.html",
   },
 ];

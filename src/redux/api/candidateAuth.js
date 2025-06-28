@@ -19,7 +19,7 @@ const candidateAuth = createApi({
     }),
     uploadResume: builder.mutation({
       query: (candidateData) => ({
-        url: "signup",
+        url: "uploadResume",
         method: "POST",
         body: candidateData,
       }),

@@ -1,6 +1,7 @@
 "use client";
 
 import IndustrySelectDropDown from "@/components/graphql-ui/IndustrySelectDropDown";
+import CityStateCountrySearchBar from "@/components/graphql-ui/CityStateCountrySearchBar";
 import LocationSearchBar from "@/components/graphql-ui/LocationSearchBar";
 import SkillDropdown from "@/components/graphql-ui/SkillsDropdown";
 import { useUpdateRecruiterMutation } from "@/redux/api/employerAuth";
@@ -41,17 +42,17 @@ const RecruiterProfile = ({ employerData, closeModal }) => {
         email: values.email,
         mobileNumber: values.mobileNumber,
         location: values.location,
-        skills: selectedSkills.map((skill) => skill?.name || skill),
+        // skills: selectedSkills.map((skill) => skill?.name || skill),
         companyName: values.companyName,
         designation: values.designation,
         address: values.address,
-        city: values.city,
-        zipCode: values.zipCode,
-        state: values.state,
-        totalExperience: values.totalExperience,
-        level: values.level,
+        // city: values.city,
+        // zipCode: values.zipCode,
+        // state: values.state,
+        // totalExperience: values.totalExperience,
+        // level: values.level,
         // industry: values.industry,
-        achievements: values.achievements,
+        // achievements: values.achievements,
         description: values.description,
       };
 
@@ -92,6 +93,9 @@ const RecruiterProfile = ({ employerData, closeModal }) => {
           </div>
           {/* First Name */}
           <div>
+            <label htmlFor="firstName" className="block text-sm font-medium">
+              First Name
+            </label>
             <Field
               type="text"
               id="firstName"
@@ -108,6 +112,9 @@ const RecruiterProfile = ({ employerData, closeModal }) => {
 
           {/* Last Name */}
           <div>
+            <label htmlFor="lastName" className="block text-sm font-medium">
+              Last Name
+            </label>
             <Field
               type="text"
               id="lastName"
@@ -124,6 +131,9 @@ const RecruiterProfile = ({ employerData, closeModal }) => {
 
           {/* Email */}
           <div>
+            <label htmlFor="email" className="block text-sm font-medium">
+              Email
+            </label>
             <Field
               type="email"
               id="email"
@@ -140,6 +150,9 @@ const RecruiterProfile = ({ employerData, closeModal }) => {
 
           {/* Mobile Number */}
           <div>
+            <label htmlFor="mobileNumber" className="block text-sm font-medium">
+              Phone
+            </label>
             <Field
               type="text"
               id="mobileNumber"
@@ -154,30 +167,8 @@ const RecruiterProfile = ({ employerData, closeModal }) => {
             />
           </div>
 
-          {/* Current Location */}
-          <div>
-            <label htmlFor="location" className="block text-sm font-medium">
-              Current Location
-            </label>
-            <LocationSearchBar
-              searchTerm={location}
-              onSearchChange={(value) => setLocation(value)}
-              setFieldValue={setFieldValue}
-              onLocationSelect={(selectedLocation) => {
-                setLocation(selectedLocation.fullAddress);
-                setFieldValue("location", selectedLocation.fullAddress);
-              }}
-              fieldName="location"
-            />
-            <ErrorMessage
-              name="location"
-              component="div"
-              className="text-red-500 text-sm mt-1"
-            />
-          </div>
-
           {/* Key Skills */}
-          <div className="w-full mb-auto">
+          {/* <div className="w-full mb-auto">
             <label htmlFor="skills" className="block text-sm font-medium">
               Key Skills*
             </label>
@@ -203,10 +194,13 @@ const RecruiterProfile = ({ employerData, closeModal }) => {
               component="div"
               className="text-red-500 text-sm mt-1"
             />
-          </div>
+          </div> */}
 
           {/* Current Company Name */}
           <div>
+            <label htmlFor="companyName" className="block text-sm font-medium">
+              Company Name
+            </label>
             <Field
               type="text"
               id="companyName"
@@ -223,6 +217,9 @@ const RecruiterProfile = ({ employerData, closeModal }) => {
 
           {/* Current Designation */}
           <div>
+            <label htmlFor="designation" className="block text-sm font-medium">
+              Current Designation
+            </label>
             <Field
               type="text"
               id="designation"
@@ -237,8 +234,52 @@ const RecruiterProfile = ({ employerData, closeModal }) => {
             />
           </div>
 
+          {/* Description */}
+          <div>
+            <label htmlFor="description" className="block text-sm font-medium">
+              Summary
+            </label>
+            <Field
+              type="text"
+              id="description"
+              name="description"
+              className="mt-1 p-3 w-full border rounded-md"
+              placeholder="Description"
+            />
+            <ErrorMessage
+              name="description"
+              component="div"
+              className="text-red-500 text-sm mt-1"
+            />
+          </div>
+
+          {/* Current Location */}
+          <div>
+            <label htmlFor="location" className="block text-sm font-medium">
+              Current Location
+            </label>
+            <CityStateCountrySearchBar
+              searchTerm={location}
+              onSearchChange={(value) => setLocation(value)}
+              setFieldValue={setFieldValue}
+              onLocationSelect={(selectedLocation) => {
+                setLocation(selectedLocation.fullAddress);
+                setFieldValue("location", selectedLocation.fullAddress);
+              }}
+              fieldName="location"
+            />
+            <ErrorMessage
+              name="location"
+              component="div"
+              className="text-red-500 text-sm mt-1"
+            />
+          </div>
+
           {/* Address */}
           <div>
+            <label htmlFor="address" className="block text-sm font-medium">
+              Full Address
+            </label>
             <Field
               type="text"
               id="address"
@@ -254,7 +295,7 @@ const RecruiterProfile = ({ employerData, closeModal }) => {
           </div>
 
           {/* City */}
-          <div>
+          {/* <div>
             <Field
               type="text"
               id="city"
@@ -267,10 +308,10 @@ const RecruiterProfile = ({ employerData, closeModal }) => {
               component="div"
               className="text-red-500 text-sm mt-1"
             />
-          </div>
+          </div> */}
 
           {/* Zip Code */}
-          <div>
+          {/* <div>
             <Field
               type="text"
               id="zipCode"
@@ -283,10 +324,10 @@ const RecruiterProfile = ({ employerData, closeModal }) => {
               component="div"
               className="text-red-500 text-sm mt-1"
             />
-          </div>
+          </div> */}
 
           {/* State */}
-          <div>
+          {/* <div>
             <Field
               type="text"
               id="state"
@@ -299,10 +340,10 @@ const RecruiterProfile = ({ employerData, closeModal }) => {
               component="div"
               className="text-red-500 text-sm mt-1"
             />
-          </div>
+          </div> */}
 
           {/* Total Experience (Dropdown) */}
-          <div>
+          {/* <div>
             <Field
               as="select"
               id="totalExperience"
@@ -321,10 +362,10 @@ const RecruiterProfile = ({ employerData, closeModal }) => {
               component="div"
               className="text-red-500 text-sm mt-1"
             />
-          </div>
+          </div> */}
 
           {/* Level (Dropdown) */}
-          <div>
+          {/* <div>
             <Field
               as="select"
               id="level"
@@ -343,7 +384,7 @@ const RecruiterProfile = ({ employerData, closeModal }) => {
               component="div"
               className="text-red-500 text-sm mt-1"
             />
-          </div>
+          </div> */}
 
           {/* Preferred Industry */}
           {/* <div className="w-full mb-auto">
@@ -367,7 +408,7 @@ const RecruiterProfile = ({ employerData, closeModal }) => {
           </div> */}
 
           {/* Achievements */}
-          <div>
+          {/* <div>
             <Field
               type="text"
               id="achievements"
@@ -380,23 +421,7 @@ const RecruiterProfile = ({ employerData, closeModal }) => {
               component="div"
               className="text-red-500 text-sm mt-1"
             />
-          </div>
-
-          {/* Description */}
-          <div>
-            <Field
-              type="text"
-              id="description"
-              name="description"
-              className="mt-1 p-3 w-full border rounded-md"
-              placeholder="Description"
-            />
-            <ErrorMessage
-              name="description"
-              component="div"
-              className="text-red-500 text-sm mt-1"
-            />
-          </div>
+          </div> */}
 
           {/* Submit and Cancel Button */}
           <div className="flex flex-col md:flex-row w-full items-center justify-between gap-4">

@@ -26,7 +26,7 @@ export default function ResumeUploadModal({ btntext }) {
   const [isUploading, setIsUploading] = React.useState(false);
   const [isOpen, setIsOpen] = React.useState(false);
 
-  const [username, setUsername] = React.useState("");
+  const [fullName, setFullName] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [phone, setPhone] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -56,13 +56,13 @@ export default function ResumeUploadModal({ btntext }) {
 
   const handleUpload = async () => {
     if (!file) return setError("Please select a file to upload.");
-    if (!username || !email || !phone || !password)
+    if (!fullName || !email || !phone || !password)
       return setError("Please fill out all fields.");
 
     setError(null);
 
     const formData = new FormData();
-    formData.append("username", username);
+    formData.append("fullName", fullName);
     formData.append("email", email);
     formData.append("phone", phone);
     formData.append("password", password);
@@ -73,7 +73,7 @@ export default function ResumeUploadModal({ btntext }) {
 
       toast.success(res.message || "Uploaded successfully!");
 
-      setUsername("");
+      setFullName("");
       setEmail("");
       setPhone("");
       setPassword("");
@@ -105,11 +105,11 @@ export default function ResumeUploadModal({ btntext }) {
 
         <div className="grid gap-3 py-2">
           <div className="grid w-full items-center gap-1.5">
-            <Label htmlFor="username">Username</Label>
+            <Label htmlFor="fullName">Full Name</Label>
             <Input
-              id="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              id="fullName"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
             />
           </div>
 

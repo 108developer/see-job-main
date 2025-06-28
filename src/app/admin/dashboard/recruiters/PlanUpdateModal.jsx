@@ -8,26 +8,33 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useFormik } from "formik";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 export function PlanUpdateModal({ recruiter, onSubmit }) {
   const [open, setOpen] = useState(false);
-
   const subscription = recruiter.subscription || {};
+
+  const isExpired = subscription.status === "Expired";
+
+  const today = new Date();
+  const thirtyDaysFromNow = new Date(today);
+  thirtyDaysFromNow.setDate(today.getDate() + 30);
 
   const formik = useFormik({
     initialValues: {
       plan: subscription.plan || "Free",
       status: subscription.status || "Active",
-      startDate: subscription.startDate
+      startDate: isExpired
+        ? today.toISOString().split("T")[0]
+        : subscription.startDate
         ? new Date(subscription.startDate).toISOString().split("T")[0]
-        : new Date().toISOString().split("T")[0],
-      endDate: subscription.endDate
+        : today.toISOString().split("T")[0],
+      endDate: isExpired
+        ? thirtyDaysFromNow.toISOString().split("T")[0]
+        : subscription.endDate
         ? new Date(subscription.endDate).toISOString().split("T")[0]
-        : new Date(new Date().setDate(new Date().getDate() + 30))
-            .toISOString()
-            .split("T")[0],
+        : thirtyDaysFromNow.toISOString().split("T")[0],
       allowedResume: subscription.allowedResume || 0,
     },
     onSubmit: async (values) => {
@@ -39,6 +46,18 @@ export function PlanUpdateModal({ recruiter, onSubmit }) {
       }
     },
   });
+
+  useEffect(() => {
+    if (
+      subscription.status === "Expired" &&
+      formik.values.status === "Active"
+    ) {
+      const todayStr = today.toISOString().split("T")[0];
+      const endStr = thirtyDaysFromNow.toISOString().split("T")[0];
+      formik.setFieldValue("startDate", todayStr);
+      formik.setFieldValue("endDate", endStr);
+    }
+  }, [formik.values.status]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

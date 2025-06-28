@@ -1,7 +1,8 @@
 "use client";
 
+import JobApply from "@/app/Joblisting/JobApply";
 import { Loader } from "@/components/ui/loader";
-import { useGetJobByIdQuery } from "@/redux/api/jobApi";
+import { useGetJobByIdQuery, useGetJobByUrlQuery } from "@/redux/api/jobApi";
 import { formatTime } from "@/utils/formatTime";
 import { getTimeSincePosted } from "@/utils/getTimeSincePosted";
 import {
@@ -14,18 +15,18 @@ import {
 } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import JobApply from "../JobApply";
+// import JobApply from "../JobApply";
 
 import { useMemo } from "react";
 
 const JobDetail = ({}) => {
   const searchParams = useParams();
-  const id = searchParams.id;
+  const slug = searchParams.slug;
   const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
   const [userRole, setUserRole] = useState(null);
 
-  const { data, error, isLoading } = useGetJobByIdQuery(id, {
-    skip: !id,
+  const { data, error, isLoading } = useGetJobByUrlQuery(slug, {
+    skip: !slug,
   });
 
   useEffect(() => {

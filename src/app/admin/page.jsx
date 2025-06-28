@@ -26,12 +26,25 @@ const dashboardItems = [
 
 const Page = () => {
   const [selectedItem, setSelectedItem] = useState("Skills");
-
-  const [useremail, setUseremail] = useState(null);
+  const [userEmail, setUserEmail] = useState(null);
+  const [userRole, setUserRole] = useState(null);
+  const [isAuthorized, setIsAuthorized] = useState(false);
 
   useEffect(() => {
-    const emailFromStorage = localStorage.getItem("useremail");
-    setUseremail(emailFromStorage);
+    const email = localStorage.getItem("useremail");
+    const role = localStorage.getItem("role");
+
+    setUserEmail(email);
+    setUserRole(role);
+
+    const allowedEmails = ["admin@example.com", "uploader@seejob.in"];
+    const allowedRoles = ["admin", "uploader"];
+
+    const authorized =
+      (email && allowedEmails.includes(email)) ||
+      (role && allowedRoles.includes(role));
+
+    setIsAuthorized(authorized);
   }, []);
 
   const renderContent = () =>
@@ -47,28 +60,32 @@ const Page = () => {
       <Boards />
     ) : // ) : selectedItem === "Industry" ? (
     //   <Industry />
-    selectedItem === "Language" ? (
-      <Language />
-    ) : selectedItem === "Location" ? (
+    // selectedItem === "Language" ? (
+    //   <Language />
+    // ) :
+    selectedItem === "Location" ? (
       <Location />
     ) : (
       <div>Select an item</div>
     );
 
-  return useremail !== "admin@example.com" ? (
-    <div className="flex items-center justify-center w-full p-2">
-      <AccessDeniedAdmin title={"admin"} />
-    </div>
-  ) : (
+  if (!isAuthorized) {
+    return (
+      <div className="flex items-center justify-center w-full p-2">
+        <AccessDeniedAdmin title="admin or uploader" />
+      </div>
+    );
+  }
+
+  return (
     <div className="flex h-screen">
-      {/* Sidebar  */}
+      {/* Sidebar */}
       <div className="flex flex-col bg-gradient-to-b from-gray-500 to-gray-700 text-white w-48 p-6 shadow-lg">
         <Link href={"/admin/dashboard"}>
           <h1 className="flex items-center gap-2 text-xl font-semibold mb-6">
             <LayoutDashboard className="text-red-600 w-8 h-8" /> Dashboard
           </h1>
         </Link>
-        {/* Sidebar Items */}
         {dashboardItems.map((item, idx) => (
           <div
             key={idx}
@@ -87,7 +104,6 @@ const Page = () => {
       {/* Content Area */}
       <div className="flex-1 p-8 bg-gray-100 overflow-auto min-h-screen">
         <div className="bg-white p-6 rounded-lg shadow-lg">
-          {/* Render the selected component */}
           {renderContent()}
         </div>
       </div>

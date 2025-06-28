@@ -10,8 +10,8 @@ import RecruiterTable from "./RecruiterTable";
 export default function Recruiters() {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [sortBy, setSortBy] = useState("name");
-  const [sortOrder, setSortOrder] = useState("asc");
+  const [sortBy, setSortBy] = useState("updatedAt");
+  const [sortOrder, setSortOrder] = useState("desc");
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
 
@@ -32,6 +32,15 @@ export default function Recruiters() {
       sortOrder,
     }
   );
+
+  const handleSortChange = (field) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(field);
+      setSortOrder("asc");
+    }
+  };
 
   const handlePageChange = (newPage) => setPage(newPage);
   const totalPages = data?.pagination?.totalPages || 1;

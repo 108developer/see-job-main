@@ -26,13 +26,13 @@ const validationSchema = Yup.object({
     )
     .required("Password is required"),
   mobileNumber: Yup.string()
-    .matches(/^[0-9]{10}$/, "Mobile Number must be 10 digits")
-    .required("Mobile Number is required"),
+    .matches(/^[0-9]{10}$/, "Phone Number must be 10 digits")
+    .required("Phone Number is required"),
   location: Yup.string().required("Location is required"),
   companyName: Yup.string().required("Company Name is required"),
   designation: Yup.string().required("Designation is required"),
   description: Yup.string().required("Description is required"),
-  // address: Yup.string().required("Address is required"),
+  address: Yup.string().required("Address is required"),
   // city: Yup.string().required("City is required"),
   // zipCode: Yup.string().required("Zip Code is required"),
   // state: Yup.string().required("State is required"),
@@ -78,9 +78,9 @@ const RecruiterProfile = () => {
     companyName: "",
     designation: "",
     address: "",
-    city: "",
-    zipCode: "",
-    state: "",
+    // city: "",
+    // zipCode: "",
+    // state: "",
     // totalExperience: "",
     // level: "",
     // industry: "",

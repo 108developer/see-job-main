@@ -27,7 +27,7 @@ const validationSchema = Yup.object({
   permanentAddress: Yup.string().required("Permanent Address is required"),
   minexp: Yup.number().required("Required"),
   maxexp: Yup.number().required("Required"),
-  skills: Yup.array().min(1, "At least one skill is required"),
+  skills: Yup.array().min(5, "At least 5 skill is required"),
   // industry: Yup.string().required("Preferred Industry is required"),
   file: Yup.mixed()
     .required("File is required")
@@ -348,6 +348,10 @@ const CandidateRegister = () => {
             <div className="w-full mb-auto">
               <label htmlFor="skills" className="block text-sm font-medium">
                 Key Skills*
+              </label>
+              <label htmlFor="skills" className="text-xs">
+                Add more skills to increase your visibility and improve your
+                chances of getting shortlisted.
               </label>
               <SkillDropdown
                 searchTerm={skillSet}
