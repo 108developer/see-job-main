@@ -7,6 +7,8 @@ import groupedFilterApi from "./api/groupedFilterApi";
 import jobApi from "./api/jobApi";
 import authSlice from "./slices/authSlice";
 import modalSlice from "./slices/modalSlice";
+import paymentReducer from "./slices/paymentSlice";
+import paymentApi from "./api/paymentApi";
 
 const store = configureStore({
   reducer: {
@@ -18,6 +20,8 @@ const store = configureStore({
     [candidateAuth.reducerPath]: candidateAuth.reducer,
     [jobApi.reducerPath]: jobApi.reducer,
     [groupedFilterApi.reducerPath]: groupedFilterApi.reducer,
+    [paymentApi.reducerPath]: paymentApi.reducer,
+    payment: paymentReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -25,7 +29,8 @@ const store = configureStore({
       candidateAuth.middleware,
       employerAuth.middleware,
       jobApi.middleware,
-      groupedFilterApi.middleware
+      groupedFilterApi.middleware,
+      paymentApi.middleware
     ),
 });
 

@@ -12,6 +12,13 @@ import { setModal } from "@/redux/slices/modalSlice";
 import { handleDownloadResume } from "@/utils/HandleDownloadResume";
 import { useMutation, useQuery } from "@apollo/client";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Banknote,
   Briefcase,
   Calendar,
@@ -37,6 +44,8 @@ import SEOModal from "../modals/SEOModal";
 import FilterSidebar from "./FilterSidebar";
 
 const status = ["All", "Viewed", "Shortlisted", "Rejected", "Hold"];
+
+const pageLimits = [100, 200, 300, 400, 500];
 
 const statusStyles = {
   All: "bg-gray-600 text-white hover:bg-gray-700 font-semibold",
@@ -98,6 +107,7 @@ const FindCV = () => {
   const [shownPhones, setShownPhones] = useState(new Set());
   const [shownWhatsApps, setShownWhatsApps] = useState(new Set());
   const [allowedToVisit, setAllowedToVisit] = useState(new Set());
+  const [limitPerPage, setLimitPerPage] = useState(100);
 
   const skillNames = useMemo(() => {
     return (filters.skills || [])
@@ -110,7 +120,7 @@ const FindCV = () => {
       ...filters,
       skills: skillNames,
       page: currentPage,
-      limit: 10,
+      limit: limitPerPage,
     },
     fetchPolicy: "network-only",
   });
@@ -237,7 +247,7 @@ const FindCV = () => {
           ...filters,
           skills: skillNames,
           page: currentPage,
-          limit: 10,
+          limit: limitPerPage,
           fetchPolicy: "network-only",
         });
 
@@ -384,6 +394,25 @@ const FindCV = () => {
               </button>
             );
           })}
+
+          <div className="space-y-2 w-36">
+            <Select
+              value={String(limitPerPage)}
+              onValueChange={(val) => setLimitPerPage(Number(val))}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select limit" />
+              </SelectTrigger>
+              <SelectContent>
+                {pageLimits.map((num) => (
+                  <SelectItem key={num} value={String(num)}>
+                    {num} per page
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           {selectedCandidates && selectedCandidates.length > 0 && (
             <div className="flex items-center gap-2 ml-auto">
               <div
@@ -411,7 +440,7 @@ const FindCV = () => {
                 Send Mail
               </div> */}
 
-              {role === "admin" && (
+              {role === "admin" && role === "employer" && (
                 <div
                   onClick={downloadCandidateInfo}
                   className="ml-auto bg-emerald-500 text-white hover:bg-emerald-600 p-2 rounded-md flex items-center gap-2 transition-colors duration-300 cursor-pointer"

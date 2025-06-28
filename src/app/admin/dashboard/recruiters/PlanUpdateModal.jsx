@@ -63,7 +63,7 @@ export function PlanUpdateModal({ recruiter, onSubmit }) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
-          {subscription.plan || "Free"}
+          {subscription.status || subscription.plan || "Free"}
         </Button>
       </DialogTrigger>
       <DialogContent>
