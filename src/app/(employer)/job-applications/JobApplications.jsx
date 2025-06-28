@@ -5,6 +5,13 @@ import SEOModal from "@/app/modals/SEOModal";
 import { Pagination } from "@/components/Pagination";
 import AccessDenied from "@/components/ui/AccessDenied ";
 import { Loader } from "@/components/ui/loader";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { UPDATE_APPLICATION_STATUS } from "@/graphql/mutations/jobApplication";
 import { GET_JOB_APPLICATIONS } from "@/graphql/queries/jobApplication";
 import PlaceholderImage from "@/images/Profile_avatar_placeholder_large.png";
@@ -30,12 +37,15 @@ import {
   UserX,
 } from "lucide-react";
 import Image from "next/image";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import * as XLSX from "xlsx";
 
 const status = ["All", "Viewed", "Shortlisted", "Rejected", "Hold"];
+
+const pageLimits = [100, 200, 300, 400, 500];
 
 const statusStyles = {
   All: "bg-gray-600 text-white hover:bg-gray-700 font-semibold",
@@ -77,6 +87,7 @@ const JobApplications = () => {
   const [shownWhatsApps, setShownWhatsApps] = useState(new Set());
   const [allowedToVisit, setAllowedToVisit] = useState(new Set());
   const [currentPage, setCurrentPage] = useState(1);
+  const [limitPerPage, setLimitPerPage] = useState(100);
 
   const skillNames = useMemo(() => {
     return (filters.skills || [])
@@ -90,7 +101,7 @@ const JobApplications = () => {
       skills: skillNames,
       recruiterId: userid,
       page: currentPage,
-      limit: 10,
+      limit: limitPerPage,
     },
     fetchPolicy: "network-only",
   });
@@ -265,7 +276,7 @@ const JobApplications = () => {
           skills: skillNames,
           recruiterId: userid,
           page: currentPage,
-          limit: 10,
+          limit: limitPerPage,
           fetchPolicy: "network-only",
         });
       } else {
@@ -309,6 +320,31 @@ const JobApplications = () => {
         },
       })
     );
+  };
+
+  const downloadCandidateInfo = () => {
+    const candidates = paginatedCandidates
+      .filter((c) => selectedCandidates.includes(c.id))
+      .map((c) => ({
+        ID: c.id,
+        Name: c.fullName || c.name,
+        Gender: c.gender,
+        Email: c.email,
+        Phone: c.phone || "N/A",
+        Location: c.location,
+        "Preferred JobLocation": c.preferredJobLocation,
+        "Date of Birth": c.dob,
+        "Permanent Address": c.permanentAddress,
+        "Experience Years": c.experienceYears,
+        "Highest Qualification": c.highestQualification,
+        Skills: c.skills?.join(", ") || "N/A",
+        Status: candidateStatusMap[c.id] || "N/A",
+      }));
+
+    const worksheet = XLSX.utils.json_to_sheet(candidates);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Candidates");
+    XLSX.writeFile(workbook, "Candidate_List.xlsx");
   };
 
   const counts = {
@@ -371,6 +407,25 @@ const JobApplications = () => {
               </button>
             );
           })}
+
+          <div className="space-y-2 w-36">
+            <Select
+              value={String(limitPerPage)}
+              onValueChange={(val) => setLimitPerPage(Number(val))}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select limit" />
+              </SelectTrigger>
+              <SelectContent>
+                {pageLimits.map((num) => (
+                  <SelectItem key={num} value={String(num)}>
+                    {num} per page
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           {selectedCandidates && selectedCandidates.length > 0 && (
             <div className="flex items-center gap-2 ml-auto">
               <div
@@ -397,6 +452,15 @@ const JobApplications = () => {
               >
                 Send Mail
               </div> */}
+
+              {role === "admin" && role === "employer" && (
+                <div
+                  onClick={downloadCandidateInfo}
+                  className="ml-auto bg-emerald-500 text-white hover:bg-emerald-600 p-2 rounded-md flex items-center gap-2 transition-colors duration-300 cursor-pointer"
+                >
+                  Download Details
+                </div>
+              )}
             </div>
           )}
         </div>

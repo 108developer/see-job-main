@@ -344,6 +344,7 @@ const FilterSidebar = ({ filters, onFilterChange }) => {
                 <SelectItem value="7d">7 Days</SelectItem>
                 <SelectItem value="15d">15 Days</SelectItem>
                 <SelectItem value="30d">30 Days</SelectItem>
+                <SelectItem value="any">Any</SelectItem>
               </SelectContent>
             </Select>
           </div>
