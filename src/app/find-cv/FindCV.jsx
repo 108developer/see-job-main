@@ -440,14 +440,12 @@ const FindCV = () => {
                 Send Mail
               </div> */}
 
-              {role === "admin" && role === "employer" && (
-                <div
-                  onClick={downloadCandidateInfo}
-                  className="ml-auto bg-emerald-500 text-white hover:bg-emerald-600 p-2 rounded-md flex items-center gap-2 transition-colors duration-300 cursor-pointer"
-                >
-                  Download Details
-                </div>
-              )}
+              <div
+                onClick={downloadCandidateInfo}
+                className="ml-auto bg-emerald-500 text-white hover:bg-emerald-600 p-2 rounded-md flex items-center gap-2 transition-colors duration-300 cursor-pointer"
+              >
+                Download Details
+              </div>
             </div>
           )}
         </div>
