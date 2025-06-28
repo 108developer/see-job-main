@@ -106,6 +106,48 @@ const JobApplications = () => {
     setCurrentPage(1);
   }, [filters]);
 
+  const checkAccess = (candidateId) => {
+    return (
+      shownEmails.has(candidateId) ||
+      shownPhones.has(candidateId) ||
+      shownWhatsApps.has(candidateId)
+    );
+  };
+
+  const fireCandidateAction = async (candidateId, action, phone) => {
+    try {
+      const { data } = await updateStatusMutation({
+        variables: {
+          applicationId: candidateId,
+          recruiterId: userid,
+          status: action,
+        },
+      });
+
+      const result = data?.updateJobApplicationStatus;
+
+      if (!result?.success) {
+        toast.error(result?.message || "Failed to perform action.");
+        return;
+      }
+
+      toast.success(result.message);
+      setAllowedToVisit((prev) => new Set(prev).add(candidateId));
+
+      if (action === "email") {
+        showEmail(candidateId);
+      } else if (action === "phone") {
+        showPhone(candidateId);
+      } else if (action === "whatsapp") {
+        showWhatsApp(candidateId);
+        const whatsappUrl = `https://api.whatsapp.com/send?phone=${phone}&text=Hello%20I%20saw%20your%20profile%20on%20see%20job!`;
+        window.open(whatsappUrl, "_blank");
+      }
+    } catch (error) {
+      toast.error("Something went wrong");
+    }
+  };
+
   const handleFilterChange = (updatedFilters) => {
     setFilters((prevFilters) => {
       const mergedFilters = {
@@ -149,18 +191,42 @@ const JobApplications = () => {
   };
 
   const showEmail = (id) => {
-    setShownEmails((prev) => new Set(prev).add(id));
-    setAllowedToVisit((prev) => new Set(prev).add(id));
+    setShownEmails((prev) => {
+      const newSet = new Set(prev);
+      newSet.add(id);
+      return newSet;
+    });
+    setAllowedToVisit((prev) => {
+      const newSet = new Set(prev);
+      newSet.add(id);
+      return newSet;
+    });
   };
 
   const showPhone = (id) => {
-    setShownPhones((prev) => new Set(prev).add(id));
-    setAllowedToVisit((prev) => new Set(prev).add(id));
+    setShownPhones((prev) => {
+      const newSet = new Set(prev);
+      newSet.add(id);
+      return newSet;
+    });
+    setAllowedToVisit((prev) => {
+      const newSet = new Set(prev);
+      newSet.add(id);
+      return newSet;
+    });
   };
 
   const showWhatsApp = (id) => {
-    setShownWhatsApps((prev) => new Set(prev).add(id));
-    setAllowedToVisit((prev) => new Set(prev).add(id));
+    setShownWhatsApps((prev) => {
+      const newSet = new Set(prev);
+      newSet.add(id);
+      return newSet;
+    });
+    setAllowedToVisit((prev) => {
+      const newSet = new Set(prev);
+      newSet.add(id);
+      return newSet;
+    });
   };
 
   const updateCandidateStatus = async (candidateId, newStatus) => {
@@ -520,9 +586,9 @@ const JobApplications = () => {
 
                         <div className="flex flex-col justify-center gap-2 text-sm">
                           <button
-                            onClick={() => {
-                              showEmail(candidate.id);
-                            }}
+                            onClick={() =>
+                              fireCandidateAction(candidate.id, "email")
+                            }
                             className="flex items-center text-xs gap-2 bg-gray-200 text-gray-700 p-2 rounded-md hover:bg-gray-300"
                           >
                             <Mail className="w-4 h-4" />
@@ -539,9 +605,9 @@ const JobApplications = () => {
                           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 text-sm w-full">
                             {/* Phone Button */}
                             <button
-                              onClick={() => {
-                                showPhone(candidate.id);
-                              }}
+                              onClick={() =>
+                                fireCandidateAction(candidate.id, "phone")
+                              }
                               className="flex items-center text-xs font-semibold gap-2 bg-orange-600 text-white p-2 rounded-md hover:bg-orange-700"
                             >
                               <Phone className="w-4 h-4" />
@@ -556,26 +622,26 @@ const JobApplications = () => {
                             </button>
 
                             {/* WhatsApp Button */}
-                            <a
-                              className="scale-75 hover:scale-105 transform transition duration-300 ease-in-out"
-                              href={`https://api.whatsapp.com/send?phone=${candidate.phone}&text=Hello%20I%20saw%20your%20profile%20on%20see%20job!`}
-                              target="_blank"
+                            <button
+                              onClick={() => {
+                                fireCandidateAction(
+                                  candidate.id,
+                                  "whatsapp",
+                                  candidate.phone
+                                );
+                              }}
+                              className="flex items-center text-xs font-semibold gap-2 bg-emerald-600 text-white p-2 rounded-md hover:bg-emerald-700"
                             >
-                              <button
-                                onClick={() => showWhatsApp(candidate.id)}
-                                className="flex items-center text-xs font-semibold gap-2 bg-emerald-600 text-white p-2 rounded-md hover:bg-emerald-700"
-                              >
-                                <MessageCircle className="w-4 h-4" />
-                                {shownWhatsApps.has(candidate.id)
-                                  ? candidate.phone
-                                  : "WHATSAPP"}
-                                {shownWhatsApps.has(candidate.id) ? (
-                                  <Eye className="w-4 h-4" />
-                                ) : (
-                                  <EyeOff className="w-4 h-4" />
-                                )}
-                              </button>
-                            </a>
+                              <MessageCircle className="w-4 h-4" />
+                              {shownWhatsApps.has(candidate.id)
+                                ? candidate.phone
+                                : "WHATSAPP"}
+                              {shownWhatsApps.has(candidate.id) ? (
+                                <Eye className="w-4 h-4" />
+                              ) : (
+                                <EyeOff className="w-4 h-4" />
+                              )}
+                            </button>
                           </div>
                         </div>
 
@@ -591,15 +657,11 @@ const JobApplications = () => {
 
                             if (
                               (candidateStatusMap[candidate.id] ||
-                                candidate.status) !== "Viewed"
+                                candidate.recruiterStatus) !== "Viewed"
                             ) {
                               e.stopPropagation();
                               updateCandidateStatus(candidate.id, "Viewed");
                             }
-                            window.open(
-                              `/find-cv/${candidate.id}?jobId=${jobId}`,
-                              "_blank"
-                            );
                           }}
                           className={`flex items-center justify-center w-full cursor-pointer rounded-md text-sm gap-1 px-2 py-1 ${
                             (candidateStatusMap[candidate.id] ||
@@ -617,9 +679,18 @@ const JobApplications = () => {
 
                         <div className="flex flex-col md:flex-row md:items-center md:justify-center gap-2">
                           <button
-                            onClick={() =>
-                              updateCandidateStatus(candidate.id, "Shortlisted")
-                            }
+                            onClick={() => {
+                              if (!checkAccess(candidate.id)) {
+                                toast.warn(
+                                  "Please reveal contact info to take this action."
+                                );
+                                return;
+                              }
+                              updateCandidateStatus(
+                                candidate.id,
+                                "Shortlisted"
+                              );
+                            }}
                             disabled={
                               currentStatus === "Shortlisted" ||
                               loadingStatus[candidate.id]
@@ -639,9 +710,15 @@ const JobApplications = () => {
                           </button>
 
                           <button
-                            onClick={() =>
-                              updateCandidateStatus(candidate.id, "Rejected")
-                            }
+                            onClick={() => {
+                              if (!checkAccess(candidate.id)) {
+                                toast.warn(
+                                  "Please reveal contact info to take this action."
+                                );
+                                return;
+                              }
+                              updateCandidateStatus(candidate.id, "Rejected");
+                            }}
                             disabled={
                               currentStatus === "Rejected" ||
                               loadingStatus[candidate.id]
@@ -661,9 +738,15 @@ const JobApplications = () => {
                           </button>
 
                           <button
-                            onClick={() =>
-                              updateCandidateStatus(candidate.id, "Hold")
-                            }
+                            onClick={() => {
+                              if (!checkAccess(candidate.id)) {
+                                toast.warn(
+                                  "Please reveal contact info to take this action."
+                                );
+                                return;
+                              }
+                              updateCandidateStatus(candidate.id, "Hold");
+                            }}
                             disabled={
                               currentStatus === "Hold" ||
                               loadingStatus[candidate.id]

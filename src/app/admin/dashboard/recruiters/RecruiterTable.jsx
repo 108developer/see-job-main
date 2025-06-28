@@ -18,6 +18,7 @@ import { useUpdatePlanMutation } from "@/redux/api/admin";
 import {
   flexRender,
   getCoreRowModel,
+  getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 import { ChevronDown, MoreHorizontal } from "lucide-react";
@@ -30,6 +31,7 @@ export default function RecruiterTable({ data, refetch }) {
   const [columnVisibility, setColumnVisibility] = useState({});
   const [rowSelection, setRowSelection] = useState({});
   const plans = ["Free", "Basic", "Premium"];
+  const [sorting, setSorting] = useState([]);
 
   const [updatePlan] = useUpdatePlanMutation();
 
@@ -63,41 +65,118 @@ export default function RecruiterTable({ data, refetch }) {
         <Checkbox
           checked={table.getIsAllPageRowsSelected()}
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all rows"
         />
       ),
       cell: ({ row }) => (
         <Checkbox
           checked={row.getIsSelected()}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label={`Select row ${row.index + 1}`}
         />
       ),
       enableSorting: false,
       enableHiding: false,
+      size: 40,
     },
     {
       accessorKey: "fullName",
-      header: "Name",
+      header: ({ column }) => (
+        <div
+          className="flex items-center cursor-pointer select-none"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Name
+          <SortIcon direction={column.getIsSorted()} />
+        </div>
+      ),
       cell: ({ row }) => <div>{row.getValue("fullName")}</div>,
     },
     {
       accessorKey: "email",
-      header: "Email",
+      header: ({ column }) => (
+        <div
+          className="flex items-center cursor-pointer select-none"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Email
+          <SortIcon direction={column.getIsSorted()} />
+        </div>
+      ),
       cell: ({ row }) => <div>{row.getValue("email")}</div>,
     },
     {
       accessorKey: "mobileNumber",
-      header: "Phone",
+      header: ({ column }) => (
+        <div
+          className="flex items-center cursor-pointer select-none"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Phone
+          <SortIcon direction={column.getIsSorted()} />
+        </div>
+      ),
       cell: ({ row }) => <div>{row.getValue("mobileNumber")}</div>,
     },
     {
       accessorKey: "location",
-      header: "Location",
+      header: ({ column }) => (
+        <div
+          className="flex items-center cursor-pointer select-none"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Location
+          <SortIcon direction={column.getIsSorted()} />
+        </div>
+      ),
       cell: ({ row }) => <div>{row.getValue("location")}</div>,
     },
     {
       accessorKey: "companyName",
       header: "Company",
       cell: ({ row }) => <div>{row.getValue("companyName")}</div>,
+    },
+    {
+      accessorKey: "createdAt",
+      header: ({ column }) => (
+        <div
+          className="flex items-center cursor-pointer select-none"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Created
+          <SortIcon direction={column.getIsSorted()} />
+        </div>
+      ),
+      cell: ({ row }) => (
+        <div>
+          {new Date(row.getValue("createdAt")).toLocaleDateString(undefined, {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          })}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "updatedAt",
+      header: ({ column }) => (
+        <div
+          className="flex items-center cursor-pointer select-none"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Updated
+          <SortIcon direction={column.getIsSorted()} />
+        </div>
+      ),
+      cell: ({ row }) => (
+        <div>
+          {new Date(row.getValue("updatedAt")).toLocaleDateString(undefined, {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          })}
+        </div>
+      ),
     },
     // {
     //   id: "subscription",
@@ -175,6 +254,9 @@ export default function RecruiterTable({ data, refetch }) {
           </DropdownMenuContent>
         </DropdownMenu>
       ),
+      enableSorting: false,
+      enableHiding: false,
+      size: 80,
     },
   ];
 
@@ -184,10 +266,13 @@ export default function RecruiterTable({ data, refetch }) {
     state: {
       columnVisibility,
       rowSelection,
+      sorting,
     },
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
   });
 
   const selectedRecruiters = table
@@ -215,7 +300,7 @@ export default function RecruiterTable({ data, refetch }) {
                   checked={col.getIsVisible()}
                   onCheckedChange={() => col.toggleVisibility()}
                 >
-                  {col.columnDef.header}
+                  {col.columnDef.header?.toString() || col.id}
                 </DropdownMenuCheckboxItem>
               ))}
           </DropdownMenuContent>
@@ -264,4 +349,17 @@ export default function RecruiterTable({ data, refetch }) {
       </div>
     </div>
   );
+}
+
+function SortIcon({ direction }) {
+  if (!direction) {
+    return <ChevronDown className="ml-1 h-3 w-3 rotate-180" />;
+  }
+  if (direction === "asc") {
+    return <ChevronDown className="ml-1 h-3 w-3 rotate-180" />;
+  }
+  if (direction === "desc") {
+    return <ChevronDown className="ml-1 h-3 w-3" />;
+  }
+  return null;
 }
