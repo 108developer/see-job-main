@@ -3,6 +3,8 @@
 import SEOModal from "@/app/modals/SEOModal";
 import { Loader } from "@/components/ui/loader";
 import PlaceholderImage from "@/images/Profile_avatar_placeholder_large.png";
+import BoyPlaceholderImage from "@/images/boy_default_img.jpg";
+import GirlPlaceholderImage from "@/images/girl_default_img.jpg";
 import { useGetCandidateProfileQuery } from "@/redux/api/candidateAuth";
 import { handleDownloadResume } from "@/utils/HandleDownloadResume";
 import { DownloadIcon, FileIcon } from "lucide-react";
@@ -97,8 +99,23 @@ const CandidateDetailPage = () => {
               </p>
             </div>
             <div className="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0">
-              <Image
+              {/* <Image
                 src={profilePic || PlaceholderImage}
+                alt={registration.fullName || "Candidate Profile Picture"}
+                width={100}
+                height={100}
+                className="w-full h-full object-cover"
+              /> */}
+              <Image
+                src={
+                  profilePic
+                    ? profilePic
+                    : jobPreferences.gender === "Male"
+                    ? BoyPlaceholderImage
+                    : jobPreferences.gender === "Female"
+                    ? GirlPlaceholderImage
+                    : PlaceholderImage
+                }
                 alt={registration.fullName || "Candidate Profile Picture"}
                 width={100}
                 height={100}
@@ -126,7 +143,8 @@ const CandidateDetailPage = () => {
             {jobPreferences.profileTitle || "Not Available"}
           </p>
           <p>
-            <strong>Company:</strong> ABC Pvt Ltd.
+            <strong>Company:</strong>{" "}
+            {workExperience.companyName || "Not Available"}
           </p>
           <p>
             <strong>Current Location:</strong>{" "}
@@ -146,7 +164,8 @@ const CandidateDetailPage = () => {
           </ul>
 
           <p>
-            <strong>Functional Area:</strong> Other
+            <strong>Functional Area:</strong>{" "}
+            {jobPreferences.industry || "Not Available"}
           </p>
           {/* <p>
             <strong>Industry:</strong>{" "}
@@ -174,7 +193,8 @@ const CandidateDetailPage = () => {
             {education.highestQualification || "Not Available"}
           </p>
           <p>
-            <strong>Notice Period:</strong> 15 Days or Less
+            <strong>Notice Period:</strong>{" "}
+            {workExperience.noticePeriod || "Not Available"}
           </p>
         </div>
       </div>
@@ -298,7 +318,7 @@ const CandidateDetailPage = () => {
       )}
 
       {/* Language Known */}
-      <div className="">
+      {/* <div className="">
         <h3 className="text-lg font-semibold  text-green-600">
           Languages Known
         </h3>
@@ -325,7 +345,7 @@ const CandidateDetailPage = () => {
             ))}
           </tbody>
         </table>
-      </div>
+      </div> */}
 
       {/* Other Details */}
       <div className="bg-white border rounded shadow-sm p-4 gap-6">
@@ -360,10 +380,12 @@ const CandidateDetailPage = () => {
               <strong>Work Auth:</strong> Not Mentioned
             </p>
             <p>
-              <strong>Category:</strong> General
+              <strong>Category:</strong>{" "}
+              {registration.industry || "Not Available"}
             </p>
             <p>
-              <strong>Physically Challenged:</strong> No
+              <strong>Physically Challenged:</strong>{" "}
+              {registration.industry || "Not Available"}
             </p>
           </div>
         </div>

@@ -21,6 +21,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { ChevronDown, MoreHorizontal } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 
 export default function JobSeekerTable({ data }) {
@@ -60,7 +61,17 @@ export default function JobSeekerTable({ data }) {
           <SortIcon direction={column.getIsSorted()} />
         </div>
       ),
-      cell: ({ row }) => <div>{row.getValue("fullName")}</div>,
+      cell: ({ row }) => <div>{row.getValue("fullName") || "-"}</div>,
+    },
+    {
+      accessorKey: "gender",
+      header: "Gender",
+      cell: ({ row }) => <div>{row.getValue("gender") || "-"}</div>,
+    },
+    {
+      accessorKey: "age",
+      header: "Age",
+      cell: ({ row }) => <div>{row.getValue("age") || "-"}</div>,
     },
     {
       accessorKey: "email",
@@ -73,7 +84,7 @@ export default function JobSeekerTable({ data }) {
           <SortIcon direction={column.getIsSorted()} />
         </div>
       ),
-      cell: ({ row }) => <div>{row.getValue("email")}</div>,
+      cell: ({ row }) => <div>{row.getValue("email") || "-"}</div>,
     },
     {
       accessorKey: "phone",
@@ -86,7 +97,7 @@ export default function JobSeekerTable({ data }) {
           <SortIcon direction={column.getIsSorted()} />
         </div>
       ),
-      cell: ({ row }) => <div>{row.getValue("phone")}</div>,
+      cell: ({ row }) => <div>{row.getValue("phone") || "-"}</div>,
     },
     {
       accessorKey: "location",
@@ -101,6 +112,19 @@ export default function JobSeekerTable({ data }) {
       ),
       cell: ({ row }) => <div>{row.getValue("location") || "-"}</div>,
     },
+    // {
+    //   accessorKey: "permanentAddress",
+    //   header: ({ column }) => (
+    //     <div
+    //       className="flex items-center cursor-pointer select-none"
+    //       onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+    //     >
+    //       Address
+    //       <SortIcon direction={column.getIsSorted()} />
+    //     </div>
+    //   ),
+    //   cell: ({ row }) => <div>{row.getValue("permanentAddress") || "-"}</div>,
+    // },
     // {
     //   accessorKey: "companyName",
     //   header: "Company",
@@ -156,24 +180,37 @@ export default function JobSeekerTable({ data }) {
     {
       accessorKey: "profileID",
       header: "Profile ID",
-      cell: ({ row }) => <div>{row.getValue("profileID")}</div>,
+      cell: ({ row }) => <div>{row.getValue("profileID") || "-"}</div>,
     },
     {
       id: "actions",
       header: "Actions",
-      cell: () => (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm">
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuCheckboxItem>Verify</DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem>Suspend</DropdownMenuCheckboxItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ),
+      cell: ({ row }) => {
+        const candidateId = row.original.candidateId;
+        return (
+          <a
+            href={`/find-cv/${candidateId}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:underline cursor-pointer border rounded-md p-1 flex justify-center bg-white"
+          >
+            View
+          </a>
+        );
+      },
+      // cell: () => (
+      //   <DropdownMenu>
+      //     <DropdownMenuTrigger asChild>
+      //       <Button variant="outline" size="sm">
+      //         <MoreHorizontal className="h-4 w-4" />
+      //       </Button>
+      //     </DropdownMenuTrigger>
+      //     <DropdownMenuContent align="end">
+      //       <DropdownMenuCheckboxItem>Verify</DropdownMenuCheckboxItem>
+      //       <DropdownMenuCheckboxItem>Suspend</DropdownMenuCheckboxItem>
+      //     </DropdownMenuContent>
+      //   </DropdownMenu>
+      // ),
       enableSorting: false,
       enableHiding: false,
       size: 80,
