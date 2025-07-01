@@ -62,6 +62,7 @@ const Language = () => {
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleAddOrUpdateOrDeleteLanguage = async (values, actionType) => {

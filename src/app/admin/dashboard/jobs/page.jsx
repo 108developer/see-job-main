@@ -43,6 +43,7 @@ export default function Jobs() {
 
   const handlePageChange = (newPage) => {
     setPage(newPage);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   if (isLoading)

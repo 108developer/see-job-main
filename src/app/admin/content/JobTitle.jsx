@@ -67,6 +67,7 @@ const JobTitle = () => {
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleAddOrUpdateorDeleteJobTitle = async (values, actionType) => {
