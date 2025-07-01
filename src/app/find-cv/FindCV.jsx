@@ -257,6 +257,37 @@ const FindCV = () => {
   };
 
   const downloadCandidateInfo = async () => {
+    if (role === "admin") {
+      setDownloading(true);
+
+      setTimeout(() => {
+        const candidates = paginatedCandidates.map((c) => ({
+          ID: c.id,
+          Name: c.fullName || c.name,
+          Gender: c.gender,
+          Email: c.email,
+          Phone: c.phone || "N/A",
+          Location: c.location,
+          "Preferred JobLocation": c.preferredJobLocation,
+          "Date of Birth": c.dob,
+          "Permanent Address": c.permanentAddress,
+          "Experience Years": c.experienceYears,
+          "Highest Qualification": c.highestQualification,
+          Skills: c.skills?.join(", ") || "N/A",
+          Status: "Viewed",
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(candidates);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Candidates");
+        XLSX.writeFile(workbook, "Candidate_List.xlsx");
+
+        setDownloading(false);
+      }, 0);
+
+      return;
+    }
+
     const selectedCount = selectedCandidates.length;
 
     if (selectedCount > allowedResume) {

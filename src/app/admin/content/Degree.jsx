@@ -68,6 +68,7 @@ const Degree = () => {
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleAddOrUpdateOrDeleteDegree = async (values, actionType) => {
