@@ -51,6 +51,7 @@ export const GET_JOB_APPLICATIONS = gql`
       shortlistedCount
       rejectedCount
       holdCount
+      allowedResume
       jobApplications {
         id
         candidateId
@@ -71,8 +72,6 @@ export const GET_JOB_APPLICATIONS = gql`
         profilePic
         resume
         board
-        medium
-        mode
         appliedAt
         status
         answers {
@@ -88,3 +87,5 @@ export const GET_JOB_APPLICATIONS = gql`
 
 // jobRole
 // salary
+// medium
+// mode
