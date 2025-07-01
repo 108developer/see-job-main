@@ -94,8 +94,7 @@ const CandidateDetailPage = () => {
                 {registration.fullName || "Candidate Name"}
               </h4>
               <p className="text-gray-600 text-sm">
-                {registration.jobDescription ||
-                  "Post Graduate, 2 years 8 months experience in Software Development"}
+                {registration.jobDescription || "Not Available"}
               </p>
             </div>
             <div className="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0">

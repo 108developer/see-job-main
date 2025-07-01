@@ -51,15 +51,14 @@ export const GET_ALL_CANDIDATES = gql`
       shortlistedCount
       rejectedCount
       holdCount
+      allowedResume
       candidates {
         id
         name
         email
         phone
         jobTitle
-        jobRole
         location
-        salary
         experience
         degree
         gender
@@ -72,11 +71,15 @@ export const GET_ALL_CANDIDATES = gql`
         profilePic
         resume
         board
-        medium
-        mode
+
         recruiterStatus
         updatedAt
       }
     }
   }
 `;
+
+// jobRole
+// salary
+// mode
+// medium
