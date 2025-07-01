@@ -18,6 +18,24 @@ export const UPDATE_APPLICATION_STATUS = gql`
   }
 `;
 
+export const BULK_UPDATE_JOB_APPLICATION_STATUS = gql`
+  mutation BulkUpdateJobApplicationStatus(
+    $applicationIds: [ID!]
+    $status: String!
+    $recruiterId: ID!
+  ) {
+    bulkUpdateJobApplicationStatus(
+      applicationIds: $applicationIds
+      status: $status
+      recruiterId: $recruiterId
+    ) {
+      success
+      message
+      updatedCount
+    }
+  }
+`;
+
 export const UPDATE_CANDIDATE_STATUS = gql`
   mutation UpdateCandidateStatus(
     $candidateId: ID!
@@ -31,6 +49,24 @@ export const UPDATE_CANDIDATE_STATUS = gql`
     ) {
       success
       message
+    }
+  }
+`;
+
+export const BULK_UPDATE_CANDIDATE_STATUS = gql`
+  mutation BulkUpdateCandidateStatus(
+    $candidateIds: [ID!]!
+    $status: String!
+    $recruiterId: ID!
+  ) {
+    bulkUpdateCandidateStatus(
+      candidateIds: $candidateIds
+      status: $status
+      recruiterId: $recruiterId
+    ) {
+      success
+      message
+      updatedCount
     }
   }
 `;

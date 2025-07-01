@@ -12,7 +12,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { UPDATE_APPLICATION_STATUS } from "@/graphql/mutations/jobApplication";
+import {
+  UPDATE_APPLICATION_STATUS,
+  BULK_UPDATE_JOB_APPLICATION_STATUS,
+} from "@/graphql/mutations/jobApplication";
 import { GET_JOB_APPLICATIONS } from "@/graphql/queries/jobApplication";
 import PlaceholderImage from "@/images/Profile_avatar_placeholder_large.png";
 import { setModal } from "@/redux/slices/modalSlice";
@@ -45,7 +48,7 @@ import * as XLSX from "xlsx";
 
 const status = ["All", "Viewed", "Shortlisted", "Rejected", "Hold"];
 
-const pageLimits = [100, 200, 300, 400, 500];
+const pageLimits = [50, 100, 150, 200, 250];
 
 const statusStyles = {
   All: "bg-gray-600 text-white hover:bg-gray-700 font-semibold",
@@ -87,13 +90,17 @@ const JobApplications = () => {
   const [shownWhatsApps, setShownWhatsApps] = useState(new Set());
   const [allowedToVisit, setAllowedToVisit] = useState(new Set());
   const [currentPage, setCurrentPage] = useState(1);
-  const [limitPerPage, setLimitPerPage] = useState(100);
+  const [limitPerPage, setLimitPerPage] = useState(50);
 
   const skillNames = useMemo(() => {
     return (filters.skills || [])
       .map((s) => s.name)
       .filter((name) => typeof name === "string");
   }, [filters.skills]);
+
+  const [bulkUpdateStatusMutation] = useMutation(
+    BULK_UPDATE_JOB_APPLICATION_STATUS
+  );
 
   const { data, loading, refetch } = useQuery(GET_JOB_APPLICATIONS, {
     variables: {
@@ -116,6 +123,29 @@ const JobApplications = () => {
   useEffect(() => {
     setCurrentPage(1);
   }, [filters]);
+
+  useEffect(() => {
+    const jobApplications = data?.getJobApplications?.jobApplications || [];
+    if (jobApplications.length === 0) return;
+
+    const emails = new Set();
+    const phones = new Set();
+    const whatsApps = new Set();
+
+    jobApplications.forEach((candidate) => {
+      const status = candidate.status?.toLowerCase();
+      if (["viewed", "shortlisted", "hold", "rejected"].includes(status)) {
+        emails.add(candidate.id);
+        phones.add(candidate.id);
+        whatsApps.add(candidate.id);
+      }
+    });
+
+    setShownEmails(emails);
+    setShownPhones(phones);
+    setShownWhatsApps(whatsApps);
+    setAllowedToVisit(emails); // or merge sets if needed
+  }, [data]);
 
   const checkAccess = (candidateId) => {
     return (
@@ -185,6 +215,7 @@ const JobApplications = () => {
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const toggleQuestionnaire = (candidateId) => {
@@ -322,29 +353,53 @@ const JobApplications = () => {
     );
   };
 
-  const downloadCandidateInfo = () => {
-    const candidates = paginatedCandidates
-      .filter((c) => selectedCandidates.includes(c.id))
-      .map((c) => ({
-        ID: c.id,
-        Name: c.fullName || c.name,
-        Gender: c.gender,
-        Email: c.email,
-        Phone: c.phone || "N/A",
-        Location: c.location,
-        "Preferred JobLocation": c.preferredJobLocation,
-        "Date of Birth": c.dob,
-        "Permanent Address": c.permanentAddress,
-        "Experience Years": c.experienceYears,
-        "Highest Qualification": c.highestQualification,
-        Skills: c.skills?.join(", ") || "N/A",
-        Status: candidateStatusMap[c.id] || "N/A",
-      }));
+  const downloadCandidateInfo = async () => {
+    const selectedApps = jobApplications.filter((c) =>
+      selectedCandidates.includes(c.id)
+    );
+    const applicationIds = selectedApps.map((c) => c.id);
 
-    const worksheet = XLSX.utils.json_to_sheet(candidates);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Candidates");
-    XLSX.writeFile(workbook, "Candidate_List.xlsx");
+    // Bulk update status to "Viewed" or any appropriate status
+    try {
+      const { data } = await bulkUpdateStatusMutation({
+        variables: {
+          applicationIds,
+          status: "Viewed",
+          recruiterId: userid,
+        },
+      });
+
+      if (data.bulkUpdateJobApplicationStatus.success) {
+        toast.success(data.bulkUpdateJobApplicationStatus.message);
+
+        const candidates = selectedApps.map((c) => ({
+          ID: c.id,
+          Name: c.fullName || c.name,
+          Gender: c.gender,
+          Email: c.email,
+          Phone: c.phone || "N/A",
+          Location: c.location,
+          "Preferred JobLocation": c.preferredJobLocation,
+          "Date of Birth": c.dob,
+          "Permanent Address": c.permanentAddress,
+          "Experience Years": c.experienceYears,
+          "Highest Qualification": c.highestQualification,
+          Skills: c.skills?.join(", ") || "N/A",
+          Status: candidateStatusMap[c.id] || "N/A",
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(candidates);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Candidates");
+        XLSX.writeFile(workbook, "Candidate_List.xlsx");
+
+        window.location.reload();
+      } else {
+        toast.error(data.bulkUpdateJobApplicationStatus.message);
+      }
+    } catch (error) {
+      toast.error("Failed to update status and download candidates.");
+    }
   };
 
   const counts = {
@@ -384,83 +439,86 @@ const JobApplications = () => {
 
       {/* Main Content */}
       <div className="flex-1 w-full p-5 bg-gray-50">
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
-          {status.map((label, idx) => {
-            const isActive = selectedStatus === label;
-            const activeColor = statusStyles[label];
-            const count = label !== "All" ? counts[label] ?? 0 : null;
+        <div className="flex flex-col gap-4 mb-6">
+          {/* Top Line: Status buttons + per-page dropdown */}
+          <div className="flex flex-wrap items-center gap-2">
+            {status.map((label, idx) => {
+              const isActive = selectedStatus === label;
+              const activeColor = statusStyles[label];
+              const count = label !== "All" ? counts[label] ?? 0 : null;
 
-            return (
-              <button
-                key={idx}
-                onClick={() => setSelectedStatus(label)}
-                className={`${
-                  isActive ? activeColor : "bg-gray-400 text-gray-600"
-                } px-4 py-2 rounded-md font-semibold hover:${activeColor} flex items-center gap-2 transition-colors duration-300`}
+              return (
+                <button
+                  key={idx}
+                  onClick={() => setSelectedStatus(label)}
+                  className={`${
+                    isActive ? activeColor : "bg-gray-400 text-gray-600"
+                  } px-4 py-2 rounded-md font-semibold hover:${activeColor} flex items-center gap-2 transition-colors duration-300`}
+                >
+                  {iconMap[label]} {label}
+                  {count !== null && (
+                    <span className="ml-1 text-sm bg-white text-gray-700 rounded-full px-2">
+                      {count}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+
+            {/* Per Page Dropdown */}
+            <div className="w-20">
+              <Select
+                value={String(limitPerPage)}
+                onValueChange={(val) => setLimitPerPage(Number(val))}
               >
-                {iconMap[label]} {label}{" "}
-                {count !== null && (
-                  <span className="ml-1 text-sm bg-white text-gray-700 rounded-full px-2">
-                    {count}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-
-          <div className="space-y-2 w-36">
-            <Select
-              value={String(limitPerPage)}
-              onValueChange={(val) => setLimitPerPage(Number(val))}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select limit" />
-              </SelectTrigger>
-              <SelectContent>
-                {pageLimits.map((num) => (
-                  <SelectItem key={num} value={String(num)}>
-                    {num} per page
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select limit" />
+                </SelectTrigger>
+                <SelectContent>
+                  {pageLimits.map((num) => (
+                    <SelectItem key={num} value={String(num)}>
+                      {num}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
-          {selectedCandidates && selectedCandidates.length > 0 && (
-            <div className="flex items-center gap-2 ml-auto">
-              <div
+          {/* Bottom Line: Trio aligned right */}
+          <div className="w-full flex justify-end">
+            <div className="flex items-center gap-2">
+              <button
                 onClick={() => {
                   const allIds = jobApplications.map(
                     (candidate) => candidate.id
                   );
                   setSelectedCandidates(allIds);
                 }}
-                className="ml-auto bg-blue-500 text-white hover:bg-blue-600 px-4 py-2 rounded-md font-semibold flex items-center gap-2 transition-colors duration-300 cursor-pointer"
+                className="bg-blue-500 text-white hover:bg-blue-600 px-4 py-2 rounded-md font-semibold flex items-center gap-2 transition-colors duration-300"
               >
                 Select All
-              </div>
-              <div
-                onClick={() => setSelectedCandidates([])}
-                className="ml-auto bg-red-500 text-white hover:bg-red-600 px-4 py-2 rounded-md font-semibold flex items-center gap-2 transition-colors duration-300 cursor-pointer"
-              >
-                Cancel
-              </div>
+              </button>
 
-              {/* <div
-                onClick={openSendMailsModal}
-                className="ml-auto bg-emerald-500 text-white hover:bg-emerald-600 px-4 py-2 rounded-md font-semibold flex items-center gap-2 transition-colors duration-300 cursor-pointer"
-              >
-                Send Mail
-              </div> */}
+              {selectedCandidates && selectedCandidates.length > 0 && (
+                <>
+                  <button
+                    onClick={() => setSelectedCandidates([])}
+                    className="bg-red-500 text-white hover:bg-red-600 px-4 py-2 rounded-md font-semibold flex items-center gap-2 transition-colors duration-300"
+                  >
+                    Cancel
+                  </button>
 
-              <div
-                onClick={downloadCandidateInfo}
-                className="ml-auto bg-emerald-500 text-white hover:bg-emerald-600 p-2 rounded-md flex items-center gap-2 transition-colors duration-300 cursor-pointer"
-              >
-                Download Details
-              </div>
+                  <button
+                    onClick={downloadCandidateInfo}
+                    className="bg-emerald-500 text-white hover:bg-emerald-600 px-4 py-2 rounded-md font-semibold flex items-center gap-2 transition-colors duration-300"
+                  >
+                    Download Details
+                  </button>
+                </>
+              )}
             </div>
-          )}
+          </div>
         </div>
 
         {loading ? (

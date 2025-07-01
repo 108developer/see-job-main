@@ -124,7 +124,7 @@ const Navbar = () => {
             userRole !== "admin" && (
               <div className="hidden md:flex gap-2">
                 <Upload />
-                <ResumeUploadModal btntext="Upload Your Resume" />
+                <ResumeUploadModal btntext="CV Upload" />
               </div>
             )}
           <UserDropdown
@@ -380,12 +380,20 @@ const UserDropdown = ({
           )}
         </>
       ) : (
-        <button
-          onClick={openSignInModal}
-          className="text-white bg-red-600 text-lg font-thin px-3 py-1 rounded-md whitespace-nowrap"
-        >
-          Job Seeker
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={openSignInModal}
+            className="text-white bg-red-600 text-lg font-thin px-3 py-1 rounded-md whitespace-nowrap"
+          >
+            Login
+          </button>
+
+          <Link href={"/candidate-register"}>
+            <button className="text-white bg-red-600 text-lg font-thin px-3 py-1 rounded-md whitespace-nowrap">
+              Register
+            </button>
+          </Link>
+        </div>
       )}
     </div>
   );

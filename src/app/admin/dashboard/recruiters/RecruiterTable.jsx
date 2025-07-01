@@ -93,6 +93,32 @@ export default function RecruiterTable({ data, refetch }) {
       cell: ({ row }) => <div>{row.getValue("fullName")}</div>,
     },
     {
+      accessorKey: "gender",
+      header: ({ column }) => (
+        <div
+          className="flex items-center cursor-pointer select-none"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Gender
+          <SortIcon direction={column.getIsSorted()} />
+        </div>
+      ),
+      cell: ({ row }) => <div>{row.getValue("gender") || "-"}</div>,
+    },
+    // {
+    //   accessorKey: "age",
+    //   header: ({ column }) => (
+    //     <div
+    //       className="flex items-center cursor-pointer select-none"
+    //       onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+    //     >
+    //       Age
+    //       <SortIcon direction={column.getIsSorted()} />
+    //     </div>
+    //   ),
+    //   cell: ({ row }) => <div>{row.getValue("age") ?? "-"}</div>,
+    // },
+    {
       accessorKey: "email",
       header: ({ column }) => (
         <div
