@@ -8,13 +8,22 @@ import { useDispatch, useSelector } from "react-redux";
 
 const contactFields = [
   { name: "address", label: "Address", icon: "MapPin" },
-  { name: "email", label: "Email", icon: "Mail" },
-  { name: "contact", label: "Contact Number", icon: "Phone" },
-  { name: "whatsapp", label: "WhatsApp", icon: "MessageCircle" },
-  { name: "linkedin", label: "LinkedIn", icon: "Linkedin" },
-  { name: "instagram", label: "Instagram", icon: "Instagram" },
-  { name: "twitter", label: "Twitter", icon: "Twitter" },
-  { name: "facebook", label: "Facebook", icon: "Facebook" },
+  { name: "email", label: "Email", icon: "Mail", linkPrefix: "mailto:" },
+  {
+    name: "contact",
+    label: "Contact Number",
+    icon: "Phone",
+    linkPrefix: "tel:",
+  },
+  {
+    name: "whatsapp",
+    label: "WhatsApp",
+    icon: "MessageCircle",
+    customLink: (value) =>
+      `https://api.whatsapp.com/send?phone=${value}&text=Hello%20I%20am%20looking%20for%20enquiry%20regarding`,
+  },
+  { name: "facebook", label: "Facebook", icon: "Facebook", isFullUrl: true },
+  { name: "instagram", label: "Instagram", icon: "Instagram", isFullUrl: true },
 ];
 
 const Contact = () => {
@@ -54,20 +63,47 @@ const Contact = () => {
         <p className="text-red-500">Failed to load contact data</p>
       ) : data ? (
         <ul className="space-y-4">
-          {contactFields.map(({ name, label, icon }) => {
-            const IconComponent = Icons[icon];
-            return (
-              <li key={name} className="flex flex-col md:flex-row space-x-2">
-                <div className="flex gap-2 items-center">
-                  {IconComponent && (
-                    <IconComponent className="w-5 h-5 text-gray-600" />
+          {contactFields.map(
+            ({ name, label, icon, linkPrefix, isFullUrl, customLink }) => {
+              const IconComponent = Icons[icon];
+              const value = data[name];
+
+              return (
+                <li key={name} className="flex flex-col md:flex-row space-x-2">
+                  <div className="flex gap-2 items-center">
+                    {IconComponent && (
+                      <IconComponent className="w-5 h-5 text-gray-600" />
+                    )}
+                    <span className="font-semibold">{label}:</span>
+                  </div>
+                  {value ? (
+                    <span>
+                      {linkPrefix || isFullUrl || customLink ? (
+                        <a
+                          href={
+                            customLink
+                              ? customLink(value)
+                              : isFullUrl
+                              ? value
+                              : `${linkPrefix}${value}`
+                          }
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:underline"
+                        >
+                          {value}
+                        </a>
+                      ) : (
+                        value
+                      )}
+                    </span>
+                  ) : (
+                    <span>Not Available</span>
                   )}
-                  <span className="font-semibold">{label}:</span>
-                </div>
-                <span>{data[name] || "Not Available"}</span>
-              </li>
-            );
-          })}
+                </li>
+              );
+            }
+          )}
         </ul>
       ) : (
         <p>No contact info found.</p>

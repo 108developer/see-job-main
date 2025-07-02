@@ -70,7 +70,12 @@ export default function JobSeekers() {
       {data?.data?.length === 0 ? (
         <p>No job seekers found.</p>
       ) : (
-        <JobSeekerTable data={data?.data || []} />
+        <JobSeekerTable
+          data={data?.data || []}
+          sortBy={sortBy}
+          sortOrder={sortOrder}
+          onSortChange={handleSortChange}
+        />
       )}
 
       <Pagination

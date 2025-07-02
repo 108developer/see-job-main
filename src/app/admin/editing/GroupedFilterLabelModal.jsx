@@ -1,19 +1,19 @@
 import { X } from "lucide-react";
 import { Formik, Field, Form, ErrorMessage } from "formik";
 
-const GroupedFilterModal = ({
+const GroupedFilterLabelModal = ({
   isOpen,
   onClose,
   actionType,
   data,
-  onAddOrUpdateOrDelete,
+  onAddOrUpdateorDelete,
   error,
   placeholder,
   validationSchema,
   initialValues,
 }) => {
   const handleSubmit = async (values) => {
-    onAddOrUpdateOrDelete(values, actionType);
+    onAddOrUpdateorDelete(values, actionType);
   };
 
   if (!isOpen) return null;
@@ -38,7 +38,6 @@ const GroupedFilterModal = ({
 
         <Formik
           initialValues={initialValues}
-          enableReinitialize={true}
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
         >
@@ -49,12 +48,12 @@ const GroupedFilterModal = ({
                   <div>
                     <Field
                       type="text"
-                      name="name"
+                      name="label"
                       className="border p-2 mb-2 w-full rounded-lg"
                       placeholder={placeholder}
                     />
                     <ErrorMessage
-                      name="name"
+                      name="label"
                       component="div"
                       className="text-red-500 text-sm"
                     />
@@ -64,12 +63,11 @@ const GroupedFilterModal = ({
 
               {actionType === "delete" && (
                 <div>
-                  <Field
+                  <input
                     type="text"
-                    name="name"
                     className="border p-2 mb-2 w-full bg-gray-200 text-gray-500 cursor-not-allowed rounded-lg"
                     disabled
-                    value={data?.name || "No Data"}
+                    value={data?.label || "No Data"}
                   />
                 </div>
               )}
@@ -78,6 +76,7 @@ const GroupedFilterModal = ({
                 <button
                   onClick={onClose}
                   className="bg-gray-500 text-white px-4 py-2 rounded"
+                  type="button"
                 >
                   Cancel
                 </button>
@@ -109,4 +108,4 @@ const GroupedFilterModal = ({
   );
 };
 
-export default GroupedFilterModal;
+export default GroupedFilterLabelModal;

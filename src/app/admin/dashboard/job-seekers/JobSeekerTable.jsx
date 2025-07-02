@@ -24,7 +24,12 @@ import { ChevronDown, MoreHorizontal } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
-export default function JobSeekerTable({ data }) {
+export default function JobSeekerTable({
+  data,
+  sortBy,
+  sortOrder,
+  onSortChange,
+}) {
   const [columnVisibility, setColumnVisibility] = useState({});
   const [rowSelection, setRowSelection] = useState({});
   const [sorting, setSorting] = useState([]);
@@ -52,13 +57,13 @@ export default function JobSeekerTable({ data }) {
     },
     {
       accessorKey: "fullName",
-      header: ({ column }) => (
+      header: () => (
         <div
           className="flex items-center cursor-pointer select-none"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          onClick={() => onSortChange("fullName")}
         >
           Name
-          <SortIcon direction={column.getIsSorted()} />
+          <SortIcon direction={sortBy === "fullName" ? sortOrder : null} />
         </div>
       ),
       cell: ({ row }) => <div>{row.getValue("fullName") || "-"}</div>,
@@ -75,43 +80,44 @@ export default function JobSeekerTable({ data }) {
     },
     {
       accessorKey: "email",
-      header: ({ column }) => (
+      header: () => (
         <div
           className="flex items-center cursor-pointer select-none"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          onClick={() => onSortChange("email")}
         >
           Email
-          <SortIcon direction={column.getIsSorted()} />
+          <SortIcon direction={sortBy === "email" ? sortOrder : null} />
         </div>
       ),
       cell: ({ row }) => <div>{row.getValue("email") || "-"}</div>,
     },
     {
       accessorKey: "phone",
-      header: ({ column }) => (
+      header: () => (
         <div
           className="flex items-center cursor-pointer select-none"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          onClick={() => onSortChange("phone")}
         >
           Phone
-          <SortIcon direction={column.getIsSorted()} />
+          <SortIcon direction={sortBy === "phone" ? sortOrder : null} />
         </div>
       ),
       cell: ({ row }) => <div>{row.getValue("phone") || "-"}</div>,
     },
     {
       accessorKey: "location",
-      header: ({ column }) => (
+      header: () => (
         <div
           className="flex items-center cursor-pointer select-none"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          onClick={() => onSortChange("location")}
         >
           Location
-          <SortIcon direction={column.getIsSorted()} />
+          <SortIcon direction={sortBy === "location" ? sortOrder : null} />
         </div>
       ),
       cell: ({ row }) => <div>{row.getValue("location") || "-"}</div>,
     },
+
     // {
     //   accessorKey: "permanentAddress",
     //   header: ({ column }) => (
@@ -132,13 +138,13 @@ export default function JobSeekerTable({ data }) {
     // },
     {
       accessorKey: "createdAt",
-      header: ({ column }) => (
+      header: () => (
         <div
           className="flex items-center cursor-pointer select-none"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          onClick={() => onSortChange("createdAt")}
         >
           Created
-          <SortIcon direction={column.getIsSorted()} />
+          <SortIcon direction={sortBy === "createdAt" ? sortOrder : null} />
         </div>
       ),
       cell: ({ row }) => (
@@ -153,13 +159,13 @@ export default function JobSeekerTable({ data }) {
     },
     {
       accessorKey: "updatedAt",
-      header: ({ column }) => (
+      header: () => (
         <div
           className="flex items-center cursor-pointer select-none"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          onClick={() => onSortChange("updatedAt")}
         >
           Updated
-          <SortIcon direction={column.getIsSorted()} />
+          <SortIcon direction={sortBy === "updatedAt" ? sortOrder : null} />
         </div>
       ),
       cell: ({ row }) => (

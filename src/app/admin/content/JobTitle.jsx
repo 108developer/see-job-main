@@ -11,7 +11,8 @@ import { Edit, Plus, Trash, Upload } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import * as Yup from "yup";
-import GroupedFilterValueLabel from "../editing/GroupedFilterValueLabel";
+import GroupedFilterLabelModal from "../editing/GroupedFilterLabelModal";
+import BulkUploadJobTitlesModal from "../editing/BulkUploadJobTitlesModal";
 
 const validationSchema = Yup.object({
   label: Yup.string()
@@ -44,7 +45,7 @@ const JobTitle = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalActionType, setModalActionType] = useState("");
   const [editingJobTitle, setEditingJobTitle] = useState(null);
-
+  const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [isBulkUploadLoading, setIsBulkUploadLoading] = useState(false);
   const [selectedFileName, setSelectedFileName] = useState("");
@@ -53,8 +54,8 @@ const JobTitle = () => {
   useEffect(() => {
     if (data) {
       setPagination({
-        totalPages: data.pagination?.totalPages || 1,
-        currentPage: data.pagination?.currentPage || 1,
+        totalPages: data.totalPages || 1,
+        currentPage: data.currentPage || 1,
       });
     }
   }, [data]);
@@ -138,6 +139,31 @@ const JobTitle = () => {
     }
   };
 
+  const handleBulkUploadSubmit = async ({ paragraph }) => {
+    try {
+      const response = await bulkUploadJobTitles({
+        jobTitles: paragraph,
+      }).unwrap();
+
+      if (response?.success) {
+        toast.success("Bulk upload successful!");
+        refetch();
+
+        if (response?.duplicates?.length > 0) {
+          const duplicates = response.duplicates.join(", ");
+          toast.info(`Duplicates not added: ${duplicates}`);
+        }
+
+        setIsBulkModalOpen(false);
+      } else {
+        toast.error("Bulk upload failed.");
+      }
+    } catch (error) {
+      console.error("Bulk upload error:", error);
+      toast.error("An error occurred during bulk upload.");
+    }
+  };
+
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -187,16 +213,13 @@ const JobTitle = () => {
               >
                 <Plus /> Add Job Title
               </button>
-              <label className="flex items-center text-sm gap-2 bg-green-500 text-white px-2 py-1 rounded-md cursor-pointer">
+              <button
+                className="flex items-center text-sm gap-2 bg-green-500 text-white px-2 py-1 rounded-md"
+                onClick={() => setIsBulkModalOpen(true)}
+              >
                 <Upload />
-                <input
-                  type="file"
-                  accept=".csv,.xlsx"
-                  onChange={handleFileSelect}
-                  className="hidden"
-                />
                 Bulk Upload
-              </label>
+              </button>
             </>
           )}
 
@@ -271,19 +294,25 @@ const JobTitle = () => {
       />
 
       {isModalOpen && (
-        <GroupedFilterValueLabel
+        <GroupedFilterLabelModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           actionType={modalActionType}
           data={editingJobTitle}
           onAddOrUpdateorDelete={handleAddOrUpdateorDeleteJobTitle}
           error={addJobTitleError || updateJobTitleError || deleteJobTitleError}
-          labelPlaceholder="Enter Job Title"
-          valuePlaceholder="False"
+          placeholder="Enter Job Title"
           validationSchema={validationSchema}
           initialValues={initialValues}
         />
       )}
+
+      <BulkUploadJobTitlesModal
+        isOpen={isBulkModalOpen}
+        onClose={() => setIsBulkModalOpen(false)}
+        onSubmit={handleBulkUploadSubmit}
+      />
+
       <ToastContainer />
     </div>
   );
