@@ -11,13 +11,10 @@ export const groupedFilterApi = createApi({
   endpoints: (builder) => ({
     // Skill Endpoints
     bulkUploadSkills: builder.mutation({
-      query: (formData) => ({
+      query: (skillsArray) => ({
         url: "skills/bulk-upload",
         method: "POST",
-        body: formData,
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+        body: skillsArray,
       }),
     }),
 
@@ -50,13 +47,10 @@ export const groupedFilterApi = createApi({
 
     // Job Title Endpoints
     bulkUploadJobTitles: builder.mutation({
-      query: (formData) => ({
+      query: (titlesArray) => ({
         url: "jobtitles/bulk-upload",
         method: "POST",
-        body: formData,
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+        body: titlesArray,
       }),
     }),
 

@@ -242,7 +242,7 @@ const CandidateDetailPage = () => {
       )}
 
       <div className="bg-white border rounded shadow-sm p-4  gap-6 text-gray-500">
-        SeeJob.com does not promise a job or an interview in exchange for money.
+        SeeJob.in does not promise a job or an interview in exchange for money.
         Fraudsters may ask you to pay under the pretext of a registration fee or
         a refundable fee.
       </div>
@@ -353,13 +353,20 @@ const CandidateDetailPage = () => {
           <div className="space-y-2">
             <p>
               <strong>DOB:</strong>{" "}
-              {jobPreferences.dob
-                ? new Date(jobPreferences.dob).toLocaleDateString()
+              {jobPreferences?.dob
+                ? new Date(jobPreferences.dob).toLocaleDateString("en-IN", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                  })
                 : "Not Available"}
             </p>
             <p>
               <strong>Gender:</strong>{" "}
-              {jobPreferences.gender || "Not Available"}
+              {jobPreferences?.gender
+                ? jobPreferences.gender.charAt(0).toUpperCase() +
+                  jobPreferences.gender.slice(1).toLowerCase()
+                : "Not Available"}
             </p>
             <p>
               <strong>Marital Status:</strong>{" "}

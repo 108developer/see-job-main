@@ -27,7 +27,13 @@ import { toast } from "react-toastify";
 import { PlanUpdateModal } from "./PlanUpdateModal";
 import TextEditorModal from "@/components/text-editor/TextEditorModal";
 
-export default function RecruiterTable({ data, refetch }) {
+export default function RecruiterTable({
+  data,
+  refetch,
+  sortBy,
+  sortOrder,
+  onSortChange,
+}) {
   const [columnVisibility, setColumnVisibility] = useState({});
   const [rowSelection, setRowSelection] = useState({});
   const plans = ["Free", "Basic", "Premium"];
@@ -81,13 +87,13 @@ export default function RecruiterTable({ data, refetch }) {
     },
     {
       accessorKey: "fullName",
-      header: ({ column }) => (
+      header: () => (
         <div
           className="flex items-center cursor-pointer select-none"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          onClick={() => onSortChange("fullName")}
         >
           Name
-          <SortIcon direction={column.getIsSorted()} />
+          <SortIcon direction={sortBy === "fullName" ? sortOrder : null} />
         </div>
       ),
       cell: ({ row }) => <div>{row.getValue("fullName")}</div>,
@@ -120,57 +126,65 @@ export default function RecruiterTable({ data, refetch }) {
     // },
     {
       accessorKey: "email",
-      header: ({ column }) => (
+      header: () => (
         <div
           className="flex items-center cursor-pointer select-none"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          onClick={() => onSortChange("email")}
         >
           Email
-          <SortIcon direction={column.getIsSorted()} />
+          <SortIcon direction={sortBy === "email" ? sortOrder : null} />
         </div>
       ),
       cell: ({ row }) => <div>{row.getValue("email")}</div>,
     },
     {
       accessorKey: "mobileNumber",
-      header: ({ column }) => (
+      header: () => (
         <div
           className="flex items-center cursor-pointer select-none"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          onClick={() => onSortChange("mobileNumber")}
         >
           Phone
-          <SortIcon direction={column.getIsSorted()} />
+          <SortIcon direction={sortBy === "mobileNumber" ? sortOrder : null} />
         </div>
       ),
       cell: ({ row }) => <div>{row.getValue("mobileNumber")}</div>,
     },
     {
       accessorKey: "location",
-      header: ({ column }) => (
+      header: () => (
         <div
           className="flex items-center cursor-pointer select-none"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          onClick={() => onSortChange("location")}
         >
           Location
-          <SortIcon direction={column.getIsSorted()} />
+          <SortIcon direction={sortBy === "location" ? sortOrder : null} />
         </div>
       ),
       cell: ({ row }) => <div>{row.getValue("location")}</div>,
     },
     {
       accessorKey: "companyName",
-      header: "Company",
+      header: () => (
+        <div
+          className="flex items-center cursor-pointer select-none"
+          onClick={() => onSortChange("companyName")}
+        >
+          Company
+          <SortIcon direction={sortBy === "companyName" ? sortOrder : null} />
+        </div>
+      ),
       cell: ({ row }) => <div>{row.getValue("companyName")}</div>,
     },
     {
       accessorKey: "createdAt",
-      header: ({ column }) => (
+      header: () => (
         <div
           className="flex items-center cursor-pointer select-none"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          onClick={() => onSortChange("createdAt")}
         >
           Created
-          <SortIcon direction={column.getIsSorted()} />
+          <SortIcon direction={sortBy === "createdAt" ? sortOrder : null} />
         </div>
       ),
       cell: ({ row }) => (
@@ -185,13 +199,13 @@ export default function RecruiterTable({ data, refetch }) {
     },
     {
       accessorKey: "updatedAt",
-      header: ({ column }) => (
+      header: () => (
         <div
           className="flex items-center cursor-pointer select-none"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          onClick={() => onSortChange("updatedAt")}
         >
           Updated
-          <SortIcon direction={column.getIsSorted()} />
+          <SortIcon direction={sortBy === "updatedAt" ? sortOrder : null} />
         </div>
       ),
       cell: ({ row }) => (

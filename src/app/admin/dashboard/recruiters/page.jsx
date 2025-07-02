@@ -70,7 +70,13 @@ export default function Recruiters() {
       {data?.data?.length === 0 ? (
         <p>No recruiters found.</p>
       ) : (
-        <RecruiterTable data={data?.data || []} refetch={refetch} />
+        <RecruiterTable
+          data={data?.data || []}
+          refetch={refetch}
+          sortBy={sortBy}
+          sortOrder={sortOrder}
+          onSortChange={handleSortChange}
+        />
       )}
 
       <Pagination

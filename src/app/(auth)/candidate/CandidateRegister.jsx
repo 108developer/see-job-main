@@ -3,10 +3,14 @@
 import { useSignupCandidateMutation } from "@/redux/api/candidateAuth";
 import { login as loginAction } from "@/redux/slices/authSlice";
 import { ErrorMessage, Field, Form, Formik } from "formik";
+import CityStateCountrySearchBar from "@/components/graphql-ui/CityStateCountrySearchBar";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
+import { useState } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 // Validation schema using Yup
 const validationSchema = Yup.object({
@@ -22,6 +26,12 @@ const validationSchema = Yup.object({
   password: Yup.string()
     .min(8, "Password must be at least 8 characters")
     .required("Password is required"),
+  location: Yup.string().required("Location is required"),
+  gender: Yup.string().required("Gender is required"),
+  dob: Yup.date()
+    .nullable()
+    .required("Date of Birth is required")
+    .typeError("Date must be a valid date"),
 });
 
 const initialValues = {
@@ -29,6 +39,9 @@ const initialValues = {
   email: "",
   phone: "",
   password: "",
+  location: "",
+  gender: "Male",
+  dob: null,
 };
 
 const CandidateRegister = ({ closeModal }) => {
@@ -36,12 +49,17 @@ const CandidateRegister = ({ closeModal }) => {
   const dispatch = useDispatch();
   const [signUpCandidate, { isLoading }] = useSignupCandidateMutation();
 
+  const [location, setLocation] = useState("");
+
   const handleRegister = async (values, { resetForm }) => {
     const data = {
       fullName: values.fullName,
       email: values.email,
       phone: values.phone,
       password: values.password,
+      location: values.location,
+      gender: values.gender,
+      dob: values.dob,
     };
 
     try {
@@ -70,7 +88,7 @@ const CandidateRegister = ({ closeModal }) => {
             expiresIn,
           })
         );
-        closeModal();
+        // closeModal();
         router.push("/candidate-register-form");
       } else {
         toast.error(
@@ -117,7 +135,7 @@ const CandidateRegister = ({ closeModal }) => {
 
               <div className="flex flex-col md:flex-row items-center justify-between gap-2">
                 {/* Email Field */}
-                <div className="w-full">
+                <div className="w-full mb-auto">
                   <label htmlFor="email" className="block text-sm font-medium">
                     Email
                   </label>
@@ -135,7 +153,7 @@ const CandidateRegister = ({ closeModal }) => {
                 </div>
 
                 {/* Phone Field */}
-                <div className="w-full">
+                <div className="w-full mb-auto">
                   <label htmlFor="phone" className="block text-sm font-medium">
                     Phone Number
                   </label>
@@ -165,6 +183,89 @@ const CandidateRegister = ({ closeModal }) => {
                 />
                 <ErrorMessage
                   name="password"
+                  component="div"
+                  className="text-red-500 text-sm mt-1"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="location" className="block text-sm font-medium">
+                  Current Location
+                </label>
+                <CityStateCountrySearchBar
+                  searchTerm={location}
+                  onSearchChange={(value) => setLocation(value)}
+                  setFieldValue={setFieldValue}
+                  onLocationSelect={(selectedLocation) => {
+                    setLocation(selectedLocation.fullAddress);
+                    setFieldValue("location", selectedLocation.fullAddress);
+                  }}
+                  fieldName="location"
+                />
+                <ErrorMessage
+                  name="location"
+                  component="div"
+                  className="text-red-500 text-sm mt-1"
+                />
+              </div>
+
+              {/* Date of Birth */}
+              <div className="gap-2 flex flex-col">
+                <label htmlFor="dob" className="text-sm font-medium">
+                  Date of Birth
+                </label>
+                <Field name="dob">
+                  {({ field, form }) => (
+                    <DatePicker
+                      selected={field.value}
+                      onChange={(date) => setFieldValue("dob", date)}
+                      className="mt-1 p-2 border rounded-md"
+                      dateFormat="dd-MM-yyyy"
+                      placeholderText="Select your date of birth"
+                    />
+                  )}
+                </Field>
+                <ErrorMessage
+                  name="dob"
+                  component="div"
+                  className="text-red-500 text-sm mt-1"
+                />
+              </div>
+
+              {/* Gender */}
+              <div>
+                <label className="text-sm font-medium">Gender</label>
+                <div className="space-x-4">
+                  <label>
+                    <Field
+                      type="radio"
+                      name="gender"
+                      value="Male"
+                      className="mr-2"
+                    />
+                    Male
+                  </label>
+                  <label>
+                    <Field
+                      type="radio"
+                      name="gender"
+                      value="Female"
+                      className="mr-2"
+                    />
+                    Female
+                  </label>
+                  <label>
+                    <Field
+                      type="radio"
+                      name="gender"
+                      value="other"
+                      className="mr-2"
+                    />
+                    Other
+                  </label>
+                </div>
+                <ErrorMessage
+                  name="gender"
                   component="div"
                   className="text-red-500 text-sm mt-1"
                 />

@@ -381,12 +381,14 @@ const UserDropdown = ({
         </>
       ) : (
         <div className="flex items-center gap-2">
-          <button
-            onClick={openSignInModal}
-            className="text-white bg-red-600 text-lg font-thin px-3 py-1 rounded-md whitespace-nowrap"
-          >
-            Login
-          </button>
+          <Link href={"/candidate-login"}>
+            <button
+              // onClick={openSignInModal}
+              className="text-white bg-red-600 text-lg font-thin px-3 py-1 rounded-md whitespace-nowrap"
+            >
+              Login
+            </button>
+          </Link>
 
           <Link href={"/candidate-register"}>
             <button className="text-white bg-red-600 text-lg font-thin px-3 py-1 rounded-md whitespace-nowrap">

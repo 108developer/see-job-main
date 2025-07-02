@@ -45,7 +45,7 @@ export async function generateMetadata() {
 
 export default function Page() {
   return (
-    <div>
+    <div className="min-h-screen px-4 py-8">
       <CandidateRegisterPage />
     </div>
   );
