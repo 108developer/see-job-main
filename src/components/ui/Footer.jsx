@@ -11,7 +11,7 @@ export const Footer = () => {
       title: "About",
       links: [
         { label: "About Us", href: "/about" },
-        { label: "Resume Services", href: "/resume-services" },
+        { label: "Resume Services", href: "/resume-service" },
         { label: "Term & Conditions", href: "/terms" },
         { label: "Privacy Policy", href: "/privacy" },
         { label: "Career With us", href: "/career" },

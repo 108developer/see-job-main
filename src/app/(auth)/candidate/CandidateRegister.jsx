@@ -68,6 +68,7 @@ const CandidateRegister = ({ closeModal }) => {
       if (response.token) {
         toast.success(response.message);
         resetForm();
+        setLocation("");
         const { token, candidateId, email, phone, role, expiresIn, fullName } =
           response;
         localStorage.setItem("token", token);

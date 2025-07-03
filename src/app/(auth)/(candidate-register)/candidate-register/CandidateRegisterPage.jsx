@@ -14,7 +14,7 @@ const CandidateRegisterPage = ({ closeModal }) => {
 
   useEffect(() => {
     if (token) {
-      router.push("/");
+      router.push("/candidate-register-form");
     }
   }, [token, router]);
 
@@ -29,7 +29,7 @@ const CandidateRegisterPage = ({ closeModal }) => {
           <UserPlus className="h-6 w-6" /> Register
         </div>
 
-        <CandidateRegister closeModal={closeModal} />
+        <CandidateRegister />
 
         <Link href={"/candidate-login"}>
           <div className="text-red-500 flex justify-end w-full mt-2 hover:underline cursor-pointer gap-2 text-xs ">

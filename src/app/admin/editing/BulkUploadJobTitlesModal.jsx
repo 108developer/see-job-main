@@ -14,6 +14,7 @@ const BulkUploadJobTitlesModal = ({ isOpen, onClose, onSubmit }) => {
     }
 
     onSubmit({ paragraph });
+    setTextareaValue("");
   };
 
   if (!isOpen) return null;

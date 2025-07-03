@@ -13,7 +13,8 @@ const BulkUploadSkillsModal = ({ isOpen, onClose, onSubmit }) => {
       return;
     }
 
-    onSubmit({ paragraph }); // Send paragraph to backend
+    onSubmit({ paragraph });
+    setTextareaValue("");
   };
 
   if (!isOpen) return null;
