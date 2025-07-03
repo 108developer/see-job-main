@@ -23,7 +23,7 @@ const fileValidation = (value, maxSize, allowedTypes) => {
 
 // Validation schema using Yup
 const validationSchema = Yup.object({
-  location: Yup.string().required("Current Location is required"),
+  // location: Yup.string().required("Current Location is required"),
   permanentAddress: Yup.string().required("Permanent Address is required"),
   minexp: Yup.number().required("Required"),
   maxexp: Yup.number().required("Required"),
@@ -129,7 +129,7 @@ const CandidateRegister = () => {
     const formData = new FormData();
 
     formData.append("candidateId", userid);
-    formData.append("location", values.location);
+    // formData.append("location", values.location);
     formData.append("permanentAddress", values.permanentAddress);
     formData.append("minexp", values.minexp);
     formData.append("maxexp", values.maxexp);
@@ -263,7 +263,7 @@ const CandidateRegister = () => {
             </div>
 
             {/* Current Location */}
-            <div>
+            {/* <div>
               <label htmlFor="location" className="block text-sm font-medium">
                 Current Location
               </label>
@@ -282,7 +282,7 @@ const CandidateRegister = () => {
                 component="div"
                 className="text-red-500 text-sm mt-1"
               />
-            </div>
+            </div> */}
 
             {/* Permanent Address */}
             <div>

@@ -84,6 +84,7 @@ export const validationSchema = Yup.object({
     min: Yup.string().required("Min experience is required"),
     max: Yup.string().required("Max experience is required"),
   }),
+  degree: Yup.string().required("Degree level is required"),
   education: Yup.string().required("Education is required"),
   skillsRequired: Yup.array().min(1, "At least one skill is required"),
   companyName: Yup.string().required("Company name is required"),

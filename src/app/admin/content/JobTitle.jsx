@@ -190,6 +190,14 @@ const JobTitle = () => {
     );
   }
 
+  if (isBulkUploadLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen w-full gap-8 p-4">
+        <Loader count={5} height={50} className="mb-4" />
+      </div>
+    );
+  }
+
   if (isError) {
     return (
       <div className="flex items-center justify-center h-screen w-full gap-8 p-4">
@@ -308,9 +316,11 @@ const JobTitle = () => {
       )}
 
       <BulkUploadJobTitlesModal
+        key={isBulkModalOpen ? "open" : "closed"}
         isOpen={isBulkModalOpen}
         onClose={() => setIsBulkModalOpen(false)}
         onSubmit={handleBulkUploadSubmit}
+        isLoading={isBulkUploadLoading}
       />
 
       <ToastContainer />

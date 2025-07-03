@@ -20,6 +20,13 @@ import {
 import DegreeSearchBar from "@/components/graphql-ui/HighestQualificationDegree";
 import AccessDenied from "@/components/ui/AccessDenied ";
 import SEOModal from "@/app/modals/SEOModal";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const RangeSelector = ({ label, options, onSelect, value, unit }) => {
   return (
@@ -70,6 +77,7 @@ const PostJob = () => {
   const [jobTitle, setJobTitle] = useState("");
   const [jobRole, setJobRole] = useState("");
   const [degree, setDegree] = useState("");
+  const [degreeLevel, setDegreeLevel] = useState("");
 
   const initialValues = {
     jobTitle: "",
@@ -84,6 +92,7 @@ const PostJob = () => {
     // status: "open",
     monthlySalary: { min: "", max: "" },
     experience: { min: "", max: "" },
+    degreeLevel: "any",
     education: "",
     questions: [],
     companyName: "",
@@ -219,7 +228,7 @@ const PostJob = () => {
                 {/* Key Skills */}
                 <div className="w-full mb-auto">
                   <label htmlFor="skills" className="text-sm font-semibold">
-                    Key Skills*
+                    Key Skills
                   </label>
                   <SkillDropdown
                     searchTerm={skillSet}
@@ -242,6 +251,41 @@ const PostJob = () => {
                   />
                   <ErrorMessage
                     name="skillsRequired"
+                    component="div"
+                    className="text-red-500 text-sm mt-1"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="degree" className="text-sm font-semibold">
+                    Degree Level
+                  </label>
+
+                  <Select
+                    onValueChange={(value) => {
+                      setDegreeLevel(value);
+                      setFieldValue("degreeLevel", value);
+                    }}
+                    defaultValue="any"
+                  >
+                    <SelectTrigger className="bg-white" id="degree">
+                      <SelectValue
+                        placeholder="Select Degree Level"
+                        className="text-gray-400"
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="any">Any</SelectItem>
+                      <SelectItem value="10th">10th</SelectItem>
+                      <SelectItem value="12th">12th</SelectItem>
+                      <SelectItem value="diploma">Diploma</SelectItem>
+                      <SelectItem value="bachelor">Bachelor's</SelectItem>
+                      <SelectItem value="master">Master's</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  <ErrorMessage
+                    name="degree"
                     component="div"
                     className="text-red-500 text-sm mt-1"
                   />
@@ -402,7 +446,10 @@ const PostJob = () => {
 
                 {/* Salary Range */}
                 <div className="text-sm font-semibold">
-                  <h1>Salary</h1>
+                  <h1>
+                    Salary{" "}
+                    <span className="text-xs font-thin">(Per Month)</span>
+                  </h1>
                   <div className="flex items-center gap-2 justify-between flex-col lg:flex-row font-medium">
                     {/* Min Salary */}
                     <RangeSelector
