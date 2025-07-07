@@ -117,7 +117,11 @@ export default function JobTable({ data, sortBy, sortOrder, onSortChange }) {
     {
       accessorKey: "deadline",
       header: "Deadline",
-      cell: ({ row }) => <div>{row.getValue("deadline")}</div>,
+      cell: ({ row }) => {
+        const rawDate = row.getValue("deadline");
+        const formattedDate = new Date(rawDate).toLocaleDateString("en-GB"); // dd/mm/yyyy
+        return <div>{formattedDate}</div>;
+      },
     },
     {
       accessorKey: "fullName",

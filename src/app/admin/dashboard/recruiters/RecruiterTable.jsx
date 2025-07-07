@@ -98,19 +98,19 @@ export default function RecruiterTable({
       ),
       cell: ({ row }) => <div>{row.getValue("fullName")}</div>,
     },
-    {
-      accessorKey: "gender",
-      header: ({ column }) => (
-        <div
-          className="flex items-center cursor-pointer select-none"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Gender
-          <SortIcon direction={column.getIsSorted()} />
-        </div>
-      ),
-      cell: ({ row }) => <div>{row.getValue("gender") || "-"}</div>,
-    },
+    // {
+    //   accessorKey: "gender",
+    //   header: ({ column }) => (
+    //     <div
+    //       className="flex items-center cursor-pointer select-none"
+    //       onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+    //     >
+    //       Gender
+    //       <SortIcon direction={column.getIsSorted()} />
+    //     </div>
+    //   ),
+    //   cell: ({ row }) => <div>{row.getValue("gender") || "-"}</div>,
+    // },
     // {
     //   accessorKey: "age",
     //   header: ({ column }) => (
@@ -183,7 +183,7 @@ export default function RecruiterTable({
           className="flex items-center cursor-pointer select-none"
           onClick={() => onSortChange("createdAt")}
         >
-          Created
+          Joined
           <SortIcon direction={sortBy === "createdAt" ? sortOrder : null} />
         </div>
       ),
@@ -193,6 +193,8 @@ export default function RecruiterTable({
             year: "numeric",
             month: "short",
             day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
           })}
         </div>
       ),
@@ -214,6 +216,8 @@ export default function RecruiterTable({
             year: "numeric",
             month: "short",
             day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
           })}
         </div>
       ),

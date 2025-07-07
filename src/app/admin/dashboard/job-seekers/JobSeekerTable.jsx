@@ -143,7 +143,7 @@ export default function JobSeekerTable({
           className="flex items-center cursor-pointer select-none"
           onClick={() => onSortChange("createdAt")}
         >
-          Created
+          Joined
           <SortIcon direction={sortBy === "createdAt" ? sortOrder : null} />
         </div>
       ),

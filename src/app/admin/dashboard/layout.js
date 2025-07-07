@@ -20,7 +20,7 @@ export default function DashboardLayout({ children }) {
     { name: "All Jobs", href: "/admin/dashboard/jobs" },
     { name: "Recruiters", href: "/admin/dashboard/recruiters" },
     { name: "Job Seekers", href: "/admin/dashboard/job-seekers" },
-    { name: "Bulk Upload", href: "/admin/dashboard/bulk-upload" },
+    // { name: "Bulk Upload", href: "/admin/dashboard/bulk-upload" },
   ];
 
   return useremail !== "admin@example.com" ? (

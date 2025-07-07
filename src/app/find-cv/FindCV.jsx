@@ -211,7 +211,6 @@ const FindCV = () => {
       params.set("page", newPage.toString());
     }
     router.push(`/find-cv?${params.toString()}`);
-    setCurrentPage(newPage);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -316,7 +315,6 @@ const FindCV = () => {
                 onClick={() => {
                   setSelectedStatus(label);
                   setSelectedCandidates([]);
-                  setCurrentPage(1);
                 }}
                 className={`${
                   isActive ? activeColor : "bg-gray-400 text-gray-600"
@@ -339,11 +337,9 @@ const FindCV = () => {
                 const newLimit = Number(val);
                 const params = new URLSearchParams(searchParams.toString());
                 params.set("limit", newLimit.toString());
-                params.set("page", "1"); // Reset to first page
+                params.set("page", "1");
                 router.push(`/find-cv?${params.toString()}`);
-                setLimitPerPage(Number(val));
                 setSelectedCandidates([]);
-                setCurrentPage(1);
               }}
             >
               <SelectTrigger>
