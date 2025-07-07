@@ -113,6 +113,29 @@ const FindCV = () => {
       }
     });
     setFilters({ ...merged, skills: [...(merged.skills || [])] });
+
+    const params = new URLSearchParams();
+
+    Object.entries(merged).forEach(([key, val]) => {
+      if (Array.isArray(val)) {
+        val.forEach((item) => {
+          if (item?.name) {
+            params.append(`${key}`, item.name);
+          }
+        });
+      } else if (val !== undefined) {
+        params.set(key, val);
+      }
+    });
+
+    // Reset to page 1
+    params.set("page", "1");
+
+    // Apply to router
+    router.push(`/find-cv?${params.toString()}`);
+
+    // Scroll to top for better UX
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const toggleCandidateSelection = (id) => {
