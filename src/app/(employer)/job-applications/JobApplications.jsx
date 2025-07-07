@@ -12,11 +12,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import ZoomImage from "@/components/ux/ZoomImage";
 import {
-  UPDATE_APPLICATION_STATUS,
   BULK_UPDATE_JOB_APPLICATION_STATUS,
+  UPDATE_APPLICATION_STATUS,
 } from "@/graphql/mutations/jobApplication";
 import { GET_JOB_APPLICATIONS } from "@/graphql/queries/jobApplication";
+import BoyPlaceholderImage from "@/images/boy_default_img.jpg";
+import GirlPlaceholderImage from "@/images/girl_default_img.jpg";
 import PlaceholderImage from "@/images/Profile_avatar_placeholder_large.png";
 import { setModal } from "@/redux/slices/modalSlice";
 import { handleDownloadResume } from "@/utils/HandleDownloadResume";
@@ -39,7 +42,6 @@ import {
   UserPlus,
   UserX,
 } from "lucide-react";
-import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -402,12 +404,16 @@ const JobApplications = () => {
     }
   };
 
-  const counts = {
-    Viewed: data?.getJobApplications?.viewedCount || 0,
-    Shortlisted: data?.getJobApplications?.shortlistedCount || 0,
-    Rejected: data?.getJobApplications?.rejectedCount || 0,
-    Hold: data?.getJobApplications?.holdCount || 0,
-  };
+  const counts = useMemo(
+    () => ({
+      All: data?.getJobApplications?.totalApplications || 0,
+      Viewed: data?.getJobApplications?.viewedCount || 0,
+      Shortlisted: data?.getJobApplications?.shortlistedCount || 0,
+      Rejected: data?.getJobApplications?.rejectedCount || 0,
+      Hold: data?.getJobApplications?.holdCount || 0,
+    }),
+    [data]
+  );
 
   const jobApplications = data?.getJobApplications?.jobApplications || [];
   const totalPages = data?.getJobApplications?.totalPages || 1;
@@ -445,7 +451,7 @@ const JobApplications = () => {
             {status.map((label, idx) => {
               const isActive = selectedStatus === label;
               const activeColor = statusStyles[label];
-              const count = label !== "All" ? counts[label] ?? 0 : null;
+              const count = counts[label] ?? 0;
 
               return (
                 <button
@@ -631,15 +637,22 @@ const JobApplications = () => {
                       <div className="p-2 text-center text-sm bg-gray-100/80 gap-4 flex flex-col md:w-72">
                         <div className="flex space-x-2 w-full">
                           <div className="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0">
-                            <Image
-                              src={candidate.profilePic || PlaceholderImage}
+                            <ZoomImage
+                              src={
+                                candidate.profilePic
+                                  ? candidate.profilePic
+                                  : candidate.gender === "Male"
+                                  ? BoyPlaceholderImage
+                                  : candidate.gender === "Female"
+                                  ? GirlPlaceholderImage
+                                  : PlaceholderImage
+                              }
                               alt={
                                 candidate.fullName ||
                                 "Candidate Profile Picture"
                               }
                               width={100}
                               height={100}
-                              className="w-full h-full object-cover"
                             />
                           </div>
 

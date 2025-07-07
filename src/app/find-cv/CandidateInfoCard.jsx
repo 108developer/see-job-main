@@ -1,5 +1,6 @@
 "use client";
 
+import ZoomImage from "@/components/ux/ZoomImage";
 import PlaceholderImage from "@/images/Profile_avatar_placeholder_large.png";
 import BoyPlaceholderImage from "@/images/boy_default_img.jpg";
 import GirlPlaceholderImage from "@/images/girl_default_img.jpg";
@@ -18,11 +19,9 @@ import {
   Phone,
   UserCheck,
 } from "lucide-react";
-import Image from "next/image";
-import { toast } from "react-toastify";
-import CandidateCard from "./CandidateInfoCard";
-import { getTimeAgo, iconMap, statusStyles } from "./constant";
 import React from "react";
+import { toast } from "react-toastify";
+import { getTimeAgo, iconMap, statusStyles } from "./constant";
 
 const CandidateInfoCard = React.memo(
   ({
@@ -127,7 +126,7 @@ const CandidateInfoCard = React.memo(
             <div className="p-2 text-center text-sm bg-gray-100/80 gap-4 flex flex-col md:w-72">
               <div className="flex space-x-2 w-full">
                 <div className="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0">
-                  <Image
+                  <ZoomImage
                     src={
                       candidate.profilePic
                         ? candidate.profilePic
@@ -140,8 +139,9 @@ const CandidateInfoCard = React.memo(
                     alt={candidate.fullName || "Candidate Profile Picture"}
                     width={100}
                     height={100}
-                    className="w-full h-full object-cover"
                   />
+
+                  {/* <ProfileImage src="/profile.jpg" alt="Profile Picture" /> */}
                 </div>
 
                 <div className="w-full flex flex-col p-1 ">
