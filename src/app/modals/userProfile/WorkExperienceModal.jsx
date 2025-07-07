@@ -17,6 +17,16 @@ const formatDate = (date) => {
   return date.split("T")[0];
 };
 
+const NOTICE_PERIOD = [
+  "Immediate",
+  "15 Days",
+  "30 Days",
+  "45 Days",
+  "60 Days",
+  "75 Days",
+  "90 Days",
+];
+
 const WorkExperienceModal = ({ experience = null, closeModal }) => {
   const isEdit = Boolean(experience);
   const { userid } = useSelector((state) => state.auth);
@@ -34,7 +44,7 @@ const WorkExperienceModal = ({ experience = null, closeModal }) => {
     jobTitle: experience?.jobTitle || "",
     startDate: formatDate(experience?.startDate),
     endDate: experience?.endDate ? formatDate(experience?.endDate) : "",
-    currentlyEmployed: experience?.currentlyEmployed || true,
+    currentlyEmployed: experience?.currentlyEmployed ?? false,
     jobDescription: experience?.jobDescription || "",
     location: experience?.location || "",
     // industry: experience?.industry || "",
@@ -66,6 +76,7 @@ const WorkExperienceModal = ({ experience = null, closeModal }) => {
 
       resetForm();
       closeModal();
+      window.location.reload();
     } catch (error) {
       const errMsg =
         error?.data?.message || error?.message || "Failed to save experience.";
@@ -81,7 +92,7 @@ const WorkExperienceModal = ({ experience = null, closeModal }) => {
       enableReinitialize
     >
       {({ setFieldValue, values }) => (
-        <Form className="space-y-6 w-full">
+        <Form className="space-y-6 w-full scrollbar-gutter-stable pr-8">
           <h1 className="text-xl">
             {isEdit ? "Edit Work Experience" : "Add Work Experience"}
           </h1>
@@ -153,7 +164,7 @@ const WorkExperienceModal = ({ experience = null, closeModal }) => {
           </div>
 
           <div>
-            <label className="text-sm font-semibold">Job Description</label>
+            <label className="text-sm font-semibold">Description</label>
             <Field
               as="textarea"
               name="jobDescription"
@@ -205,33 +216,28 @@ const WorkExperienceModal = ({ experience = null, closeModal }) => {
             />
           </div> */}
 
-          <div>
-            <label className="text-sm font-semibold">Notice Period</label>
-            <Field
-              as="select"
-              name="noticePeriod"
-              className="mt-1 p-3 w-full border rounded-md"
-            >
-              <option value="">Select</option>
-              {[
-                "Immediate",
-                "30 Days",
-                "45 Days",
-                "60 Days",
-                "75 Days",
-                "90 Days",
-              ].map((period) => (
-                <option key={period} value={period}>
-                  {period}
-                </option>
-              ))}
-            </Field>
-            <ErrorMessage
-              name="noticePeriod"
-              component="div"
-              className="text-red-500 text-sm"
-            />
-          </div>
+          {values.currentlyEmployed && (
+            <div>
+              <label className="text-sm font-semibold">Notice Period</label>
+              <Field
+                as="select"
+                name="noticePeriod"
+                className="mt-1 p-3 w-full border rounded-md"
+              >
+                <option value="">Select</option>
+                {NOTICE_PERIOD.map((period) => (
+                  <option key={period} value={period}>
+                    {period}
+                  </option>
+                ))}
+              </Field>
+              <ErrorMessage
+                name="noticePeriod"
+                component="div"
+                className="text-red-500 text-sm"
+              />
+            </div>
+          )}
 
           <div className="flex justify-between items-center">
             <button

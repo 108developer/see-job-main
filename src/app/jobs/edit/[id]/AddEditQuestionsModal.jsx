@@ -29,31 +29,19 @@ const AddEditQuestionsModal = ({
 
   const handleOptionChange = (qIndex, oIndex, value) => {
     const updated = [...editableQuestions];
-    const questionCopy = { ...updated[qIndex] };
-    const optionsCopy = [...questionCopy.options];
-    optionsCopy[oIndex] = value;
-    questionCopy.options = optionsCopy;
-    updated[qIndex] = questionCopy;
+    updated[qIndex].options[oIndex] = value;
     setEditableQuestions(updated);
   };
 
   const addOption = (qIndex) => {
     const updated = [...editableQuestions];
-    const questionCopy = { ...updated[qIndex] };
-    const optionsCopy = [...questionCopy.options];
-    optionsCopy.push("");
-    questionCopy.options = optionsCopy;
-    updated[qIndex] = questionCopy;
+    updated[qIndex].options.push("");
     setEditableQuestions(updated);
   };
 
   const removeOption = (qIndex, oIndex) => {
     const updated = [...editableQuestions];
-    const questionCopy = { ...updated[qIndex] };
-    const optionsCopy = [...questionCopy.options];
-    optionsCopy.splice(oIndex, 1);
-    questionCopy.options = optionsCopy;
-    updated[qIndex] = questionCopy;
+    updated[qIndex].options.splice(oIndex, 1);
     setEditableQuestions(updated);
   };
 
@@ -90,7 +78,9 @@ const AddEditQuestionsModal = ({
     });
 
     if (hasInvalidOptions) {
-      alert("Please add at least one option for multiple choice question.");
+      alert(
+        "Please add at least one option for multiple choice question."
+      );
       return;
     }
 
@@ -106,10 +96,7 @@ const AddEditQuestionsModal = ({
         </h2>
 
         {editableQuestions.map((q, index) => (
-          <div
-            key={index}
-            className="p-4 border rounded shadow-sm mb-4 bg-gray-100"
-          >
+          <div key={index} className="p-4 border rounded shadow-sm mb-4 bg-gray-100">
             <div className="space-y-2">
               <input
                 type="text"

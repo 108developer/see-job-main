@@ -14,8 +14,8 @@ import {
   BULK_UPDATE_CANDIDATE_STATUS,
   UPDATE_CANDIDATE_STATUS,
 } from "@/graphql/mutations/jobApplication";
+import { useSearchParams, useRouter } from "next/navigation";
 import { GET_ALL_CANDIDATES } from "@/graphql/queries/candidate";
-import { setModal } from "@/redux/slices/modalSlice";
 import { useMutation, useQuery } from "@apollo/client";
 import { DownloadIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -32,7 +32,6 @@ const FindCV = () => {
   const { userid, role } = useSelector((state) => state.auth);
   const [filters, setFilters] = useState({ employerId: userid, skills: [] });
   const [selectedStatus, setSelectedStatus] = useState("All");
-  const [currentPage, setCurrentPage] = useState(1);
   const [selectedCandidates, setSelectedCandidates] = useState([]);
   const [candidateStatusMap, setCandidateStatusMap] = useState({});
   const [loadingStatus, setLoadingStatus] = useState({});
@@ -40,8 +39,13 @@ const FindCV = () => {
   const [shownPhones, setShownPhones] = useState(new Set());
   const [shownWhatsApps, setShownWhatsApps] = useState(new Set());
   const [allowedToVisit, setAllowedToVisit] = useState(new Set());
-  const [limitPerPage, setLimitPerPage] = useState(50);
   const [downloading, setDownloading] = useState(false);
+
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const currentPage = parseInt(searchParams.get("page")) || 1;
+  const limitPerPage = parseInt(searchParams.get("limit")) || 50;
 
   const skillNames = useMemo(() => {
     return (filters.skills || [])
@@ -50,6 +54,7 @@ const FindCV = () => {
   }, [filters.skills]);
 
   const [bulkUpdateCandidateStatus] = useMutation(BULK_UPDATE_CANDIDATE_STATUS);
+  const [updateStatusMutation] = useMutation(UPDATE_CANDIDATE_STATUS);
 
   const { data, loading, refetch } = useQuery(GET_ALL_CANDIDATES, {
     variables: {
@@ -60,8 +65,6 @@ const FindCV = () => {
     },
     fetchPolicy: "network-only",
   });
-
-  const [updateStatusMutation] = useMutation(UPDATE_CANDIDATE_STATUS);
 
   const revealedStatuses = new Set([
     "Viewed",
@@ -88,15 +91,13 @@ const FindCV = () => {
     setShownEmails(emails);
     setShownPhones(phones);
     setShownWhatsApps(whatsApps);
-    setAllowedToVisit(emails); // since revealing contact info allows viewing resume
+    setAllowedToVisit(emails);
   }, [data]);
 
   useEffect(() => {
     const statusValue = selectedStatus === "All" ? "" : selectedStatus;
     handleFilterChange({ status: statusValue });
   }, [selectedStatus]);
-
-  useEffect(() => setCurrentPage(1), [filters]);
 
   const handleFilterChange = (updatedFilters) => {
     const merged = { ...filters, ...updatedFilters };
@@ -144,17 +145,14 @@ const FindCV = () => {
       toast.success(result.message);
       setAllowedToVisit((prev) => new Set(prev).add(candidateId));
 
-      // ✅ Update frontend state so UI reflects it
-      if (action === "email") {
-        showEmail(candidateId);
-      } else if (action === "phone") {
-        showPhone(candidateId);
-      } else if (action === "whatsapp") {
+      if (action === "email") showEmail(candidateId);
+      else if (action === "phone") showPhone(candidateId);
+      else if (action === "whatsapp") {
         showWhatsApp(candidateId);
         const whatsappUrl = `https://api.whatsapp.com/send?phone=${phone}&text=Hello%20I%20saw%20your%20profile%20on%20see%20job!`;
         window.open(whatsappUrl, "_blank");
       }
-    } catch (error) {
+    } catch {
       toast.error("Something went wrong");
     }
   };
@@ -188,9 +186,7 @@ const FindCV = () => {
         });
 
         window.open(`/find-cv/${candidateId}`, "_blank");
-      } else {
-        throw new Error(data?.updateCandidateStatus?.message);
-      }
+      } else throw new Error(data?.updateCandidateStatus?.message);
     } catch (err) {
       toast.error(err.message || "Failed to update status.");
       setCandidateStatusMap((prev) => ({
@@ -202,104 +198,36 @@ const FindCV = () => {
     }
   };
 
-  const showEmail = (id) => {
-    setShownEmails((prev) => {
-      const newSet = new Set(prev);
-      newSet.add(id);
-      return newSet;
-    });
-    setAllowedToVisit((prev) => {
-      const newSet = new Set(prev);
-      newSet.add(id);
-      return newSet;
-    });
-  };
+  const showEmail = (id) => setShownEmails((prev) => new Set(prev).add(id));
+  const showPhone = (id) => setShownPhones((prev) => new Set(prev).add(id));
+  const showWhatsApp = (id) =>
+    setShownWhatsApps((prev) => new Set(prev).add(id));
 
-  const showPhone = (id) => {
-    setShownPhones((prev) => {
-      const newSet = new Set(prev);
-      newSet.add(id);
-      return newSet;
-    });
-    setAllowedToVisit((prev) => {
-      const newSet = new Set(prev);
-      newSet.add(id);
-      return newSet;
-    });
-  };
-
-  const showWhatsApp = (id) => {
-    setShownWhatsApps((prev) => {
-      const newSet = new Set(prev);
-      newSet.add(id);
-      return newSet;
-    });
-    setAllowedToVisit((prev) => {
-      const newSet = new Set(prev);
-      newSet.add(id);
-      return newSet;
-    });
-  };
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
+  const handlePageChange = (newPage) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (newPage === 1) {
+      params.delete("page");
+    } else {
+      params.set("page", newPage.toString());
+    }
+    router.push(`/find-cv?${params.toString()}`);
+    setCurrentPage(newPage);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const openSendMailsModal = () => {
-    const candidates = paginatedCandidates
-      .filter((c) => selectedCandidates.includes(c.id))
-      .map((c) => ({ id: c.id, fullName: c.fullName, email: c.email }));
-
-    dispatch(
-      setModal({ modalType: "sendMailsModal", modalProps: { candidates } })
-    );
-  };
-
   const downloadCandidateInfo = async () => {
-    if (role === "admin") {
-      setDownloading(true);
-
-      setTimeout(() => {
-        const candidates = paginatedCandidates.map((c) => ({
-          ID: c.id,
-          Name: c.fullName || c.name,
-          Gender: c.gender,
-          Email: c.email,
-          Phone: c.phone || "N/A",
-          Location: c.location,
-          "Preferred JobLocation": c.preferredJobLocation,
-          "Date of Birth": c.dob,
-          "Permanent Address": c.permanentAddress,
-          "Experience Years": c.experienceYears,
-          "Highest Qualification": c.highestQualification,
-          Skills: c.skills?.join(", ") || "N/A",
-          Status: "Viewed",
-        }));
-
-        const worksheet = XLSX.utils.json_to_sheet(candidates);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Candidates");
-        XLSX.writeFile(workbook, "Candidate_List.xlsx");
-
-        setDownloading(false);
-      }, 0);
-
-      return;
-    }
-
     const selectedCount = selectedCandidates.length;
 
-    if (selectedCount > allowedResume) {
+    if (role !== "admin" && selectedCount > allowedResume) {
       toast.error(`You can only view/download up to ${allowedResume} resumes.`);
       return;
     }
 
     setDownloading(true);
 
-    setTimeout(() => {
+    try {
       const candidates = paginatedCandidates
-        .filter((c) => selectedCandidates.includes(c.id))
+        .filter((c) => role === "admin" || selectedCandidates.includes(c.id))
         .map((c) => ({
           ID: c.id,
           Name: c.fullName || c.name,
@@ -321,19 +249,28 @@ const FindCV = () => {
       XLSX.utils.book_append_sheet(workbook, worksheet, "Candidates");
       XLSX.writeFile(workbook, "Candidate_List.xlsx");
 
-      setDownloading(false);
-    }, 0);
+      if (role !== "admin") {
+        await bulkUpdateCandidateStatus({
+          variables: {
+            candidateIds: selectedCandidates,
+            status: "Viewed",
+            recruiterId: userid,
+          },
+        });
 
-    // Fire mutation in background, don't block UI
-    bulkUpdateCandidateStatus({
-      variables: {
-        candidateIds: selectedCandidates,
-        status: "Viewed",
-        recruiterId: userid,
-      },
-    }).catch(() => {
-      console.log("ERROR OCCURRED WHILE DOWNLOADING & UPDATING STATUS");
-    });
+        await refetch({
+          ...filters,
+          skills: skillNames,
+          page: currentPage,
+          limit: limitPerPage,
+          fetchPolicy: "network-only",
+        });
+      }
+    } catch (error) {
+      toast.error("Something went wrong while processing download.");
+    } finally {
+      setDownloading(false);
+    }
   };
 
   const counts = useMemo(
@@ -361,31 +298,26 @@ const FindCV = () => {
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen">
-      {/* Sidebar */}
       <div className="flex w-64 bg-white shadow-lg border-r">
         <SEOModal slug="find-cv" />
         <FilterSidebar filters={filters} onFilterChange={handleFilterChange} />
       </div>
 
-      {/* Main Content */}
       <div className="flex-1 w-full p-5 bg-gray-50">
-        {/* === Top Row: Status Filters + Per Page Selector === */}
         <div className="flex flex-wrap items-center gap-2 mb-4">
           {status.map((label, idx) => {
             const isActive = selectedStatus === label;
             const activeColor = statusStyles[label];
             const count = counts[label] ?? 0;
 
-            const handleClick = () => {
-              setSelectedStatus(label);
-              setSelectedCandidates([]);
-              setCurrentPage(1);
-            };
-
             return (
               <button
                 key={idx}
-                onClick={handleClick}
+                onClick={() => {
+                  setSelectedStatus(label);
+                  setSelectedCandidates([]);
+                  setCurrentPage(1);
+                }}
                 className={`${
                   isActive ? activeColor : "bg-gray-400 text-gray-600"
                 } p-2 rounded-md hover:${activeColor} flex items-center gap-2 font-normal transition-colors duration-300`}
@@ -400,11 +332,15 @@ const FindCV = () => {
             );
           })}
 
-          {/* Per Page Dropdown */}
           <div className="w-20">
             <Select
               value={String(limitPerPage)}
               onValueChange={(val) => {
+                const newLimit = Number(val);
+                const params = new URLSearchParams(searchParams.toString());
+                params.set("limit", newLimit.toString());
+                params.set("page", "1"); // Reset to first page
+                router.push(`/find-cv?${params.toString()}`);
                 setLimitPerPage(Number(val));
                 setSelectedCandidates([]);
                 setCurrentPage(1);
@@ -424,32 +360,25 @@ const FindCV = () => {
           </div>
         </div>
 
-        {/* === Second Row: Action Buttons aligned right === */}
-        <div className="w-full flex mb-6">
+        <div className="w-full flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
-            {/* Always show Select All */}
             <button
-              onClick={() => {
-                const allIds = paginatedCandidates.map(
-                  (candidate) => candidate.id
-                );
-                setSelectedCandidates(allIds);
-              }}
-              className="bg-blue-500 text-white hover:bg-blue-600 p-2 rounded-md flex items-center gap-2 transition-colors duration-300"
+              onClick={() =>
+                setSelectedCandidates(paginatedCandidates.map((c) => c.id))
+              }
+              className="bg-blue-500 text-white hover:bg-blue-600 p-2 rounded-md"
             >
               Select All
             </button>
 
-            {/* Conditionally render Cancel & Download */}
-            {selectedCandidates && selectedCandidates.length > 0 && (
+            {selectedCandidates.length > 0 && (
               <>
                 <button
                   onClick={() => setSelectedCandidates([])}
-                  className="bg-red-500 text-white hover:bg-red-600 p-2 rounded-md flex items-center gap-2 transition-colors duration-300"
+                  className="bg-red-500 text-white hover:bg-red-600 p-2 rounded-md"
                 >
                   Cancel
                 </button>
-
                 <button
                   onClick={downloadCandidateInfo}
                   disabled={downloading}
@@ -473,6 +402,8 @@ const FindCV = () => {
               </>
             )}
           </div>
+
+          <div className="flex text-xs">Downloads Left : {allowedResume}</div>
         </div>
 
         {loading ? (

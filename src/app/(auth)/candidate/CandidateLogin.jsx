@@ -45,7 +45,7 @@ const CandidateLogin = ({ closeModal }) => {
         localStorage.setItem("username", data.fullName);
         localStorage.setItem("phone", data.phone);
         localStorage.setItem("role", data.role);
-        closeModal();
+        // closeModal();
         router.push("/");
       }
     } catch (err) {

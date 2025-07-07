@@ -1,16 +1,15 @@
 "use client";
 
+import CityStateCountrySearchBar from "@/components/graphql-ui/CityStateCountrySearchBar";
+import { Input } from "@/components/ui/input";
 import { useSignupCandidateMutation } from "@/redux/api/candidateAuth";
 import { login as loginAction } from "@/redux/slices/authSlice";
 import { ErrorMessage, Field, Form, Formik } from "formik";
-import CityStateCountrySearchBar from "@/components/graphql-ui/CityStateCountrySearchBar";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
-import { useState } from "react";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 
 // Validation schema using Yup
 const validationSchema = Yup.object({
@@ -216,13 +215,15 @@ const CandidateRegister = ({ closeModal }) => {
                   Date of Birth
                 </label>
                 <Field name="dob">
-                  {({ field, form }) => (
-                    <DatePicker
-                      selected={field.value}
-                      onChange={(date) => setFieldValue("dob", date)}
-                      className="mt-1 p-2 border rounded-md"
-                      dateFormat="dd-MM-yyyy"
-                      placeholderText="Select your date of birth"
+                  {({ field }) => (
+                    <Input
+                      type="date"
+                      {...field}
+                      value={field.value || ""}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setFieldValue("dob", value || null);
+                      }}
                     />
                   )}
                 </Field>

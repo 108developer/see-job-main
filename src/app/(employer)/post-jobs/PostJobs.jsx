@@ -1,14 +1,25 @@
 "use client";
 
 import AddEditQuestionsModal from "@/app/(employer)/post-jobs/AddEditQuestionsModal";
-import JobRoleSearchBar from "@/components/graphql-ui/JobRole";
+import SEOModal from "@/app/modals/SEOModal";
+import DegreeSearchBar from "@/components/graphql-ui/HighestQualificationDegree";
 import JobTitleSearchBar from "@/components/graphql-ui/JobTitle";
 import LocationSearchBar from "@/components/graphql-ui/LocationSearchBar";
 import SkillDropdown from "@/components/graphql-ui/SkillsDropdown";
+import AccessDenied from "@/components/ui/AccessDenied ";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { usePostJobMutation } from "@/redux/api/jobApi";
 import { ErrorMessage, Field, Form, Formik } from "formik";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import "react-quill-new/dist/quill.snow.css";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import {
@@ -17,16 +28,17 @@ import {
   salaryOptions,
   validationSchema,
 } from "./constants/constant";
-import DegreeSearchBar from "@/components/graphql-ui/HighestQualificationDegree";
-import AccessDenied from "@/components/ui/AccessDenied ";
-import SEOModal from "@/app/modals/SEOModal";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
+const ReactQuill = dynamic(() => import("react-quill-new"), {
+  ssr: false,
+});
+
+const toolbarOptions = [
+  [{ header: [1, 2, 3, false] }],
+  ["bold", "italic", "underline", "strike", "blockquote"],
+  [{ list: "ordered" }, { list: "bullet" }],
+  ["link", "image"],
+];
 
 const RangeSelector = ({ label, options, onSelect, value, unit }) => {
   return (
@@ -62,6 +74,10 @@ const PostJob = () => {
   const { userid, token, role } = useSelector((state) => state.auth);
 
   const [isClient, setIsClient] = useState(false);
+
+  const [description, setDescription] = useState("");
+
+  const module = { toolbar: toolbarOptions };
 
   // useEffect(() => {
   //   if (token && role !== "employer" && role !== "recruiter") {
@@ -343,13 +359,18 @@ const PostJob = () => {
                   >
                     Job Description
                   </label>
-                  <Field
-                    as="textarea"
-                    name="jobDescription"
-                    className={inputClass}
-                    placeholder="Briefly describe job responsibilities, expectations, etc."
-                    rows={5}
-                  />
+                  <div className="flex flex-col h-36 w-full overflow-auto">
+                    <ReactQuill
+                      className="w-full"
+                      value={values.jobDescription}
+                      onChange={(content) =>
+                        setFieldValue("jobDescription", content)
+                      }
+                      modules={module}
+                      theme="snow"
+                      placeholder="Write your about here..."
+                    />
+                  </div>
                   <ErrorMessage
                     name="jobDescription"
                     component="div"

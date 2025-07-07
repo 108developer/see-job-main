@@ -111,26 +111,23 @@ const CandidateWorkExperience = ({ initialWorkExperience }) => {
               </div>
             </div>
 
-            <div className="flex flex-col md:flex-row items-center justify-between w-full">
-              {/* <div className="w-full">
-                <span className="font-semibold text-gray-700">Industry:</span>{" "}
-                {getValue(exp.industry)}
-              </div> */}
-              <div className="w-full">
-                <span className="font-semibold text-gray-700">
-                  Notice Period:
-                </span>{" "}
-                {getValue(exp.noticePeriod)}
+            {exp.noticePeriod && (
+              <div className="flex flex-col md:flex-row items-center justify-between w-full">
+                <div className="w-full">
+                  <span className="font-semibold text-gray-700">
+                    Notice Period:
+                  </span>{" "}
+                  {getValue(exp.noticePeriod)}
+                </div>
               </div>
-            </div>
+            )}
+
             <div>
               <span className="font-semibold text-gray-700">Location:</span>{" "}
               {getValue(exp.location)}
             </div>
             <div>
-              <span className="font-semibold text-gray-700">
-                Job Description:
-              </span>{" "}
+              <span className="font-semibold text-gray-700">Description:</span>{" "}
               {getValue(exp.jobDescription)}
             </div>
           </div>

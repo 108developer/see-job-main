@@ -1,53 +1,49 @@
-"use client";
-
+import CityStateCountrySearchBar from "@/components/graphql-ui/CityStateCountrySearchBar";
 import JobTitleSearchBar from "@/components/graphql-ui/JobTitle";
-import JobTypeSearchBar from "@/components/graphql-ui/JobType";
-import LocationSearchBar from "@/components/graphql-ui/LocationSearchBar";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useUpdateJobPreferencesMutation } from "@/redux/api/candidateAuth";
 import { ErrorMessage, Field, Form, Formik } from "formik";
-import moment from "moment";
 import { useState } from "react";
-import "react-datepicker/dist/react-datepicker.css";
 import { toast } from "react-toastify";
-// import { ExperienceDropdown } from "./ExperienceDropdown";
+
 import { validationJobPreference } from "./validationSchemas";
 
-const experienceOptions = Array.from({ length: 11 }, (_, i) => i);
-
-const formOptions = {
-  maritalStatus: [
-    { value: "Single", label: "Single" },
-    { value: "Married", label: "Married" },
-    { value: "Divorced", label: "Divorced" },
-    { value: "Widowed", label: "Widowed" },
-  ],
-  language: [
-    { value: "English", label: "English" },
-    { value: "Hindi", label: "Hindi" },
-    { value: "Spanish", label: "Spanish" },
-    { value: "French", label: "French" },
-    { value: "Other", label: "Other" },
-  ],
-};
+const GENDER = ["Male", "Female", "Other"];
+const JOB_TYPE = ["Full Time", "Part Time", "On-Site", "Hybrid", "Remote"];
+const LANGUAGES = ["English", "Hindi", "Spanish", "French", "Other"];
+const MARITAL_STATUS = ["Single", "Married", "Divorced", "Widowed"];
 
 const formatDate = (date) => {
   if (!date) return "";
-  return date.split("T")[0];
+  if (typeof date === "string") return date.split("T")[0];
+  // If it's a Date object
+  return date.toISOString().split("T")[0];
 };
 
 const CandidateJobPreferences = ({ initialJobPreference, closeModal }) => {
   const [updateJobPreferences, { isLoading }] =
     useUpdateJobPreferencesMutation();
-  // const [experienceYears, setExperienceYears] = useState("");
-  // const [experienceMonths, setExperienceMonths] = useState("");
+
+  // Sync selectedJobTypes and selectedLanguages from initialJobPreference on mount
+  const [selectedJobTypes, setSelectedJobTypes] = useState(
+    initialJobPreference.jobType || []
+  );
+  const [selectedLanguages, setSelectedLanguages] = useState(
+    initialJobPreference.language || []
+  );
+  const [preferredJobLocation, setPreferredJobLocation] = useState(
+    initialJobPreference.preferredJobLocation || []
+  );
   const [jobTitle, setJobTitle] = useState(
     initialJobPreference.profileTitle || ""
   );
-  const [jobType, setJobType] = useState(initialJobPreference.jobType || "");
   const [locationSearch, setLocationSearch] = useState("");
-  const [preferredJobLocation, setPreferredJobLocation] = useState(
-    initialJobPreference?.preferredJobLocation || []
-  );
 
   const { userid, token } = initialJobPreference;
   const userId = userid?.userid;
@@ -55,44 +51,67 @@ const CandidateJobPreferences = ({ initialJobPreference, closeModal }) => {
 
   if (!userId) {
     toast.error("User ID is missing");
-    return;
+    return null;
   }
 
+  // Add item to multiselect (jobType, language)
+  const addToMultiSelect = (
+    item,
+    selectedList,
+    setSelectedList,
+    setFieldValue,
+    fieldName
+  ) => {
+    if (!selectedList.includes(item)) {
+      const updated = [...selectedList, item];
+      setSelectedList(updated);
+      setFieldValue(fieldName, updated);
+    }
+  };
+
+  // Remove item from multiselect
+  const removeFromMultiSelect = (
+    item,
+    selectedList,
+    setSelectedList,
+    setFieldValue,
+    fieldName
+  ) => {
+    const updated = selectedList.filter((i) => i !== item);
+    setSelectedList(updated);
+    setFieldValue(fieldName, updated);
+  };
+
+  // Handle preferred job location selection
   const handleLocationSelect = (selectedLocation, setFieldValue) => {
     if (preferredJobLocation.length < 10) {
-      setPreferredJobLocation((prevLocations) => {
-        const newLocations = [...prevLocations, selectedLocation.fullAddress];
-        setTimeout(() => {
-          setFieldValue("preferredJobLocation", newLocations);
-        }, 0);
-        return newLocations;
-      });
+      const newLocations = [
+        ...preferredJobLocation,
+        selectedLocation.fullAddress,
+      ];
+      setPreferredJobLocation(newLocations);
+      setFieldValue("preferredJobLocation", newLocations);
       setLocationSearch("");
     } else {
       toast.error("You can only select up to 10 locations.");
     }
   };
 
+  // Remove a selected location
   const handleRemoveLocation = (location, setFieldValue) => {
-    setPreferredJobLocation((prevLocations) => {
-      const updatedLocations = prevLocations.filter(
-        (item) => item !== location
-      );
-      setTimeout(() => {
-        setFieldValue("preferredJobLocation", updatedLocations);
-      }, 0);
-      return updatedLocations;
-    });
-    setLocationSearch("");
+    const updatedLocations = preferredJobLocation.filter(
+      (loc) => loc !== location
+    );
+    setPreferredJobLocation(updatedLocations);
+    setFieldValue("preferredJobLocation", updatedLocations);
   };
 
+  // Submit handler
   const handleSubmit = async (values, { resetForm }) => {
     const body = {
       profileTitle: values.profileTitle,
       jobType: values.jobType,
       preferredJobLocation: values.preferredJobLocation,
-      // experienceYears: experienceYears,
-      // experienceMonths: experienceMonths,
       gender: values.gender,
       dob: formatDate(values.dob),
       maritalStatus: values.maritalStatus,
@@ -112,6 +131,7 @@ const CandidateJobPreferences = ({ initialJobPreference, closeModal }) => {
         toast.success(response.message);
         resetForm();
         closeModal();
+        window.location.reload();
       } else {
         toast.error(response.message || "Update failed. Please try again.");
       }
@@ -125,11 +145,15 @@ const CandidateJobPreferences = ({ initialJobPreference, closeModal }) => {
       initialValues={{
         ...initialJobPreference,
         dob: formatDate(initialJobPreference.dob),
+        jobType: initialJobPreference.jobType || [],
+        language: initialJobPreference.language || [],
+        preferredJobLocation: initialJobPreference.preferredJobLocation || [],
       }}
       validationSchema={validationJobPreference}
       onSubmit={handleSubmit}
+      enableReinitialize
     >
-      {({ setFieldValue }) => (
+      {({ setFieldValue, values }) => (
         <Form className="space-y-6 w-full">
           {/* Profile Title */}
           <div>
@@ -138,7 +162,7 @@ const CandidateJobPreferences = ({ initialJobPreference, closeModal }) => {
             </label>
             <JobTitleSearchBar
               searchTerm={jobTitle}
-              onSearchChange={(value) => setJobTitle(value)}
+              onSearchChange={setJobTitle}
               setFieldValue={setFieldValue}
               onJobTitleSelect={(selectedJobTitle) => {
                 setJobTitle(selectedJobTitle.label);
@@ -154,18 +178,66 @@ const CandidateJobPreferences = ({ initialJobPreference, closeModal }) => {
 
           {/* Job Type */}
           <div>
-            <label htmlFor="jobType" className="block text-sm font-medium">
-              Job Type
-            </label>
-            <JobTypeSearchBar
-              searchTerm={jobType}
-              onSearchChange={(value) => setJobType(value)}
-              setFieldValue={setFieldValue}
-              onJobTypeSelect={(selectedJobType) => {
-                setJobType(selectedJobType.label);
-                setFieldValue("jobType", selectedJobType.label);
-              }}
-            />
+            <label className="block text-sm font-medium">Job Type</label>
+            <Select
+              onValueChange={(val) =>
+                addToMultiSelect(
+                  val,
+                  selectedJobTypes,
+                  setSelectedJobTypes,
+                  setFieldValue,
+                  "jobType"
+                )
+              }
+            >
+              <SelectTrigger className="w-full p-3 border rounded-md text-sm">
+                <SelectValue placeholder="Select Job Type">
+                  {selectedJobTypes.length === 0
+                    ? "Select Job Type"
+                    : selectedJobTypes.length === JOB_TYPE.length
+                    ? "All selected"
+                    : "Select more"}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {JOB_TYPE.map((type) => (
+                  <SelectItem
+                    key={type}
+                    value={type}
+                    disabled={selectedJobTypes.includes(type)}
+                  >
+                    {type}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* Selected Job Types as chips */}
+            <div className="flex flex-wrap gap-2 mt-2">
+              {selectedJobTypes.map((type) => (
+                <span
+                  key={type}
+                  className="flex items-center gap-1 bg-blue-100 text-blue-700 px-2 py-1 rounded"
+                >
+                  {type}
+                  <button
+                    type="button"
+                    className="text-red-600"
+                    onClick={() =>
+                      removeFromMultiSelect(
+                        type,
+                        selectedJobTypes,
+                        setSelectedJobTypes,
+                        setFieldValue,
+                        "jobType"
+                      )
+                    }
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
             <ErrorMessage
               name="jobType"
               component="div"
@@ -178,12 +250,12 @@ const CandidateJobPreferences = ({ initialJobPreference, closeModal }) => {
             <label htmlFor="location" className="block text-sm font-medium">
               Preferred Job Location
             </label>
-            <LocationSearchBar
+            <CityStateCountrySearchBar
               searchTerm={locationSearch}
-              onSearchChange={(value) => setLocationSearch(value)}
+              onSearchChange={setLocationSearch}
               setFieldValue={setFieldValue}
-              onLocationSelect={(selectedLocation) =>
-                handleLocationSelect(selectedLocation, setFieldValue)
+              onLocationSelect={(loc) =>
+                handleLocationSelect(loc, setFieldValue)
               }
               fieldName="preferredJobLocation"
             />
@@ -194,20 +266,20 @@ const CandidateJobPreferences = ({ initialJobPreference, closeModal }) => {
             />
           </div>
 
-          {/* Display selected locations with a cross sign */}
+          {/* Display selected locations */}
           <div className="flex flex-wrap gap-2">
-            {preferredJobLocation.map((location, index) => (
+            {preferredJobLocation.map((loc) => (
               <div
-                key={index}
+                key={loc}
                 className="flex items-center space-x-2 bg-gray-200 p-2 rounded-md"
               >
-                <span>{location}</span>
+                <span>{loc}</span>
                 <button
                   type="button"
-                  onClick={() => handleRemoveLocation(location, setFieldValue)}
+                  onClick={() => handleRemoveLocation(loc, setFieldValue)}
                   className="text-red-500"
                 >
-                  <span className="text-xl">×</span>
+                  ×
                 </button>
               </div>
             ))}
@@ -257,70 +329,21 @@ const CandidateJobPreferences = ({ initialJobPreference, closeModal }) => {
             />
           </div>
 
-          {/* Experience */}
-          {/* <div className="block text-sm font-medium">
-            <h1> Experience (in years)</h1>
-
-            <div className="flex items-center gap-8 justify-between flex-col lg:flex-row">
-              <ExperienceDropdown
-                label="Min"
-                id="experienceYears"
-                value={experienceYears}
-                setValue={(val) => {
-                  setExperienceYears(val);
-                  setFieldValue("experienceYears", val);
-                }}
-                options={experienceOptions.filter(
-                  (opt) => opt <= (experienceMonths || 10)
-                )}
-              />
-
-              <ExperienceDropdown
-                label="Max"
-                id="experienceMonths"
-                value={experienceMonths}
-                setValue={(val) => {
-                  setExperienceMonths(val);
-                  setFieldValue("experienceMonths", val);
-                }}
-                options={experienceOptions.filter(
-                  (opt) => opt >= (experienceYears || 0)
-                )}
-              />
-            </div>
-          </div> */}
-
           {/* Gender */}
           <div>
             <label className="block text-sm font-medium">Gender</label>
             <div className="space-x-4">
-              <label>
-                <Field
-                  type="radio"
-                  name="gender"
-                  value="Male"
-                  className="mr-2"
-                />
-                Male
-              </label>
-              <label>
-                <Field
-                  type="radio"
-                  name="gender"
-                  value="Female"
-                  className="mr-2"
-                />
-                Female
-              </label>
-              <label>
-                <Field
-                  type="radio"
-                  name="gender"
-                  value="other"
-                  className="mr-2"
-                />
-                Other
-              </label>
+              {GENDER.map((g) => (
+                <label key={g}>
+                  <Field
+                    type="radio"
+                    name="gender"
+                    value={g}
+                    className="mr-2"
+                  />
+                  {g.charAt(0).toUpperCase() + g.slice(1)}
+                </label>
+              ))}
             </div>
             <ErrorMessage
               name="gender"
@@ -336,14 +359,10 @@ const CandidateJobPreferences = ({ initialJobPreference, closeModal }) => {
             </label>
             <Field
               type="date"
+              id="dob"
               name="dob"
-              onChange={(e) => {
-                const selectedDate = e.target.value;
-                setFieldValue("dob", selectedDate);
-              }}
               className="mt-1 p-3 w-full border rounded-md"
             />
-
             <ErrorMessage
               name="dob"
               component="div"
@@ -353,25 +372,24 @@ const CandidateJobPreferences = ({ initialJobPreference, closeModal }) => {
 
           {/* Marital Status */}
           <div>
-            <label
-              htmlFor="maritalStatus"
-              className="block text-sm font-medium"
-            >
+            <label htmlFor="maritalStatus" className="text-sm font-medium">
               Marital Status
             </label>
-            <Field
-              as="select"
-              id="maritalStatus"
-              name="maritalStatus"
-              className="mt-1 p-3 w-full border rounded-md"
+            <Select
+              value={values.maritalStatus}
+              onValueChange={(val) => setFieldValue("maritalStatus", val)}
             >
-              <option value="">Select Marital Status</option>
-              {formOptions.maritalStatus.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </Field>
+              <SelectTrigger className="w-full p-3 border rounded-md text-sm">
+                <SelectValue placeholder="Select Marital Status" />
+              </SelectTrigger>
+              <SelectContent>
+                {MARITAL_STATUS.map((status) => (
+                  <SelectItem key={status} value={status}>
+                    {status}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <ErrorMessage
               name="maritalStatus"
               component="div"
@@ -381,22 +399,66 @@ const CandidateJobPreferences = ({ initialJobPreference, closeModal }) => {
 
           {/* Language */}
           <div>
-            <label htmlFor="language" className="block text-sm font-medium">
-              Language
-            </label>
-            <Field
-              as="select"
-              id="language"
-              name="language"
-              className="mt-1 p-3 w-full border rounded-md"
+            <label className="block text-sm font-medium">Language</label>
+            <Select
+              onValueChange={(val) =>
+                addToMultiSelect(
+                  val,
+                  selectedLanguages,
+                  setSelectedLanguages,
+                  setFieldValue,
+                  "language"
+                )
+              }
             >
-              <option value="">Select Language</option>
-              {formOptions.language.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
+              <SelectTrigger className="w-full p-3 border rounded-md text-sm">
+                <SelectValue placeholder="Select Language">
+                  {selectedLanguages.length === 0
+                    ? "Select Language"
+                    : selectedLanguages.length === LANGUAGES.length
+                    ? "All selected"
+                    : "Select more"}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {LANGUAGES.map((lang) => (
+                  <SelectItem
+                    key={lang}
+                    value={lang}
+                    disabled={selectedLanguages.includes(lang)}
+                  >
+                    {lang}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* Selected languages as chips */}
+            <div className="flex flex-wrap gap-2 mt-2">
+              {selectedLanguages.map((lang) => (
+                <span
+                  key={lang}
+                  className="flex items-center gap-1 bg-green-100 text-green-700 px-2 py-1 rounded"
+                >
+                  {lang}
+                  <button
+                    type="button"
+                    className="text-red-600"
+                    onClick={() =>
+                      removeFromMultiSelect(
+                        lang,
+                        selectedLanguages,
+                        setSelectedLanguages,
+                        setFieldValue,
+                        "language"
+                      )
+                    }
+                  >
+                    ×
+                  </button>
+                </span>
               ))}
-            </Field>
+            </div>
             <ErrorMessage
               name="language"
               component="div"
@@ -404,7 +466,7 @@ const CandidateJobPreferences = ({ initialJobPreference, closeModal }) => {
             />
           </div>
 
-          {/* Submit and Cancel Button */}
+          {/* Submit and Cancel Buttons */}
           <div className="flex flex-col md:flex-row w-full items-center justify-between gap-4">
             <button
               type="button"

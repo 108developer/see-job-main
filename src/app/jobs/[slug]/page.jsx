@@ -32,22 +32,23 @@ export async function generateMetadata(context) {
 
   const {
     jobTitle,
-    city,
-    state,
-    country,
-    hiringForCompanies,
+    jobLocation,
+    companyName,
     jobDescription,
     url,
     createdAt,
     jobType,
   } = job;
 
-  const title = `${jobTitle} at ${hiringForCompanies} in ${city}, ${state} | Joblisting`;
-  const description = `Apply for the role of ${jobTitle} at ${hiringForCompanies}, located in ${city}, ${state}, ${country}. ${jobDescription}`;
+  const location = jobLocation || "Unknown location";
+  const hiringCompany = companyName || "Unknown company";
+
+  const title = `${jobTitle} at ${hiringCompany} in ${location} | Joblisting`;
+  const description = `Apply for the role of ${jobTitle} at ${hiringCompany}, located in ${location}. ${jobDescription}`;
   const keywords = [
     jobTitle,
-    hiringForCompanies,
-    city,
+    hiringCompany,
+    location,
     "Remote Jobs",
     "Software Engineer Jobs",
   ].join(", ");
@@ -66,7 +67,7 @@ export async function generateMetadata(context) {
       type: "website",
       images: [
         {
-          url: "https://yourdomain.com/default-job-image.jpg", // Replace with dynamic if available
+          url: "https://yourdomain.com/default-job-image.jpg",
         },
       ],
     },
@@ -86,16 +87,14 @@ export async function generateMetadata(context) {
         employmentType: jobType.join(", "),
         hiringOrganization: {
           "@type": "Organization",
-          name: hiringForCompanies,
+          name: hiringCompany,
           sameAs: "https://yourdomain.com",
         },
         jobLocation: {
           "@type": "Place",
           address: {
             "@type": "PostalAddress",
-            addressLocality: city,
-            addressRegion: state,
-            addressCountry: country,
+            addressLocality: location,
           },
         },
       }),

@@ -278,26 +278,26 @@ export default function RecruiterTable({
         );
       },
     },
-    {
-      id: "actions",
-      header: "Actions",
-      cell: () => (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm">
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuCheckboxItem>Verify</DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem>Suspend</DropdownMenuCheckboxItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ),
-      enableSorting: false,
-      enableHiding: false,
-      size: 80,
-    },
+    // {
+    //   id: "actions",
+    //   header: "Actions",
+    //   cell: () => (
+    //     <DropdownMenu>
+    //       <DropdownMenuTrigger asChild>
+    //         <Button variant="outline" size="sm">
+    //           <MoreHorizontal className="h-4 w-4" />
+    //         </Button>
+    //       </DropdownMenuTrigger>
+    //       <DropdownMenuContent align="end">
+    //         <DropdownMenuCheckboxItem>Verify</DropdownMenuCheckboxItem>
+    //         <DropdownMenuCheckboxItem>Suspend</DropdownMenuCheckboxItem>
+    //       </DropdownMenuContent>
+    //     </DropdownMenu>
+    //   ),
+    //   enableSorting: false,
+    //   enableHiding: false,
+    //   size: 80,
+    // },
   ];
 
   const table = useReactTable({

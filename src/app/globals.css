@@ -92,7 +92,36 @@ body {
   body {
     @apply bg-background text-foreground;
     /* Apply background and text color */
-    font-family: 'Courier New', Courier, monospace;
+    font-family: "Courier New", Courier, monospace;
     /* Apply monospace font */
   }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+.job-description {
+  line-height: 1.4; /* tighter line spacing */
+  margin: 0;
+}
+
+.job-description p {
+  margin: 0; /* remove default <p> margins */
+}
+
+.job-description br {
+  content: "";
+  margin: 0;
+  padding: 0;
+  line-height: 1.4;
+}
+
+.line-clamp-4 {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }

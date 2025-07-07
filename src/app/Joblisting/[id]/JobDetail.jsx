@@ -2,7 +2,6 @@
 
 import { Loader } from "@/components/ui/loader";
 import { useGetJobByIdQuery } from "@/redux/api/jobApi";
-import { formatTime } from "@/utils/formatTime";
 import { getTimeSincePosted } from "@/utils/getTimeSincePosted";
 import {
   Banknote,
@@ -15,8 +14,6 @@ import {
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import JobApply from "../JobApply";
-
-import { useMemo } from "react";
 
 const JobDetail = ({}) => {
   const searchParams = useParams();
@@ -130,7 +127,10 @@ const JobDetail = ({}) => {
       {/* Job Description Card */}
       <div className="bg-white shadow-md rounded-lg p-6">
         <h6 className="text-lg font-semibold mb-3">Job description</h6>
-        <p className="flex text-sm">{job.jobDescription}</p>
+        <div
+          className="job-description"
+          dangerouslySetInnerHTML={{ __html: job.jobDescription }}
+        />
 
         <div className="mt-6">
           <h6 className="text-sm text-gray-500 mb-1">Role</h6>

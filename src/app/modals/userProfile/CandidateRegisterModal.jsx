@@ -1,22 +1,28 @@
 "use client";
 
-import IndustrySelectDropDown from "@/components/graphql-ui/IndustrySelectDropDown";
 import LocationSearchBar from "@/components/graphql-ui/LocationSearchBar";
 import SkillDropdown from "@/components/graphql-ui/SkillsDropdown";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useUpdateRegisteredCandidateMutation } from "@/redux/api/candidateAuth";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import { ExperienceDropdown } from "./ExperienceDropdown";
 import { validationRegisterForm } from "./validationSchemas";
 
-const experienceOptions = Array.from({ length: 11 }, (_, i) => i);
+const yearOptions = Array.from({ length: 16 }, (_, i) => i.toString());
+const monthOptions = Array.from({ length: 12 }, (_, i) => i.toString());
 
 const CandidateRegisterModal = ({ initialRegisterForm, closeModal }) => {
   const [location, setLocation] = useState(initialRegisterForm.location || "");
   // const [industry, setIndustry] = useState(initialRegisterForm.industry || "");
-  const [minExp, setMinExp] = useState(initialRegisterForm.minexp || "");
-  const [maxExp, setMaxExp] = useState(initialRegisterForm.maxexp || "");
+  const [monthExp, setMonthExp] = useState(initialRegisterForm.monthExp || 0);
+  const [yearExp, setYearExp] = useState(initialRegisterForm.yearExp || 0);
 
   const [skillSet, setSkillSet] = useState("");
 
@@ -54,15 +60,14 @@ const CandidateRegisterModal = ({ initialRegisterForm, closeModal }) => {
       email: values.email,
       phone: values.phone,
       location: values.location,
-      minexp: values.minexp,
-      maxexp: values.maxexp,
+      yearExp: values.yearExp,
+      monthExp: values.monthExp,
       skills: skillsArray,
       // industry: values.industry,
       jobDescription: values.jobDescription,
     };
 
     try {
-      console.log("BODY: ", body);
       const response = await updateRegisteredCandidate({
         userid: userId,
         token: authToken,
@@ -73,6 +78,7 @@ const CandidateRegisterModal = ({ initialRegisterForm, closeModal }) => {
         toast.success(response.message);
         resetForm();
         closeModal();
+        window.location.reload();
       } else {
         toast.error(response.message || "Update failed. Please try again.");
       }
@@ -160,6 +166,58 @@ const CandidateRegisterModal = ({ initialRegisterForm, closeModal }) => {
             />
           </div>
 
+          {/* Experience */}
+          <div className="w-full gap-2">
+            <label className=" text-sm font-semibold mb-2">Experience</label>
+            <div className="flex flex-col sm:flex-row gap-4 mt-1">
+              {/* Years Select */}
+              <div className="w-full sm:w-1/2">
+                <Select
+                  value={yearExp.toString()}
+                  onValueChange={(val) => {
+                    const year = parseInt(val);
+                    setYearExp(year);
+                    setFieldValue("yearExp", year);
+                  }}
+                >
+                  <SelectTrigger className="w-full p-3 border rounded-md text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <SelectValue placeholder="Years" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {yearOptions.map((year) => (
+                      <SelectItem key={year} value={year}>
+                        {year} year
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Months Select */}
+              <div className="w-full sm:w-1/2">
+                <Select
+                  value={monthExp.toString()}
+                  onValueChange={(val) => {
+                    const month = parseInt(val);
+                    setMonthExp(month);
+                    setFieldValue("monthExp", month);
+                  }}
+                >
+                  <SelectTrigger className="w-full p-3 border rounded-md text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <SelectValue placeholder="Months" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {monthOptions.map((month) => (
+                      <SelectItem key={month} value={month}>
+                        {month} month
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+
           {/* Current Location */}
           <div>
             <label htmlFor="location" className=" text-sm font-semibold">
@@ -180,37 +238,6 @@ const CandidateRegisterModal = ({ initialRegisterForm, closeModal }) => {
               component="div"
               className="text-red-500 text-sm mt-1"
             />
-          </div>
-
-          {/* Experience */}
-          <div className=" text-sm font-medium">
-            <h1>Experience (in years)</h1>
-            <div className="flex items-center gap-8 justify-between flex-col lg:flex-row">
-              <ExperienceDropdown
-                label="Min"
-                id="minexp"
-                value={minExp}
-                setValue={(val) => {
-                  setMinExp(val);
-                  setFieldValue("minexp", val);
-                }}
-                options={experienceOptions.filter(
-                  (opt) => opt <= (maxExp || 10)
-                )}
-              />
-              <ExperienceDropdown
-                label="Max"
-                id="maxexp"
-                value={maxExp}
-                setValue={(val) => {
-                  setMaxExp(val);
-                  setFieldValue("maxexp", val);
-                }}
-                options={experienceOptions.filter(
-                  (opt) => opt >= (minExp || 0)
-                )}
-              />
-            </div>
           </div>
 
           {/* Key Skills */}
@@ -273,7 +300,7 @@ const CandidateRegisterModal = ({ initialRegisterForm, closeModal }) => {
               id="jobDescription"
               name="jobDescription"
               className="mt-1 p-3 w-full border rounded-md"
-              placeholder="Job Description"
+              placeholder="Summary"
             />
             <ErrorMessage
               name="jobDescription"

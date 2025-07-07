@@ -1,3 +1,4 @@
+import JobApply from "@/app/Joblisting/JobApply";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -7,13 +8,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Banknote, CheckCircle, Clock, MapPin, StickyNote } from "lucide-react";
-import { useState } from "react";
-
-// import JobApply from "@/app/joblisting/JobApply";
+import DOMPurify from "dompurify";
+import {
+  Banknote,
+  CheckCircle,
+  Clock,
+  Edit2,
+  Edit3Icon,
+  MapPin,
+  StickyNote,
+} from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 import { useSelector } from "react-redux";
-import JobApply from "@/app/Joblisting/JobApply";
 
 function formatDate(dateString) {
   const date = new Date(dateString);
@@ -44,25 +51,47 @@ export default function PostedJobCard({ job, applyUrl } = { applyUrl: "#" }) {
   return (
     <Card className="w-full rounded-md ">
       <CardHeader className="flex flex-col md:flex-row items-start justify-between space-y-0 gap-2">
-        <CardTitle className="text-3xl">{job.jobTitle}</CardTitle>
-        <Link
-          href={{
-            pathname: "/job-applications",
-            query: {
-              jobId: job._id,
-            },
-          }}
-        >
-          <Button variant="destructive" size="sm" asChild>
-            <span className="text-white no-underline">View Applications</span>
-          </Button>
+        <Link href={`/jobs/${job.url}`}>
+          <CardTitle className="text-3xl">{job.jobTitle}</CardTitle>
         </Link>
+        <div className="flex gap-2">
+          <Link href={`/jobs/edit/${job._id}`}>
+            <Button variant="outline" size="sm" asChild>
+              <span className="flex items-center gap-1">
+                <Edit2 className="h-4 w-4" /> Edit
+              </span>
+            </Button>
+          </Link>
+          <Link
+            href={{
+              pathname: "/job-applications",
+              query: {
+                jobId: job._id,
+              },
+            }}
+          >
+            <Button variant="destructive" size="sm" asChild>
+              <span className="text-white no-underline">View Applications</span>
+            </Button>
+          </Link>
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-muted-foreground">{job.companyName}</p>
         <div className="flex items-start space-x-2">
           <StickyNote className="h-4 w-4 mt-1 text-muted-foreground" />
-          <p className="text-sm">{job.jobDescription}</p>
+
+          <div className="flex flex-col md:flex-row items-end md:justify-between w-full">
+            <div
+              className="job-description line-clamp-4 w-full"
+              dangerouslySetInnerHTML={{ __html: job.jobDescription }}
+            />
+            <Link href={`/jobs/${job.url}`}>
+              <span className="text-blue-600 underline cursor-pointer whitespace-nowrap flex items-end text-xs mt-auto">
+                Read More
+              </span>
+            </Link>
+          </div>
         </div>
         <div className="flex flex-wrap gap-2">
           <Badge variant="secondary" className="flex items-center">
