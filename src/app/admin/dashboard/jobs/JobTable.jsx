@@ -20,30 +20,55 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { ChevronDown, MoreHorizontal } from "lucide-react";
-import { useState } from "react";
+import React, { useMemo, useState } from "react";
 
-export default function JobTable({ data }) {
+export default function JobTable({ data, sortBy, sortOrder, onSortChange }) {
   const [columnVisibility, setColumnVisibility] = useState({});
   const [rowSelection, setRowSelection] = useState({});
 
-  const flattenedData = data.map((item) => ({
-    id: item.id,
-    jobTitle: item.jobTitle || "N/A",
-    jobLocation: item.jobLocation || "N/A",
-    deadline: item.deadline
-      ? new Date(item.deadline).toLocaleDateString()
-      : "N/A",
-    fullName:
-      `${item.employer.firstName || ""} ${
-        item.employer.lastName || ""
-      }`.trim() || "N/A",
-    employerEmail: item.employer.email || "N/A",
-    companyEmail: item.company.companyEmail || "N/A",
-    employerPhone: item.employer.mobileNumber || "N/A",
-    companyPhone: item.company.companyPhone || "N/A",
-    companyName: item.company.companyName || "N/A",
-    companyWebsite: item.company.companyWebsite || "N/A",
-  }));
+  // const flattenedData = data.map((item) => ({
+  //   id: item.id,
+  //   jobTitle: item.jobTitle || "N/A",
+  //   jobLocation: item.jobLocation || "N/A",
+  //   deadline: item.deadline
+  //     ? new Date(item.deadline).toLocaleDateString()
+  //     : "N/A",
+  //   fullName:
+  //     `${item.employer?.firstName || ""} ${
+  //       item.employer?.lastName || ""
+  //     }`.trim() || "N/A",
+  //   employerEmail: item.employer?.email || "N/A",
+  //   companyEmail: item.company?.companyEmail || "N/A",
+  //   employerPhone: item.employer?.mobileNumber || "N/A",
+  //   companyPhone: item.company?.companyPhone || "N/A",
+  //   companyName: item.company?.companyName || "N/A",
+  //   companyWebsite: item.company?.companyWebsite || "N/A",
+  //   createdAt: item.createdAt || null,
+  //   url: item.url || "#",
+  // }));
+
+  const flattenedData = useMemo(() => {
+    return data?.map((item) => ({
+      id: item.id,
+      jobTitle: item.jobTitle || "-",
+      jobLocation: item.jobLocation || "-",
+      deadline: item.deadline
+        ? new Date(item.deadline).toLocaleDateString()
+        : "-",
+      fullName:
+        `${item.employer?.firstName || ""} ${
+          item.employer?.lastName || ""
+        }`.trim() || "-",
+      employerEmail: item.employer?.email || "-",
+      companyEmail: item.company?.companyEmail || "-",
+      employerPhone: item.employer?.mobileNumber || "-",
+      companyPhone: item.company?.companyPhone || "-",
+      companyName: item.company?.companyName || "-",
+      companyWebsite: item.company?.companyWebsite || "-",
+      createdAt: item.createdAt || null,
+      url: item.url || "#",
+    }));
+  }, [data]);
 
   const columns = [
     {
@@ -65,20 +90,35 @@ export default function JobTable({ data }) {
     },
     {
       accessorKey: "jobTitle",
-      header: "Job Title",
-      cell: ({ row }) => <div>{row.getValue("jobTitle")}</div>,
+      header: () => (
+        <div
+          className="flex items-center cursor-pointer select-none"
+          onClick={() => onSortChange("jobTitle")}
+        >
+          Job Title
+          <SortIcon direction={sortBy === "jobTitle" ? sortOrder : null} />
+        </div>
+      ),
+      cell: ({ row }) => <div>{row.getValue("jobTitle") || "-"}</div>,
     },
     {
       accessorKey: "jobLocation",
-      header: "Location",
-      cell: ({ row }) => <div>{row.getValue("jobLocation")}</div>,
+      header: () => (
+        <div
+          className="flex items-center cursor-pointer select-none"
+          onClick={() => onSortChange("jobLocation")}
+        >
+          Location
+          <SortIcon direction={sortBy === "jobLocation" ? sortOrder : null} />
+        </div>
+      ),
+      cell: ({ row }) => <div>{row.getValue("jobLocation") || "-"}</div>,
     },
     {
       accessorKey: "deadline",
       header: "Deadline",
       cell: ({ row }) => <div>{row.getValue("deadline")}</div>,
     },
-
     {
       accessorKey: "fullName",
       header: "Employer Name",
@@ -86,59 +126,128 @@ export default function JobTable({ data }) {
     },
     {
       accessorKey: "employerEmail",
-      header: "Employer Email",
-      cell: ({ row }) => <div>{row.getValue("employerEmail")}</div>,
+      header: () => (
+        <div
+          className="flex items-center cursor-pointer select-none"
+          onClick={() => onSortChange("employerEmail")}
+        >
+          Employer Email
+          <SortIcon direction={sortBy === "employerEmail" ? sortOrder : null} />
+        </div>
+      ),
+      cell: ({ row }) => <div>{row.getValue("employerEmail") || "-"}</div>,
     },
     {
       accessorKey: "employerPhone",
-      header: "Employer Phone",
-      cell: ({ row }) => <div>{row.getValue("employerPhone")}</div>,
+      header: () => (
+        <div
+          className="flex items-center cursor-pointer select-none"
+          onClick={() => onSortChange("employerPhone")}
+        >
+          Employer Phone
+          <SortIcon direction={sortBy === "employerPhone" ? sortOrder : null} />
+        </div>
+      ),
+      cell: ({ row }) => <div>{row.getValue("employerPhone") || "-"}</div>,
     },
-
     {
       accessorKey: "companyName",
-      header: "Company",
-      cell: ({ row }) => <div>{row.getValue("companyName")}</div>,
+      header: () => (
+        <div
+          className="flex items-center cursor-pointer select-none"
+          onClick={() => onSortChange("companyName")}
+        >
+          Company
+          <SortIcon direction={sortBy === "companyName" ? sortOrder : null} />
+        </div>
+      ),
+      cell: ({ row }) => <div>{row.getValue("companyName") || "-"}</div>,
     },
     {
       accessorKey: "companyEmail",
-      header: "Company Email",
-      cell: ({ row }) => <div>{row.getValue("companyEmail")}</div>,
+      header: () => (
+        <div
+          className="flex items-center cursor-pointer select-none"
+          onClick={() => onSortChange("companyEmail")}
+        >
+          Company Email
+          <SortIcon direction={sortBy === "companyEmail" ? sortOrder : null} />
+        </div>
+      ),
+      cell: ({ row }) => <div>{row.getValue("companyEmail") || "-"}</div>,
     },
     {
       accessorKey: "companyPhone",
-      header: "Company Phone",
-      cell: ({ row }) => <div>{row.getValue("companyPhone")}</div>, 
-    },
-    {
-      accessorKey: "companyWebsite",
-      header: "Company Website",
-      cell: ({ row }) => (
-        <a
-          href={row.getValue("companyWebsite")}
-          target="_blank"
-          rel="noopener noreferrer"
+      header: () => (
+        <div
+          className="flex items-center cursor-pointer select-none"
+          onClick={() => onSortChange("companyPhone")}
         >
-          {row.getValue("companyWebsite")}
-        </a>
+          Company Phone
+          <SortIcon direction={sortBy === "companyPhone" ? sortOrder : null} />
+        </div>
       ),
+      cell: ({ row }) => <div>{row.getValue("companyPhone") || "-"}</div>,
+    },
+    // {
+    //   accessorKey: "companyWebsite",
+    //   header: "Company Website",
+    //   cell: ({ row }) => (
+    //     <a
+    //       href={row.getValue("companyWebsite")}
+    //       target="_blank"
+    //       rel="noopener noreferrer"
+    //       className="text-blue-600 hover:underline"
+    //     >
+    //       {row.getValue("companyWebsite")}
+    //     </a>
+    //   ),
+    // },
+    {
+      accessorKey: "createdAt",
+      header: () => (
+        <div
+          className="flex items-center cursor-pointer select-none"
+          onClick={() => onSortChange("createdAt")}
+        >
+          Created
+          <SortIcon direction={sortBy === "createdAt" ? sortOrder : null} />
+        </div>
+      ),
+      cell: ({ row }) =>
+        row.getValue("createdAt") ? (
+          <div>
+            {new Date(row.getValue("createdAt")).toLocaleString(undefined, {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </div>
+        ) : (
+          "-"
+        ),
     },
     {
       id: "actions",
       header: "Actions",
-      cell: () => (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm">
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuCheckboxItem>Verify</DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem>Suspend</DropdownMenuCheckboxItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ),
+      cell: ({ row }) => {
+        const url = row.original.url || "#";
+        return (
+          <a
+            href={`/jobs/${url}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:underline cursor-pointer border rounded-md p-1 flex justify-center bg-white"
+          >
+            View Job Detail
+          </a>
+        );
+      },
+      enableSorting: false,
+      enableHiding: false,
+      size: 80,
     },
   ];
 
@@ -152,6 +261,7 @@ export default function JobTable({ data }) {
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
+    manualSorting: true, // disables internal sorting
   });
 
   return (
@@ -220,4 +330,17 @@ export default function JobTable({ data }) {
       </div>
     </div>
   );
+}
+
+function SortIcon({ direction }) {
+  if (!direction) {
+    return <ChevronDown className="ml-1 h-3 w-3 rotate-180 opacity-50" />;
+  }
+  if (direction === "asc") {
+    return <ChevronDown className="ml-1 h-3 w-3 rotate-180" />;
+  }
+  if (direction === "desc") {
+    return <ChevronDown className="ml-1 h-3 w-3" />;
+  }
+  return null;
 }

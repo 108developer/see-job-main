@@ -256,8 +256,8 @@ const CandidateProfile = () => {
             email: data?.registration?.email || "",
             phone: data?.registration?.phone || "",
             location: data?.registration?.location || "",
-            minexp: data?.registration?.minexp || "",
-            maxexp: data?.registration?.maxexp || "",
+            yearExp: data?.registration?.yearExp || "",
+            monthExp: data?.registration?.monthExp || "",
             skills: data?.registration?.skills || [],
             // industry: data?.registration?.industry || "",
             jobDescription: data?.registration?.jobDescription || "",
@@ -398,15 +398,9 @@ const CandidateProfile = () => {
       <div className="w-full">
         <CandidateEducationDetails
           initialEducationDetails={{
-            userid: { userid },
-            token: { token },
-            highestQualification:
-              data?.candidateEducation?.highestQualification || "",
-            medium: data?.candidateEducation?.medium || "",
-            boardOfEducation: data?.candidateEducation?.boardOfEducation || "",
-            percentage: data?.candidateEducation?.percentage || "",
-            yearOfEducation: data?.candidateEducation?.yearOfEducation || "",
-            educationMode: data?.candidateEducation?.educationMode || "",
+            userid,
+            token,
+            candidateEducation: data?.candidateEducation || [],
           }}
         />
       </div>

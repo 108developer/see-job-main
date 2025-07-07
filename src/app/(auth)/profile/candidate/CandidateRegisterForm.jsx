@@ -78,13 +78,9 @@ const CandidateRegister = ({ initialRegisterForm }) => {
         {/* Experience */}
         <div className="text-sm font-semibold text-gray-700 w-full">
           <h1> Experience (in years)</h1>
-          <div className="flex items-center gap-8 justify-between flex-col lg:flex-row font-medium text-gray-500">
-            <div className=" w-full ">
-              Min: {getValue(initialRegisterForm?.minexp)}
-            </div>
-            <div className=" w-full ">
-              Max: {getValue(initialRegisterForm?.maxexp)}
-            </div>
+          <div className="flex items-center gap-2 font-medium text-gray-500">
+            {getValue(initialRegisterForm?.yearExp)} Year{"     "}
+            {getValue(initialRegisterForm?.monthExp)} Month
           </div>
         </div>
       </div>

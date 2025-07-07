@@ -149,10 +149,12 @@ export default function JobSeekerTable({
       ),
       cell: ({ row }) => (
         <div>
-          {new Date(row.getValue("createdAt")).toLocaleDateString(undefined, {
+          {new Date(row.getValue("createdAt")).toLocaleString(undefined, {
             year: "numeric",
             month: "short",
             day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
           })}
         </div>
       ),
@@ -170,10 +172,12 @@ export default function JobSeekerTable({
       ),
       cell: ({ row }) => (
         <div>
-          {new Date(row.getValue("updatedAt")).toLocaleDateString(undefined, {
+          {new Date(row.getValue("updatedAt")).toLocaleString(undefined, {
             year: "numeric",
             month: "short",
             day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
           })}
         </div>
       ),

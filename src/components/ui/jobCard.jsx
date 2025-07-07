@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import DOMPurify from "dompurify";
 import { Banknote, CheckCircle, Clock, MapPin, StickyNote } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -66,7 +67,18 @@ export default function JobCard({ job, applyUrl } = { applyUrl: "#" }) {
         <p className="text-muted-foreground">{job.companyName}</p>
         <div className="flex items-start space-x-2">
           <StickyNote className="h-4 w-4 mt-1 text-muted-foreground" />
-          <p className="text-sm">{job.jobDescription}</p>
+
+          <div className="flex flex-col md:flex-row items-end md:justify-between w-full">
+            <div
+              className="job-description line-clamp-4 w-full"
+              dangerouslySetInnerHTML={{ __html: job.jobDescription }}
+            />
+            <Link href={`/jobs/${job.url}`}>
+              <span className="text-blue-600 underline cursor-pointer whitespace-nowrap flex items-end text-xs mt-auto">
+                Read More
+              </span>
+            </Link>
+          </div>
         </div>
         <div className="flex flex-wrap gap-2">
           <Badge variant="secondary" className="flex items-center">

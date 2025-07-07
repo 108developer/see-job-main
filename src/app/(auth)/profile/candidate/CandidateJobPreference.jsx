@@ -12,9 +12,25 @@ const CandidateJobPreference = ({ initialJobPreference }) => {
     dispatch(
       setModal({
         modalType: "jobPreferenceModal",
-        modalProps: { initialJobPreference },
+        modalProps: {
+          initialJobPreference: {
+            ...initialJobPreference,
+            dob: initialJobPreference.dob
+              ? typeof initialJobPreference.dob === "string"
+                ? initialJobPreference.dob
+                : initialJobPreference.dob.toISOString()
+              : null,
+          },
+        },
       })
     );
+  };
+
+  const formatArrayValue = (value) => {
+    if (Array.isArray(value)) {
+      return value.length > 0 ? value.join(", ") : "Not Available";
+    }
+    return getValue(value);
   };
 
   const getValue = (value) =>
@@ -58,7 +74,7 @@ const CandidateJobPreference = ({ initialJobPreference }) => {
             Job Type
           </label>
           <div className="text-gray-500">
-            {getValue(initialJobPreference?.jobType)}
+            {formatArrayValue(initialJobPreference?.jobType)}
           </div>
         </div>
       </div>
@@ -129,7 +145,7 @@ const CandidateJobPreference = ({ initialJobPreference }) => {
             Language
           </label>
           <div className="text-gray-500">
-            {getValue(initialJobPreference?.language)}
+            {formatArrayValue(initialJobPreference?.language)}
           </div>
         </div>
 

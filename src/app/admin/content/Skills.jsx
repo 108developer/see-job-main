@@ -241,6 +241,15 @@ const Skills = () => {
         </div>
       </div>
 
+      <div className="flex gap-4 items-center mb-4">
+        <Input
+          placeholder="Search job seekers..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="max-w-sm"
+        />
+      </div>
+
       <div className="grid grid-cols-2 sm:grid-cols-2 gap-8 mb-6">
         {skills.length > 0 ? (
           skills.map((skill) => (

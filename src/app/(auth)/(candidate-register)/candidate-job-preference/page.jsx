@@ -2,133 +2,86 @@
 
 import CityStateCountrySearchBar from "@/components/graphql-ui/CityStateCountrySearchBar";
 import JobTitleSearchBar from "@/components/graphql-ui/JobTitle";
-import JobTypeSearchBar from "@/components/graphql-ui/JobType";
-import LocationSearchBar from "@/components/graphql-ui/LocationSearchBar";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import PlaceholderImage from "@/images/Profile_avatar_placeholder_large.png";
 import { useSaveJobPreferencesMutation } from "@/redux/api/candidateAuth";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import { Edit2 } from "lucide-react";
-import moment from "moment";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
 
-// Static Experience data
-const experienceOptions = Array.from({ length: 11 }, (_, i) => i);
-
-// Job Preferences options
-const formOptions = {
-  maritalStatus: [
-    { value: "Single", label: "Single" },
-    { value: "Married", label: "Married" },
-    { value: "Divorced", label: "Divorced" },
-    { value: "Widowed", label: "Widowed" },
-  ],
-  language: [
-    { value: "English", label: "English" },
-    { value: "Hindi", label: "Hindi" },
-    { value: "Spanish", label: "Spanish" },
-    { value: "French", label: "French" },
-    { value: "Other", label: "Other" },
-  ],
-};
+const JOB_TYPE = ["Full Time", "Part Time", "On-Site", "Hybrid", "Remote"];
+const LANGUAGES = ["English", "Hindi", "Spanish", "French", "Other"];
+const MARITAL_STATUS = ["Single", "Married", "Divorced", "Widowed"];
 
 // Validation Schema using Yup
 const validationSchema = Yup.object({
   profileTitle: Yup.string().required("Profile title is required"),
-  jobType: Yup.string().required("Please select a job type"),
+  jobType: Yup.array().min(1, "Select at least one job type"),
   preferredJobLocation: Yup.array()
     .min(1, "At least one location is required")
     .max(10, "You can select a maximum of 10 locations"),
-  experienceYears: Yup.number()
-    .required("Experience in years is required")
-    .min(0, "Experience cannot be negative"),
-  experienceMonths: Yup.number()
-    .required("Experience in months is required")
-    .min(0, "Months cannot be negative")
-    .max(12, "Months cannot exceed 12"),
-  gender: Yup.string().required("Please select a gender"),
-  dob: Yup.date().required("Please select your date of birth"),
   maritalStatus: Yup.string().required("Please select marital status"),
-  language: Yup.string().required("Please select a language"),
+  language: Yup.array().min(1, "Select at least one language"),
 });
 
 const initialValues = {
   candidateId: "",
   profilePic: null,
   profileTitle: "",
-  jobType: "",
+  jobType: [],
   preferredJobLocation: [],
-  experienceYears: "",
-  experienceMonths: "",
-  gender: "Male",
-  dob: new Date(),
   maritalStatus: "",
-  language: "",
+  language: [],
   currentSalary: "",
   expectedSalary: "",
-};
-
-// Experience Dropdown component
-const ExperienceDropdown = ({
-  label,
-  id,
-  value,
-  setValue,
-  options,
-  disabled,
-}) => {
-  const handleSelect = (e) => {
-    setValue(e.target.value);
-  };
-
-  return (
-    <div className="flex items-center w-full">
-      <div
-        htmlFor={id}
-        className="p-3 bg-gray-200 rounded-l-md border-2 border-gray-200"
-      >
-        {label}
-      </div>
-
-      <select
-        id={id}
-        name={id}
-        className="p-3 w-full border rounded-r-md"
-        value={value}
-        onChange={handleSelect}
-        disabled={disabled}
-      >
-        <option value="">Select</option>
-        {options.map((option) => (
-          <option key={option} value={option}>
-            {option} years
-          </option>
-        ))}
-      </select>
-      <ErrorMessage
-        name={id}
-        component="div"
-        className="text-red-500 text-sm mt-1"
-      />
-    </div>
-  );
 };
 
 const JobPreferences = () => {
   const router = useRouter();
   const [saveJobPreferences, { isLoading }] = useSaveJobPreferencesMutation();
-  const [experienceYears, setExperienceYears] = useState("");
-  const [experienceMonths, setExperienceMonths] = useState("");
   const [jobTitle, setJobTitle] = useState("");
-  const [jobType, setJobType] = useState("");
   const [locationSearch, setLocationSearch] = useState("");
   const [preferredJobLocation, setPreferredJobLocation] = useState([]);
+  const [selectedJobTypes, setSelectedJobTypes] = useState([]);
+  const [selectedLanguages, setSelectedLanguages] = useState([]);
+
+  const addToMultiSelect = (
+    item,
+    selectedList,
+    setSelectedList,
+    setFieldValue,
+    fieldName
+  ) => {
+    if (!selectedList.includes(item)) {
+      const updated = [...selectedList, item];
+      setSelectedList(updated);
+      setFieldValue(fieldName, updated);
+    }
+  };
+
+  const removeFromMultiSelect = (
+    item,
+    selectedList,
+    setSelectedList,
+    setFieldValue,
+    fieldName
+  ) => {
+    const updated = selectedList.filter((i) => i !== item);
+    setSelectedList(updated);
+    setFieldValue(fieldName, updated);
+  };
 
   const { userid, token, role } = useSelector((state) => state.auth);
 
@@ -182,17 +135,14 @@ const JobPreferences = () => {
 
     formData.append("candidateId", userid);
     formData.append("profileTitle", values.profileTitle);
-    formData.append("jobType", values.jobType);
+    formData.append("jobType", JSON.stringify(values.jobType));
+
     formData.append(
       "preferredJobLocation",
       JSON.stringify(values.preferredJobLocation)
     );
-    formData.append("experienceYears", experienceYears);
-    formData.append("experienceMonths", experienceMonths);
-    formData.append("gender", values.gender);
-    formData.append("dob", moment(values.dob).format("DD/MM/YYYY"));
     formData.append("maritalStatus", values.maritalStatus);
-    formData.append("language", values.language);
+    formData.append("language", JSON.stringify(values.language));
     formData.append("currentSalary", values.currentSalary);
     formData.append("expectedSalary", values.expectedSalary);
 
@@ -219,7 +169,7 @@ const JobPreferences = () => {
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
       >
-        {({ setFieldValue }) => (
+        {({ setFieldValue, values }) => (
           <Form className="space-y-6 w-full">
             {/* Upload Image */}
             <div className="flex justify-center items-center">
@@ -278,20 +228,202 @@ const JobPreferences = () => {
 
             {/* Job Type */}
             <div>
-              <label htmlFor="jobType" className="text-sm font-medium">
-                Job Type
-              </label>
-              <JobTypeSearchBar
-                searchTerm={jobType}
-                onSearchChange={(value) => setJobType(value)}
-                setFieldValue={setFieldValue}
-                onJobTypeSelect={(selectedJobType) => {
-                  setJobType(selectedJobType.label);
-                  setFieldValue("jobType", selectedJobType.label);
+              <label className="block text-sm font-medium">Job Type</label>
+              <Select
+                onValueChange={(val) => {
+                  if (!selectedJobTypes.includes(val)) {
+                    const updated = [...selectedJobTypes, val];
+                    setSelectedJobTypes(updated);
+                    setFieldValue("jobType", updated);
+                  }
                 }}
-              />
+              >
+                <SelectTrigger className="w-full p-3 border rounded-md text-sm">
+                  <SelectValue placeholder="Select Job Type">
+                    {selectedJobTypes.length === 0
+                      ? "Select Job Type"
+                      : selectedJobTypes.length === JOB_TYPE.length
+                      ? "All selected"
+                      : "Select more"}
+                  </SelectValue>
+                </SelectTrigger>
+
+                <SelectContent>
+                  {JOB_TYPE.map((type) => (
+                    <SelectItem
+                      key={type}
+                      value={type}
+                      disabled={selectedJobTypes.includes(type)} // disable if already selected
+                    >
+                      {type}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Selected chips */}
+              <div className="flex flex-wrap gap-2 mt-2">
+                {selectedJobTypes.map((type, idx) => (
+                  <span
+                    key={idx}
+                    className="flex items-center gap-1 bg-blue-100 text-blue-700 px-2 py-1 rounded"
+                  >
+                    {type}
+                    <button
+                      type="button"
+                      className="text-red-600"
+                      onClick={() =>
+                        removeFromMultiSelect(
+                          type,
+                          selectedJobTypes,
+                          setSelectedJobTypes,
+                          setFieldValue,
+                          "jobType"
+                        )
+                      }
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+
               <ErrorMessage
                 name="jobType"
+                component="div"
+                className="text-red-500 text-sm mt-1"
+              />
+            </div>
+
+            {/* Current Salary */}
+            <div>
+              <label htmlFor="currentSalary" className="text-sm font-medium">
+                Current Salary
+              </label>
+              <Field
+                type="number"
+                id="currentSalary"
+                name="currentSalary"
+                className="mt-1 p-3 w-full border rounded-md"
+                placeholder="Enter current salary"
+              />
+              <ErrorMessage
+                name="currentSalary"
+                component="div"
+                className="text-red-500 text-sm mt-1"
+              />
+            </div>
+
+            {/* Expected Salary */}
+            <div>
+              <label htmlFor="expectedSalary" className="text-sm font-medium">
+                Expected Salary
+              </label>
+              <Field
+                type="number"
+                id="expectedSalary"
+                name="expectedSalary"
+                className="mt-1 p-3 w-full border rounded-md"
+                placeholder="Enter expected salary"
+              />
+              <ErrorMessage
+                name="expectedSalary"
+                component="div"
+                className="text-red-500 text-sm mt-1"
+              />
+            </div>
+
+            {/* Marital Status */}
+            <div>
+              <label htmlFor="maritalStatus" className="text-sm font-medium">
+                Marital Status
+              </label>
+              <Select
+                value={values.maritalStatus}
+                onValueChange={(val) => setFieldValue("maritalStatus", val)}
+              >
+                <SelectTrigger className="w-full p-3 border rounded-md text-sm">
+                  <SelectValue placeholder="Select Marital Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  {MARITAL_STATUS.map((lvl) => (
+                    <SelectItem key={lvl} value={lvl}>
+                      {lvl}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <ErrorMessage
+                name="maritalStatus"
+                component="div"
+                className="text-red-500 text-sm mt-1"
+              />
+            </div>
+
+            {/* Language */}
+            <div>
+              <label className="block text-sm font-medium">Language</label>
+              <Select
+                onValueChange={(val) => {
+                  if (!selectedLanguages.includes(val)) {
+                    const updated = [...selectedLanguages, val];
+                    setSelectedLanguages(updated);
+                    setFieldValue("language", updated);
+                  }
+                }}
+              >
+                <SelectTrigger className="w-full p-3 border rounded-md text-sm">
+                  <SelectValue placeholder="Select Language">
+                    {selectedLanguages.length === 0
+                      ? "Select Language"
+                      : selectedLanguages.length === LANGUAGES.length
+                      ? "All selected"
+                      : "Select more"}
+                  </SelectValue>
+                </SelectTrigger>
+
+                <SelectContent>
+                  {LANGUAGES.map((lang) => (
+                    <SelectItem
+                      key={lang}
+                      value={lang}
+                      disabled={selectedLanguages.includes(lang)}
+                    >
+                      {lang}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Selected Languages */}
+              <div className="flex flex-wrap gap-2 mt-2">
+                {selectedLanguages.map((lang, idx) => (
+                  <span
+                    key={idx}
+                    className="flex items-center gap-1 bg-green-100 text-green-700 px-2 py-1 rounded"
+                  >
+                    {lang}
+                    <button
+                      type="button"
+                      className="text-red-600"
+                      onClick={() =>
+                        removeFromMultiSelect(
+                          lang,
+                          selectedLanguages,
+                          setSelectedLanguages,
+                          setFieldValue,
+                          "language"
+                        )
+                      }
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+
+              <ErrorMessage
+                name="language"
                 component="div"
                 className="text-red-500 text-sm mt-1"
               />
@@ -337,193 +469,6 @@ const JobPreferences = () => {
                   </button>
                 </div>
               ))}
-            </div>
-
-            {/* Current Salary */}
-            <div>
-              <label htmlFor="currentSalary" className="text-sm font-medium">
-                Current Salary
-              </label>
-              <Field
-                type="number"
-                id="currentSalary"
-                name="currentSalary"
-                className="mt-1 p-3 w-full border rounded-md"
-                placeholder="Enter current salary"
-              />
-              <ErrorMessage
-                name="currentSalary"
-                component="div"
-                className="text-red-500 text-sm mt-1"
-              />
-            </div>
-
-            {/* Expected Salary */}
-            <div>
-              <label htmlFor="expectedSalary" className="text-sm font-medium">
-                Expected Salary
-              </label>
-              <Field
-                type="number"
-                id="expectedSalary"
-                name="expectedSalary"
-                className="mt-1 p-3 w-full border rounded-md"
-                placeholder="Enter expected salary"
-              />
-              <ErrorMessage
-                name="expectedSalary"
-                component="div"
-                className="text-red-500 text-sm mt-1"
-              />
-            </div>
-
-            {/* Experience */}
-            <div className="text-sm font-medium">
-              <h1> Experience (in years)</h1>
-
-              <div className="flex items-center gap-8 justify-between flex-col lg:flex-row">
-                {/* Min Experience */}
-                <ExperienceDropdown
-                  label="Min"
-                  id="experienceYears"
-                  value={experienceYears}
-                  setValue={(val) => {
-                    setExperienceYears(val);
-                    setFieldValue("experienceYears", val);
-                  }}
-                  options={experienceOptions.filter(
-                    (opt) => opt <= (experienceMonths || 10)
-                  )}
-                />
-
-                {/* Max Experience */}
-                <ExperienceDropdown
-                  label="Max"
-                  id="experienceMonths"
-                  value={experienceMonths}
-                  setValue={(val) => {
-                    setExperienceMonths(val);
-                    setFieldValue("experienceMonths", val);
-                  }}
-                  options={experienceOptions.filter(
-                    (opt) => opt >= (experienceYears || 0)
-                  )}
-                />
-              </div>
-            </div>
-
-            {/* Gender */}
-            <div>
-              <label className="text-sm font-medium">Gender</label>
-              <div className="space-x-4">
-                <label>
-                  <Field
-                    type="radio"
-                    name="gender"
-                    value="Male"
-                    className="mr-2"
-                    checked
-                  />
-                  Male
-                </label>
-                <label>
-                  <Field
-                    type="radio"
-                    name="gender"
-                    value="Female"
-                    className="mr-2"
-                  />
-                  Female
-                </label>
-                <label>
-                  <Field
-                    type="radio"
-                    name="gender"
-                    value="other"
-                    className="mr-2"
-                  />
-                  Other
-                </label>
-              </div>
-              <ErrorMessage
-                name="gender"
-                component="div"
-                className="text-red-500 text-sm mt-1"
-              />
-            </div>
-
-            {/* Date of Birth */}
-            <div>
-              <label htmlFor="dob" className="text-sm font-medium">
-                Date of Birth
-              </label>
-              <Field name="dob">
-                {({ field, form }) => (
-                  <DatePicker
-                    {...field}
-                    selected={field.value || new Date()}
-                    onChange={(date) => setFieldValue("dob", date)}
-                    className="mt-1 p-3 w-full border rounded-md"
-                    dateFormat="dd-MM-yyyy"
-                    placeholderText="Select your date of birth"
-                  />
-                )}
-              </Field>
-              <ErrorMessage
-                name="dob"
-                component="div"
-                className="text-red-500 text-sm mt-1"
-              />
-            </div>
-
-            {/* Marital Status */}
-            <div>
-              <label htmlFor="maritalStatus" className="text-sm font-medium">
-                Marital Status
-              </label>
-              <Field
-                as="select"
-                id="maritalStatus"
-                name="maritalStatus"
-                className="mt-1 p-3 w-full border rounded-md"
-              >
-                <option value="">Select Marital Status</option>
-                {formOptions.maritalStatus.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </Field>
-              <ErrorMessage
-                name="maritalStatus"
-                component="div"
-                className="text-red-500 text-sm mt-1"
-              />
-            </div>
-
-            {/* Language */}
-            <div>
-              <label htmlFor="language" className="text-sm font-medium">
-                Language
-              </label>
-              <Field
-                as="select"
-                id="language"
-                name="language"
-                className="mt-1 p-3 w-full border rounded-md"
-              >
-                <option value="">Select Language</option>
-                {formOptions.language.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </Field>
-              <ErrorMessage
-                name="language"
-                component="div"
-                className="text-red-500 text-sm mt-1"
-              />
             </div>
 
             {/* Submit Button */}

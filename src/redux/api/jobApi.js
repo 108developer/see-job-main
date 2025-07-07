@@ -36,6 +36,13 @@ export const jobApi = createApi({
         body: jobData,
       }),
     }),
+    editJobById: builder.mutation({
+      query: (jobData) => ({
+        url: `edit-job/${jobData.id}`,
+        method: "PUT",
+        body: jobData,
+      }),
+    }),
 
     applyToJob: builder.mutation({
       query: ({ jobId, candidateId, answers }) => ({
@@ -80,6 +87,7 @@ export const {
   useGetJobByUrlQuery,
   useGetJobDetailsQuery,
   usePostJobMutation,
+  useEditJobByIdMutation,
   useApplyToJobMutation,
   useAutoApplyToJobsMutation,
   useGetJobApplicantsQuery,

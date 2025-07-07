@@ -29,7 +29,7 @@ const CandidateLoginPage = ({ closeModal }) => {
           <UserPlus className="h-6 w-6" /> Login
         </div>
 
-        <CandidateLogin closeModal={closeModal} />
+        <CandidateLogin />
 
         <Link href={"/candidate-register"}>
           <div className="text-red-500 flex justify-end w-full mt-2 hover:underline cursor-pointer gap-2 text-xs ">

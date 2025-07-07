@@ -1,18 +1,11 @@
 "use client";
 
-import IndustrySelectDropDown from "@/components/graphql-ui/IndustrySelectDropDown";
 import CityStateCountrySearchBar from "@/components/graphql-ui/CityStateCountrySearchBar";
-import LocationSearchBar from "@/components/graphql-ui/LocationSearchBar";
-import SkillDropdown from "@/components/graphql-ui/SkillsDropdown";
 import { useUpdateRecruiterMutation } from "@/redux/api/employerAuth";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { recruiterValidationSchema } from "./validationSchemas";
-
-const TOTAL_EXPERIENCE = ["1-3 years", "4-6 years", "7-10 years", "10+ years"];
-
-const LEVELS = ["Junior", "Mid-level", "Senior", "Lead"];
 
 const RecruiterProfile = ({ employerData, closeModal }) => {
   const [location, setLocation] = useState(employerData.location || "");
@@ -66,6 +59,7 @@ const RecruiterProfile = ({ employerData, closeModal }) => {
         resetForm();
         closeModal();
         toast.success(response?.data?.message);
+        window.location.reload();
       } else {
         toast.error(
           response?.data?.message || "Registration failed. Please try again."
