@@ -3,6 +3,13 @@
 import LocationSearchBar from "@/components/graphql-ui/LocationSearchBar";
 // import IndustrySelectDropDown from "@/components/graphql-ui/IndustrySelectDropDown";
 import SkillDropdown from "@/components/graphql-ui/SkillsDropdown";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { useRegisterCandidateMutation } from "@/redux/api/candidateAuth";
 import { ErrorMessage, Field, Form, Formik } from "formik";
@@ -11,9 +18,7 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
-
-// Static Experience data
-const experienceOptions = Array.from({ length: 11 }, (_, i) => i);
+import JobTitleSearchBar from "@/components/graphql-ui/JobTitle";
 
 // File validation function
 const fileValidation = (value, maxSize, allowedTypes) => {
@@ -23,11 +28,17 @@ const fileValidation = (value, maxSize, allowedTypes) => {
 
 // Validation schema using Yup
 const validationSchema = Yup.object({
-  // location: Yup.string().required("Current Location is required"),
   permanentAddress: Yup.string().required("Permanent Address is required"),
-  minexp: Yup.number().required("Required"),
-  maxexp: Yup.number().required("Required"),
-  skills: Yup.array().min(5, "At least 5 skill is required"),
+  profileTitle: Yup.string().required("Profile title is required"),
+  skills: Yup.array().min(1, "At least 1 skill is required"),
+  monthExp: Yup.number()
+    .min(0, "Month cannot be less than 0")
+    .max(11, "Month cannot be more than 11")
+    .required("Month is required"),
+  yearExp: Yup.number()
+    .min(0, "Year cannot be less than 0")
+    .max(15, "Year cannot be more than 15")
+    .required("Year is required"),
   // industry: Yup.string().required("Preferred Industry is required"),
   file: Yup.mixed()
     .required("File is required")
@@ -40,60 +51,17 @@ const validationSchema = Yup.object({
     .required("You must agree to the terms"),
 });
 
-// Experience Dropdown component
-const ExperienceDropdown = ({
-  label,
-  id,
-  value,
-  setValue,
-  options,
-  disabled,
-}) => {
-  const handleSelect = (e) => {
-    setValue(e.target.value);
-  };
-
-  return (
-    <div className="flex items-center w-full">
-      <div
-        htmlFor={id}
-        className="p-3 bg-gray-200 rounded-l-md border-2 border-gray-200"
-      >
-        {label}
-      </div>
-
-      <select
-        id={id}
-        name={id}
-        className="p-3 w-full border rounded-r-md"
-        value={value}
-        onChange={handleSelect}
-        disabled={disabled}
-      >
-        <option value="">Select</option>
-        {options.map((option) => (
-          <option key={option} value={option}>
-            {option} years
-          </option>
-        ))}
-      </select>
-      <ErrorMessage
-        name={id}
-        component="div"
-        className="text-red-500 text-sm mt-1"
-      />
-    </div>
-  );
-};
+const yearOptions = Array.from({ length: 16 }, (_, i) => i.toString());
+const monthOptions = Array.from({ length: 12 }, (_, i) => i.toString());
 
 const CandidateRegister = () => {
   const router = useRouter();
   const [registerCandidate, { isLoading }] = useRegisterCandidateMutation();
-  const [location, setLocation] = useState("");
+  const [jobTitle, setJobTitle] = useState("");
   const [permanentAddress, setPermanentAddress] = useState("");
   // const [industry, setIndustry] = useState("");
-  const [minExp, setMinExp] = useState("");
-  const [maxExp, setMaxExp] = useState("");
+  const [monthExp, setMonthExp] = useState(0);
+  const [yearExp, setYearExp] = useState(0);
   const [selectedSkills, setSelectedSkills] = useState([]);
   const [skillSet, setSkillSet] = useState("");
 
@@ -116,8 +84,9 @@ const CandidateRegister = () => {
     phone: phone || "",
     location: "",
     permanentAddress: "",
-    minexp: "",
-    maxexp: "",
+    yearExp: "",
+    monthExp: "",
+    profileTitle: "",
     skills: [],
     // industry: "",
     file: null,
@@ -131,8 +100,10 @@ const CandidateRegister = () => {
     formData.append("candidateId", userid);
     // formData.append("location", values.location);
     formData.append("permanentAddress", values.permanentAddress);
-    formData.append("minexp", values.minexp);
-    formData.append("maxexp", values.maxexp);
+    formData.append("yearExp", values.yearExp);
+    formData.append("monthExp", values.monthExp);
+    formData.append("profileTitle", values.profileTitle);
+
     formData.append(
       "skills",
       selectedSkills.map((skill) => skill.name)
@@ -216,26 +187,6 @@ const CandidateRegister = () => {
               />
             </div>
 
-            {/* Password */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium">
-                Password
-              </label>
-              <Field
-                type="password"
-                id="password"
-                name="password"
-                className="mt-1 p-3 w-full border rounded-md"
-                placeholder="*****"
-                disabled
-              />
-              <ErrorMessage
-                name="password"
-                component="div"
-                className="text-red-500 text-sm mt-1"
-              />
-            </div>
-
             {/* Phone (Disabled) */}
             <div>
               <label htmlFor="phone" className="block text-sm font-medium">
@@ -262,28 +213,6 @@ const CandidateRegister = () => {
               />
             </div>
 
-            {/* Current Location */}
-            {/* <div>
-              <label htmlFor="location" className="block text-sm font-medium">
-                Current Location
-              </label>
-              <LocationSearchBar
-                searchTerm={location}
-                onSearchChange={(value) => setLocation(value)}
-                setFieldValue={setFieldValue}
-                onLocationSelect={(selectedLocation) => {
-                  setLocation(selectedLocation.fullAddress);
-                  setFieldValue("location", selectedLocation.fullAddress);
-                }}
-                fieldName="location"
-              />
-              <ErrorMessage
-                name="location"
-                component="div"
-                className="text-red-500 text-sm mt-1"
-              />
-            </div> */}
-
             {/* Permanent Address */}
             <div>
               <label htmlFor="location" className="block text-sm font-medium">
@@ -309,39 +238,25 @@ const CandidateRegister = () => {
               />
             </div>
 
-            {/* Experience */}
-            <div className="block text-sm font-medium">
-              <h1> Experience (in years)</h1>
-
-              <div className="flex items-center gap-8 justify-between flex-col lg:flex-row">
-                {/* Min Experience */}
-                <ExperienceDropdown
-                  label="Min"
-                  id="minexp"
-                  value={minExp}
-                  setValue={(val) => {
-                    setMinExp(val);
-                    setFieldValue("minexp", val);
-                  }}
-                  options={experienceOptions.filter(
-                    (opt) => opt <= (maxExp || 10)
-                  )}
-                />
-
-                {/* Max Experience */}
-                <ExperienceDropdown
-                  label="Max"
-                  id="maxexp"
-                  value={maxExp}
-                  setValue={(val) => {
-                    setMaxExp(val);
-                    setFieldValue("maxexp", val);
-                  }}
-                  options={experienceOptions.filter(
-                    (opt) => opt >= (minExp || 0)
-                  )}
-                />
-              </div>
+            {/* Profile Title */}
+            <div>
+              <label htmlFor="profileTitle" className="text-sm font-medium">
+                Profile Title
+              </label>
+              <JobTitleSearchBar
+                searchTerm={jobTitle}
+                onSearchChange={(value) => setJobTitle(value)}
+                setFieldValue={setFieldValue}
+                onJobTitleSelect={(selectedJobTitle) => {
+                  setJobTitle(selectedJobTitle.label);
+                  setFieldValue("profileTitle", selectedJobTitle.label);
+                }}
+              />
+              <ErrorMessage
+                name="profileTitle"
+                component="div"
+                className="text-red-500 text-sm mt-1"
+              />
             </div>
 
             {/* Key Skills */}
@@ -374,6 +289,58 @@ const CandidateRegister = () => {
                 component="div"
                 className="text-red-500 text-sm mt-1"
               />
+            </div>
+
+            {/* Experience */}
+            <div className="w-full gap-2">
+              <label className=" text-sm font-semibold mb-2">Experience</label>
+              <div className="flex flex-col sm:flex-row gap-4 mt-1">
+                {/* Years Select */}
+                <div className="w-full sm:w-1/2">
+                  <Select
+                    value={yearExp.toString()}
+                    onValueChange={(val) => {
+                      const year = parseInt(val);
+                      setYearExp(year);
+                      setFieldValue("yearExp", year);
+                    }}
+                  >
+                    <SelectTrigger className="w-full p-3 border rounded-md text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                      <SelectValue placeholder="Years" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {yearOptions.map((year) => (
+                        <SelectItem key={year} value={year}>
+                          {year} year
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Months Select */}
+                <div className="w-full sm:w-1/2">
+                  <Select
+                    value={monthExp.toString()}
+                    onValueChange={(val) => {
+                      const month = parseInt(val);
+                      setMonthExp(month);
+                      setFieldValue("monthExp", month);
+                    }}
+                  >
+                    <SelectTrigger className="w-full p-3 border rounded-md text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                      <SelectValue placeholder="Months" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {monthOptions.map((month) => (
+                        <SelectItem key={month} value={month}>
+                          {month} month
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </div>
 
             {/* Preferred Industry */}
@@ -437,7 +404,7 @@ const CandidateRegister = () => {
                 id="jobDescription"
                 name="jobDescription"
                 className="mt-1 p-3 w-full border rounded-md"
-                placeholder="Summary"
+                placeholder="Write something about you..."
               />
               <ErrorMessage
                 name="jobDescription"

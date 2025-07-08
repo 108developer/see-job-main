@@ -30,8 +30,7 @@ const SHOW_DEGREE_LEVELS = ["Diploma", "Bachelors", "Masters"];
 const EDUCATION_MODES = [
   "Full-time",
   "Part-time",
-  "Distance Learning",
-  "Online",
+  "Online / Distance Learning",
 ];
 
 const EDUCATION_LEVELS = [
@@ -148,8 +147,8 @@ const CandidateEducation = () => {
       }).unwrap();
 
       if (response.success) {
-        resetForm();
         router.push("/candidate-job-preference");
+        resetForm();
         toast.success(response.message);
       } else {
         toast.error(response.message || "Saving failed. Please try again.");

@@ -27,7 +27,7 @@ const MARITAL_STATUS = ["Single", "Married", "Divorced", "Widowed"];
 
 // Validation Schema using Yup
 const validationSchema = Yup.object({
-  profileTitle: Yup.string().required("Profile title is required"),
+  // profileTitle: Yup.string().required("Profile title is required"),
   jobType: Yup.array().min(1, "Select at least one job type"),
   preferredJobLocation: Yup.array()
     .min(1, "At least one location is required")
@@ -39,7 +39,7 @@ const validationSchema = Yup.object({
 const initialValues = {
   candidateId: "",
   profilePic: null,
-  profileTitle: "",
+  // profileTitle: "",
   jobType: [],
   preferredJobLocation: [],
   maritalStatus: "",
@@ -134,7 +134,7 @@ const JobPreferences = () => {
     const formData = new FormData();
 
     formData.append("candidateId", userid);
-    formData.append("profileTitle", values.profileTitle);
+    // formData.append("profileTitle", values.profileTitle);
     formData.append("jobType", JSON.stringify(values.jobType));
 
     formData.append(
@@ -154,8 +154,14 @@ const JobPreferences = () => {
 
     try {
       const response = await saveJobPreferences(formData).unwrap();
-      toast.success("Job preferences submitted successfully!");
-      router.push("/");
+
+      if (response.success) {
+        router.push("/");
+        resetForm();
+        toast.success("Job preferences submitted successfully!");
+      } else {
+        toast.error(response.message || "Saving failed. Please try again.");
+      }
     } catch (error) {
       toast.error("Submission failed. Please try again.");
     }
@@ -206,7 +212,7 @@ const JobPreferences = () => {
             </div>
 
             {/* Profile Title */}
-            <div>
+            {/* <div>
               <label htmlFor="profileTitle" className="text-sm font-medium">
                 Profile Title
               </label>
@@ -224,7 +230,7 @@ const JobPreferences = () => {
                 component="div"
                 className="text-red-500 text-sm mt-1"
               />
-            </div>
+            </div> */}
 
             {/* Job Type */}
             <div>

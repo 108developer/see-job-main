@@ -28,8 +28,7 @@ const SHOW_DEGREE_LEVELS = ["Diploma", "Bachelors", "Masters"];
 const EDUCATION_MODES = [
   "Full-time",
   "Part-time",
-  "Distance Learning",
-  "Online",
+  "Online / Distance Learning",
 ];
 
 const EDUCATION_LEVELS = [
