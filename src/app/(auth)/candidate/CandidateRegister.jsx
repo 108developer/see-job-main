@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useSignupCandidateMutation } from "@/redux/api/candidateAuth";
 import { login as loginAction } from "@/redux/slices/authSlice";
 import { ErrorMessage, Field, Form, Formik } from "formik";
+import { Eye, EyeClosed } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
@@ -14,7 +15,7 @@ import * as Yup from "yup";
 // Validation schema using Yup
 const validationSchema = Yup.object({
   fullName: Yup.string()
-    .min(6, "Full Name must be at least 6 characters")
+    .min(3, "Full Name must be at least 3 characters")
     .required("Full Name is required"),
   email: Yup.string()
     .email("Invalid email format")
@@ -49,6 +50,7 @@ const CandidateRegister = ({ closeModal }) => {
   const [signUpCandidate, { isLoading }] = useSignupCandidateMutation();
 
   const [location, setLocation] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleRegister = async (values, { resetForm }) => {
     const data = {
@@ -73,8 +75,8 @@ const CandidateRegister = ({ closeModal }) => {
         localStorage.setItem("token", token);
         localStorage.setItem("userid", candidateId);
         localStorage.setItem("useremail", email);
-        localStorage.setItem("username", fullName);
-        localStorage.setItem("phone", phone);
+        // localStorage.setItem("username", fullName);
+        // localStorage.setItem("phone", phone);
         localStorage.setItem("role", role);
         localStorage.setItem("expiresIn", expiresIn);
         dispatch(
@@ -175,12 +177,30 @@ const CandidateRegister = ({ closeModal }) => {
                 <label htmlFor="password" className="block text-sm font-medium">
                   Password
                 </label>
-                <Field
-                  type="password"
-                  id="password"
-                  name="password"
-                  className="mt-1 p-2 w-full border rounded-md"
-                />
+                <Field name="password">
+                  {({ field }) => (
+                    <div className="relative">
+                      <Input
+                        {...field}
+                        type={showPassword ? "text" : "password"}
+                        id="password"
+                        className="mt-1 p-2 w-full border rounded-md"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                        tabIndex={-1} // avoid tab focus on button
+                      >
+                        {showPassword ? (
+                          <Eye size={20} />
+                        ) : (
+                          <EyeClosed size={20} />
+                        )}
+                      </button>
+                    </div>
+                  )}
+                </Field>
                 <ErrorMessage
                   name="password"
                   component="div"
