@@ -21,6 +21,11 @@ const CandidateRegister = ({ initialRegisterForm }) => {
       ? value
       : "Not Available";
 
+  const getExpValue = (value) => {
+    if (value === undefined || value === null || value === "") return 0;
+    return value;
+  };
+
   return (
     <div className="space-y-6 w-full bg-white rounded-xl border p-8">
       {/* Header */}
@@ -79,8 +84,8 @@ const CandidateRegister = ({ initialRegisterForm }) => {
         <div className="text-sm font-semibold text-gray-700 w-full">
           <h1> Experience (in years)</h1>
           <div className="flex items-center gap-2 font-medium text-gray-500">
-            {getValue(initialRegisterForm?.yearExp)} Year{"     "}
-            {getValue(initialRegisterForm?.monthExp)} Month
+            {getExpValue(initialRegisterForm?.yearExp)} Year{" "}
+            {getExpValue(initialRegisterForm?.monthExp)} Month
           </div>
         </div>
       </div>

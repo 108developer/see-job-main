@@ -74,7 +74,27 @@ const CandidateEducationDetails = ({ initialEducationDetails }) => {
                   </div>
                 </div>
               )}
+
+              {SHOW_BOARD_AND_MEDIUM_LEVELS.includes(edu.educationLevel) && (
+                <div className="w-full">
+                  <label className="text-sm font-semibold text-gray-700">
+                    Year of Passing
+                  </label>
+                  <div className="text-gray-500">
+                    {getValue(edu.yearOfPassing)}
+                  </div>
+                </div>
+              )}
             </div>
+
+            {/* <div className="flex flex-col w-full gap-2 justify-between">
+              <label className="text-sm font-semibold text-gray-700">
+                College/University
+              </label>
+              <div className="text-gray-500">
+                {getValue(edu.boardOfEducation)}
+              </div>
+            </div> */}
 
             {SHOW_BOARD_AND_MEDIUM_LEVELS.includes(edu.educationLevel) && (
               <div className="flex flex-col md:flex-row gap-2 justify-between">
@@ -114,21 +134,23 @@ const CandidateEducationDetails = ({ initialEducationDetails }) => {
               </div>
             </div>
 
-            <div className="flex flex-col md:flex-row gap-2 justify-between">
-              <div className="w-full">
-                <label className="text-sm font-semibold text-gray-700">
-                  Year From
-                </label>
-                <div className="text-gray-500">{getValue(edu.yearFrom)}</div>
-              </div>
+            {SHOW_DEGREE_LEVELS.includes(edu.educationLevel) && (
+              <div className="flex flex-col md:flex-row gap-2 justify-between">
+                <div className="w-full">
+                  <label className="text-sm font-semibold text-gray-700">
+                    Start
+                  </label>
+                  <div className="text-gray-500">{getValue(edu.yearFrom)}</div>
+                </div>
 
-              <div className="w-full">
-                <label className="text-sm font-semibold text-gray-700">
-                  Year To
-                </label>
-                <div className="text-gray-500">{getValue(edu.yearTo)}</div>
+                <div className="w-full">
+                  <label className="text-sm font-semibold text-gray-700">
+                    End
+                  </label>
+                  <div className="text-gray-500">{getValue(edu.yearTo)}</div>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         ))
       ) : (

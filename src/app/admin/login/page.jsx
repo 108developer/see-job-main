@@ -1,12 +1,14 @@
 "use client";
 
-import AccessDeniedAdmin from "@/components/ui/AccessDeniedAdmin";
+import { Input } from "@/components/ui/input";
 import { useAdminLoginMutation } from "@/redux/api/admin";
 import { login as loginAction } from "@/redux/slices/authSlice";
 import { setModal } from "@/redux/slices/modalSlice";
 import { ErrorMessage, Field, Form, Formik } from "formik";
+import { Eye, EyeClosed } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useDispatch, useSelector } from "react-redux";
+import { useState } from "react";
+import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
 
@@ -22,6 +24,8 @@ const validationSchema = Yup.object({
 const AdminLogin = ({ closeModal }) => {
   const router = useRouter();
   const dispatch = useDispatch();
+
+  const [showPassword, setShowPassword] = useState(false);
 
   const [adminLogin, { isLoading, error }] = useAdminLoginMutation();
 
@@ -98,12 +102,30 @@ const AdminLogin = ({ closeModal }) => {
               <label htmlFor="password" className="block text-sm font-medium">
                 Password
               </label>
-              <Field
-                type="password"
-                id="password"
-                name="password"
-                className="mt-1 p-2 w-full border rounded-md"
-              />
+              <Field name="password">
+                {({ field }) => (
+                  <div className="relative">
+                    <Input
+                      {...field}
+                      type={showPassword ? "text" : "password"}
+                      id="password"
+                      className="mt-1 p-2 w-full border rounded-md"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      tabIndex={-1} // avoid tab focus on button
+                    >
+                      {showPassword ? (
+                        <Eye size={20} />
+                      ) : (
+                        <EyeClosed size={20} />
+                      )}
+                    </button>
+                  </div>
+                )}
+              </Field>
               <ErrorMessage
                 name="password"
                 component="div"

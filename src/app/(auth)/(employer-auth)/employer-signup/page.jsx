@@ -2,10 +2,12 @@
 
 // import IndustrySelectDropDown from "@/components/graphql-ui/IndustrySelectDropDown";
 // import LocationSearchBar from "@/components/graphql-ui/LocationSearchBar";
-import CityStateCountrySearchBar from "@/components/graphql-ui/CityStateCountrySearchBar";
 // import SkillDropdown from "@/components/graphql-ui/SkillsDropdown";
+import CityStateCountrySearchBar from "@/components/graphql-ui/CityStateCountrySearchBar";
+import { Input } from "@/components/ui/input";
 import { useEmployerRegistrationMutation } from "@/redux/api/employerAuth";
 import { ErrorMessage, Field, Form, Formik } from "formik";
+import { Eye, EyeClosed } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -56,6 +58,7 @@ const RecruiterProfile = () => {
   const [selectedSkills, setSelectedSkills] = useState([]);
   const [skillSet, setSkillSet] = useState("");
   const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
 
   const [employerRegister, { isLoading }] = useEmployerRegistrationMutation();
 
@@ -228,13 +231,30 @@ const RecruiterProfile = () => {
               <label htmlFor="password" className="block text-sm font-medium">
                 Password
               </label>
-              <Field
-                type="password"
-                id="password"
-                name="password"
-                className="mt-1 p-3 w-full border rounded-md"
-                placeholder="Password"
-              />
+              <Field name="password">
+                {({ field }) => (
+                  <div className="relative">
+                    <Input
+                      {...field}
+                      type={showPassword ? "text" : "password"}
+                      id="password"
+                      className="mt-1 p-2 w-full border rounded-md"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      tabIndex={-1}
+                    >
+                      {showPassword ? (
+                        <Eye size={20} />
+                      ) : (
+                        <EyeClosed size={20} />
+                      )}
+                    </button>
+                  </div>
+                )}
+              </Field>
               <ErrorMessage
                 name="password"
                 component="div"

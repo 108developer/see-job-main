@@ -94,13 +94,25 @@ const JobPreferences = () => {
   }, [isClient, token, router, role]);
 
   const [selectedImage, setSelectedImage] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setSelectedImage(URL.createObjectURL(file));
+      setSelectedImage(file);
     }
   };
+
+  useEffect(() => {
+    if (selectedImage) {
+      const url = URL.createObjectURL(selectedImage);
+      setPreviewUrl(url);
+
+      return () => URL.revokeObjectURL(url);
+    } else {
+      setPreviewUrl(null);
+    }
+  }, [selectedImage]);
 
   const handleLocationSelect = (selectedLocation, setFieldValue) => {
     if (preferredJobLocation.length < 10) {
@@ -148,15 +160,13 @@ const JobPreferences = () => {
 
     if (selectedImage) {
       formData.append("profilePic", selectedImage);
-    } else {
-      formData.append("profilePic", null);
     }
 
     try {
       const response = await saveJobPreferences(formData).unwrap();
 
       if (response.success) {
-        router.push("/");
+        router.push("/profile/candidate");
         resetForm();
         toast.success("Job preferences submitted successfully!");
       } else {
@@ -181,15 +191,15 @@ const JobPreferences = () => {
             <div className="flex justify-center items-center">
               <label htmlFor="image" className="relative">
                 <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-gray-300">
-                  {selectedImage?.startsWith("blob:") ? (
+                  {previewUrl ? (
                     <img
-                      src={selectedImage}
+                      src={previewUrl}
                       alt="Upload"
                       className="w-full h-full object-cover"
                     />
                   ) : (
                     <Image
-                      src={selectedImage || PlaceholderImage}
+                      src={PlaceholderImage}
                       alt="Upload"
                       width={96}
                       height={96}

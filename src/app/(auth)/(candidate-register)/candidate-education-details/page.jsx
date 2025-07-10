@@ -1,13 +1,6 @@
 "use client";
 
 import DegreeSearchBar from "@/components/graphql-ui/HighestQualificationDegree";
-import { useSaveEducationalDetailsMutation } from "@/redux/api/candidateAuth";
-import { ErrorMessage, Field, Form, Formik } from "formik";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { toast } from "react-toastify";
-import * as Yup from "yup";
 import {
   Select,
   SelectContent,
@@ -15,14 +8,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useSaveEducationalDetailsMutation } from "@/redux/api/candidateAuth";
 import { PlusIcon, TrashIcon } from "@radix-ui/react-icons";
+import { ErrorMessage, Field, Form, Formik } from "formik";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import * as Yup from "yup";
 
 const currentYear = new Date().getFullYear();
-const startYear = currentYear - 15;
-const totalYears = 20;
 
-const YEAR_OPTIONS = Array.from({ length: totalYears }, (_, i) =>
-  (startYear + i).toString()
+const YEAR_OF_PASSING_OPTIONS = Array.from({ length: 21 }, (_, i) =>
+  (2025 - i).toString()
+).filter((y) => parseInt(y) >= 2005);
+
+const YEAR_RANGE_OPTIONS = Array.from(
+  { length: currentYear + 5 - 2005 + 1 },
+  (_, i) => (currentYear + 5 - i).toString()
 );
 
 const SHOW_BOARD_AND_MEDIUM_LEVELS = ["High School", "Intermediate"];
@@ -67,17 +70,33 @@ const educationValidationSchema = Yup.object().shape({
         .min(0, "Percentage must be at least 0")
         .max(100, "Percentage cannot exceed 100")
         .required("Percentage is required"),
-      yearFrom: Yup.string().required("Start year is required"),
-      yearTo: Yup.string()
-        .required("End year is required")
-        .test(
-          "is-greater",
-          "End year must be after start year",
-          function (value) {
-            const { yearFrom } = this.parent;
-            return !yearFrom || !value || parseInt(value) > parseInt(yearFrom);
-          }
-        ),
+      yearFrom: Yup.string().when("educationLevel", {
+        is: (val) => !SHOW_BOARD_AND_MEDIUM_LEVELS.includes(val),
+        then: (schema) => schema.required("Start year is required"),
+        otherwise: (schema) => schema.notRequired(),
+      }),
+      yearTo: Yup.string().when("educationLevel", {
+        is: (val) => !SHOW_BOARD_AND_MEDIUM_LEVELS.includes(val),
+        then: (schema) =>
+          schema
+            .required("End year is required")
+            .test(
+              "is-greater",
+              "End year must be after start year",
+              function (value) {
+                const { yearFrom } = this.parent;
+                return (
+                  !yearFrom || !value || parseInt(value) > parseInt(yearFrom)
+                );
+              }
+            ),
+        otherwise: (schema) => schema.notRequired(),
+      }),
+      yearOfPassing: Yup.string().when("educationLevel", {
+        is: (val) => SHOW_BOARD_AND_MEDIUM_LEVELS.includes(val),
+        then: (schema) => schema.required("Year of Passing is required"),
+        otherwise: (schema) => schema.notRequired(),
+      }),
       educationMode: Yup.string().required("Mode is required"),
     })
   ),
@@ -93,6 +112,7 @@ const initialValues = {
       percentage: "",
       yearFrom: "",
       yearTo: "",
+      yearOfPassing: "",
       educationMode: "",
     },
   ],
@@ -122,6 +142,7 @@ const CandidateEducation = () => {
         percentage: "",
         yearFrom: "",
         yearTo: "",
+        yearOfPassing: "",
         educationMode: "",
       },
     ];
@@ -149,7 +170,7 @@ const CandidateEducation = () => {
       if (response.success) {
         router.push("/candidate-job-preference");
         resetForm();
-        toast.success(response.message);
+        toast.success("Education Details submitted successfully!");
       } else {
         toast.error(response.message || "Saving failed. Please try again.");
       }
@@ -326,6 +347,7 @@ const CandidateEducation = () => {
                       className="w-full px-3 py-2 border rounded-md text-sm"
                       min="0"
                       max="100"
+                      placeholder="Percentage"
                     />
                     <ErrorMessage
                       name={`educationalEntries[${index}].percentage`}
@@ -366,25 +388,25 @@ const CandidateEducation = () => {
                   </div>
                 </div>
 
-                <div className="flex gap-6 flex-col md:flex-row">
-                  <div className="flex-1 mb-auto">
+                {SHOW_BOARD_AND_MEDIUM_LEVELS.includes(entry.educationLevel) ? (
+                  <div className="flex-1">
                     <label className="block text-sm font-medium">
-                      From Year
+                      Year of Passing
                     </label>
                     <Select
-                      value={entry.yearFrom}
+                      value={entry.yearOfPassing}
                       onValueChange={(val) =>
                         setFieldValue(
-                          `educationalEntries[${index}].yearFrom`,
+                          `educationalEntries[${index}].yearOfPassing`,
                           val
                         )
                       }
                     >
                       <SelectTrigger className="w-full p-3 border rounded-md text-sm">
-                        <SelectValue placeholder="From" />
+                        <SelectValue placeholder="Year of Passing" />
                       </SelectTrigger>
                       <SelectContent className="max-h-[180px] overflow-y-auto">
-                        {YEAR_OPTIONS.map((y) => (
+                        {YEAR_OF_PASSING_OPTIONS.map((y) => (
                           <SelectItem key={y} value={y}>
                             {y}
                           </SelectItem>
@@ -392,41 +414,72 @@ const CandidateEducation = () => {
                       </SelectContent>
                     </Select>
                     <ErrorMessage
-                      name={`educationalEntries[${index}].yearFrom`}
+                      name={`educationalEntries[${index}].yearOfPassing`}
                       component="div"
                       className="text-red-500 text-sm"
                     />
                   </div>
+                ) : (
+                  <div className="flex gap-6 flex-col md:flex-row">
+                    <div className="flex-1 mb-auto">
+                      <label className="block text-sm font-medium">Start</label>
+                      <Select
+                        value={entry.yearFrom}
+                        onValueChange={(val) =>
+                          setFieldValue(
+                            `educationalEntries[${index}].yearFrom`,
+                            val
+                          )
+                        }
+                      >
+                        <SelectTrigger className="w-full p-3 border rounded-md text-sm">
+                          <SelectValue placeholder="From" />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-[180px] overflow-y-auto">
+                          {YEAR_RANGE_OPTIONS.map((y) => (
+                            <SelectItem key={y} value={y}>
+                              {y}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <ErrorMessage
+                        name={`educationalEntries[${index}].yearFrom`}
+                        component="div"
+                        className="text-red-500 text-sm"
+                      />
+                    </div>
 
-                  <div className="flex-1 mb-auto">
-                    <label className="block text-sm font-medium">To Year</label>
-                    <Select
-                      value={entry.yearTo}
-                      onValueChange={(val) =>
-                        setFieldValue(
-                          `educationalEntries[${index}].yearTo`,
-                          val
-                        )
-                      }
-                    >
-                      <SelectTrigger className="w-full p-3 border rounded-md text-sm">
-                        <SelectValue placeholder="To" />
-                      </SelectTrigger>
-                      <SelectContent className="max-h-[180px] overflow-y-auto">
-                        {YEAR_OPTIONS.map((y) => (
-                          <SelectItem key={y} value={y}>
-                            {y}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <ErrorMessage
-                      name={`educationalEntries[${index}].yearTo`}
-                      component="div"
-                      className="text-red-500 text-sm"
-                    />
+                    <div className="flex-1 mb-auto">
+                      <label className="block text-sm font-medium">End</label>
+                      <Select
+                        value={entry.yearTo}
+                        onValueChange={(val) =>
+                          setFieldValue(
+                            `educationalEntries[${index}].yearTo`,
+                            val
+                          )
+                        }
+                      >
+                        <SelectTrigger className="w-full p-3 border rounded-md text-sm">
+                          <SelectValue placeholder="To" />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-[180px] overflow-y-auto">
+                          {YEAR_RANGE_OPTIONS.map((y) => (
+                            <SelectItem key={y} value={y}>
+                              {y}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <ErrorMessage
+                        name={`educationalEntries[${index}].yearTo`}
+                        component="div"
+                        className="text-red-500 text-sm"
+                      />
+                    </div>
                   </div>
-                </div>
+                )}
 
                 <button
                   type="button"
@@ -446,7 +499,7 @@ const CandidateEducation = () => {
                 onClick={() => handleAddEntry(values, setFieldValue)}
                 className="flex items-center gap-2 px-2 py-1 bg-green-500 text-white rounded-md hover:bg-green-600"
               >
-                <PlusIcon /> Add
+                <PlusIcon /> Add More Qualification
               </button>
 
               <button
