@@ -12,6 +12,18 @@ import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
 
+const minDOB = new Date();
+minDOB.setFullYear(minDOB.getFullYear() - 100);
+
+const maxDOB = new Date();
+maxDOB.setFullYear(maxDOB.getFullYear() - 18);
+
+const getDefaultDOB = () => {
+  const date = new Date();
+  date.setFullYear(date.getFullYear() - 18);
+  return date.toISOString().split("T")[0];
+};
+
 // Validation schema using Yup
 const validationSchema = Yup.object({
   fullName: Yup.string()
@@ -29,7 +41,7 @@ const validationSchema = Yup.object({
   location: Yup.string().required("Location is required"),
   gender: Yup.string().required("Gender is required"),
   dob: Yup.date()
-    .nullable()
+    .max(maxDOB, "You must be at least 18 years old")
     .required("Date of Birth is required")
     .typeError("Date must be a valid date"),
 });
@@ -41,7 +53,7 @@ const initialValues = {
   password: "",
   location: "",
   gender: "Male",
-  dob: null,
+  dob: getDefaultDOB(),
 };
 
 const CandidateRegister = ({ closeModal }) => {
@@ -210,7 +222,7 @@ const CandidateRegister = ({ closeModal }) => {
 
               <div>
                 <label htmlFor="location" className="block text-sm font-medium">
-                  Current Location
+                  Permanent Location
                 </label>
                 <CityStateCountrySearchBar
                   searchTerm={location}
@@ -240,6 +252,8 @@ const CandidateRegister = ({ closeModal }) => {
                       type="date"
                       {...field}
                       value={field.value || ""}
+                      max={maxDOB.toISOString().split("T")[0]}
+                      min={minDOB.toISOString().split("T")[0]}
                       onChange={(e) => {
                         const value = e.target.value;
                         setFieldValue("dob", value || null);

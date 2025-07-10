@@ -84,8 +84,8 @@ const CandidateRegister = () => {
     phone: phone || "",
     location: "",
     permanentAddress: "",
-    yearExp: "",
-    monthExp: "",
+    yearExp: 0,
+    monthExp: 0,
     profileTitle: "",
     skills: [],
     // industry: "",
@@ -120,9 +120,9 @@ const CandidateRegister = () => {
       const response = await registerCandidate(formData).unwrap();
 
       if (response.success) {
-        toast.success(response.message);
-        resetForm();
         router.push("/candidate-education-details");
+        resetForm();
+        toast.success(response.message);
       } else {
         toast.error(
           response.message || "Registration failed. Please try again."
@@ -215,8 +215,12 @@ const CandidateRegister = () => {
 
             {/* Permanent Address */}
             <div>
-              <label htmlFor="location" className="block text-sm font-medium">
+              <label htmlFor="location" className="block text-sm font-semibold">
                 Permanent Address
+              </label>
+              <label htmlFor="skills" className="text-xs">
+                Please provide your full permanent address for better profile
+                completeness.
               </label>
               <LocationSearchBar
                 searchTerm={permanentAddress}
@@ -238,10 +242,10 @@ const CandidateRegister = () => {
               />
             </div>
 
-            {/* Profile Title */}
+            {/* Job Title */}
             <div>
-              <label htmlFor="profileTitle" className="text-sm font-medium">
-                Profile Title
+              <label htmlFor="profileTitle" className="text-sm font-semibold">
+                Job Title
               </label>
               <JobTitleSearchBar
                 searchTerm={jobTitle}
@@ -261,8 +265,8 @@ const CandidateRegister = () => {
 
             {/* Key Skills */}
             <div className="w-full mb-auto">
-              <label htmlFor="skills" className="block text-sm font-medium">
-                Key Skills*
+              <label htmlFor="skills" className="block text-sm font-semibold">
+                Key Skills
               </label>
               <label htmlFor="skills" className="text-xs">
                 Add more skills to increase your visibility and improve your
@@ -366,7 +370,7 @@ const CandidateRegister = () => {
 
             {/* File Upload (Resume Only) */}
             <div>
-              <label htmlFor="file" className="block text-sm font-medium">
+              <label htmlFor="file" className="block text-sm font-semibold">
                 Upload Your Resume
               </label>
               {/* <input
@@ -391,13 +395,13 @@ const CandidateRegister = () => {
                 className="text-red-500 text-sm mt-1"
               />
             </div>
-            {/* Job Description */}
+            {/* About  */}
             <div>
               <label
                 htmlFor="jobDescription"
-                className="block text-sm font-medium"
+                className="block text-sm font-semibold"
               >
-                Summary
+                About
               </label>
               <Field
                 type="text"
