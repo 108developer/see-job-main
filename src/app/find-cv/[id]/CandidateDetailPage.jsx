@@ -54,7 +54,7 @@ const CandidateDetailPage = () => {
   const {
     registration = {},
     jobPreferences = {},
-    education = {},
+    candidateEducation = {},
     questionnaire = [],
     workExperience = [],
     profilePic,
@@ -173,8 +173,8 @@ const CandidateDetailPage = () => {
         </div>
         <div className="space-y-2">
           <p>
-            <strong>Total Experience:</strong> {registration.minexp || 0} -{" "}
-            {registration.maxexp || 0} Years
+            <strong>Total Experience: </strong> {registration.yearExp || 0}{" "}
+            Years {registration.monthExp || 0} Month
           </p>
           <p>
             <strong>CTC:</strong>{" "}
@@ -189,7 +189,7 @@ const CandidateDetailPage = () => {
           </p>
           <p>
             <strong>Degree:</strong>{" "}
-            {education.highestQualification || "Not Available"}
+            {candidateEducation.highestQualification || "Not Available"}
           </p>
           <p>
             <strong>Notice Period:</strong>{" "}
@@ -248,14 +248,98 @@ const CandidateDetailPage = () => {
       </div>
 
       {/* Education */}
-      <div className="bg-white border rounded shadow-sm p-4 space-y-2 gap-6">
+      {/* <div className="bg-white border rounded shadow-sm p-4 space-y-2 gap-6">
         <h3 className="text-lg font-semibold  text-green-600">Education</h3>
         <p className="text-gray-700">
           {education.highestQualification || "N/A"} -{" "}
           {education.boardOfEducation?.toUpperCase() || "N/A"} Board |{" "}
           {education.yearOfEducation || "N/A"}
         </p>
-      </div>
+      </div> */}
+
+      {/* Education Details */}
+      {candidateEducation?.length === 0 ? (
+        <p className="text-gray-500">No education details added yet.</p>
+      ) : (
+        <div className="bg-white border rounded shadow-sm p-4 space-y-2 gap-6">
+          <h3 className="text-lg font-semibold text-green-600">Education</h3>
+
+          {candidateEducation?.map((edu, index) => (
+            <div
+              key={edu._id || index}
+              className="border rounded-lg p-4 space-y-2 relative bg-gray-50"
+            >
+              {edu.educationLevel && (
+                <div>
+                  <span className="font-semibold text-gray-700">
+                    Education Level:
+                  </span>{" "}
+                  {edu.educationLevel}
+                </div>
+              )}
+
+              {edu.highestQualification && (
+                <div>
+                  <span className="font-semibold text-gray-700">
+                    Qualification:
+                  </span>{" "}
+                  {edu.highestQualification}
+                </div>
+              )}
+
+              {edu.boardOfEducation && (
+                <div>
+                  <span className="font-semibold text-gray-700">
+                    Board of Education:
+                  </span>{" "}
+                  {edu.boardOfEducation}
+                </div>
+              )}
+
+              {edu.medium && (
+                <div>
+                  <span className="font-semibold text-gray-700">Medium:</span>{" "}
+                  {edu.medium}
+                </div>
+              )}
+
+              {edu.educationMode && (
+                <div>
+                  <span className="font-semibold text-gray-700">
+                    Education Mode:
+                  </span>{" "}
+                  {edu.educationMode}
+                </div>
+              )}
+
+              {edu.percentage !== undefined && edu.percentage !== null && (
+                <div>
+                  <span className="font-semibold text-gray-700">
+                    Percentage:
+                  </span>{" "}
+                  {edu.percentage}%
+                </div>
+              )}
+
+              {(edu.yearFrom || edu.yearTo) && (
+                <div>
+                  <span className="font-semibold text-gray-700">Duration:</span>{" "}
+                  {edu.yearFrom || "N/A"} - {edu.yearTo || "N/A"}
+                </div>
+              )}
+
+              {edu.yearOfPassing && (
+                <div>
+                  <span className="font-semibold text-gray-700">
+                    Year of Passing:
+                  </span>{" "}
+                  {edu.yearOfPassing}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Work Experience */}
       {workExperience?.length === 0 ? (

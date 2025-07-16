@@ -1,5 +1,6 @@
 import CityStateCountrySearchBar from "@/components/graphql-ui/CityStateCountrySearchBar";
 import JobTitleSearchBar from "@/components/graphql-ui/JobTitle";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -25,6 +26,12 @@ const formatDate = (date) => {
   // If it's a Date object
   return date.toISOString().split("T")[0];
 };
+
+const minDOB = new Date();
+minDOB.setFullYear(minDOB.getFullYear() - 100);
+
+const maxDOB = new Date();
+maxDOB.setFullYear(maxDOB.getFullYear() - 18);
 
 const CandidateJobPreferences = ({ initialJobPreference, closeModal }) => {
   const [updateJobPreferences, { isLoading }] =
@@ -357,12 +364,21 @@ const CandidateJobPreferences = ({ initialJobPreference, closeModal }) => {
             <label htmlFor="dob" className="block text-sm font-medium">
               Date of Birth
             </label>
-            <Field
-              type="date"
-              id="dob"
-              name="dob"
-              className="mt-1 p-3 w-full border rounded-md"
-            />
+            <Field name="dob">
+              {({ field }) => (
+                <Input
+                  type="date"
+                  {...field}
+                  value={field.value || ""}
+                  max={maxDOB.toISOString().split("T")[0]}
+                  min={minDOB.toISOString().split("T")[0]}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setFieldValue("dob", value || null);
+                  }}
+                />
+              )}
+            </Field>
             <ErrorMessage
               name="dob"
               component="div"

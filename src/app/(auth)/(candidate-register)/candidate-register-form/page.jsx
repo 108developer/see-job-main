@@ -106,7 +106,7 @@ const CandidateRegister = () => {
 
     formData.append(
       "skills",
-      selectedSkills.map((skill) => skill.name)
+      JSON.stringify(selectedSkills.map((skill) => skill.name))
     );
     // formData.append("industry", values.industry);
     formData.append("jobDescription", values.jobDescription);

@@ -292,6 +292,7 @@ const FindCV = () => {
       toast.error("Something went wrong while processing download.");
     } finally {
       setDownloading(false);
+      setSelectedCandidates([]);
     }
   };
 
@@ -441,6 +442,7 @@ const FindCV = () => {
 
               return (
                 <CandidateCard
+                  role={role}
                   candidate={candidate}
                   key={candidate.id}
                   selectedCandidates={selectedCandidates}
