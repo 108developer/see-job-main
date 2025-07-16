@@ -1,6 +1,7 @@
-import { getSeoMetadata } from "@/lib/getSeoMetadata";
-import CandidateProfileWrapper from "./CandidateProfileWrapper";
 import { Loader } from "@/components/ui/loader";
+import { getSeoMetadata } from "@/lib/getSeoMetadata";
+import { Suspense } from "react";
+import CandidateProfileWrapper from "./CandidateProfileWrapper";
 
 export async function generateMetadata() {
   const seo = await getSeoMetadata("candidate_profile");
