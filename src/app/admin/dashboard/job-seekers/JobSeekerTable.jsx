@@ -20,9 +20,20 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ChevronDown, MoreHorizontal } from "lucide-react";
-import Link from "next/link";
+import { ChevronDown } from "lucide-react";
 import { useState } from "react";
+
+export function formatColumnLabel(key) {
+  // Replace camelCase or snake_case with space-separated words
+  const words = key
+    .replace(/([a-z])([A-Z])/g, "$1 $2") // handle camelCase → "full Name"
+    .replace(/[_-]/g, " ") // handle snake_case or kebab-case
+    .toLowerCase()
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1));
+
+  return words.join(" ");
+}
 
 export default function JobSeekerTable({
   data,
@@ -261,7 +272,7 @@ export default function JobSeekerTable({
                   checked={col.getIsVisible()}
                   onCheckedChange={() => col.toggleVisibility()}
                 >
-                  {col.columnDef.header?.toString() || col.id}
+                  {formatColumnLabel(col.id)}
                 </DropdownMenuCheckboxItem>
               ))}
           </DropdownMenuContent>

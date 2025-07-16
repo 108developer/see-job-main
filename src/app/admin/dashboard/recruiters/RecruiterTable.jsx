@@ -27,12 +27,25 @@ import { toast } from "react-toastify";
 import { PlanUpdateModal } from "./PlanUpdateModal";
 import TextEditorModal from "@/components/text-editor/TextEditorModal";
 
+export function formatColumnLabel(key) {
+  // Replace camelCase or snake_case with space-separated words
+  const words = key
+    .replace(/([a-z])([A-Z])/g, "$1 $2") // handle camelCase → "full Name"
+    .replace(/[_-]/g, " ") // handle snake_case or kebab-case
+    .toLowerCase()
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1));
+
+  return words.join(" ");
+}
+
 export default function RecruiterTable({
   data,
   refetch,
   sortBy,
   sortOrder,
   onSortChange,
+  userRole,
 }) {
   const [columnVisibility, setColumnVisibility] = useState({});
   const [rowSelection, setRowSelection] = useState({});
@@ -252,36 +265,36 @@ export default function RecruiterTable({
     //     );
     //   },
     // },
-    {
-      id: "subscription",
-      header: "Subscription",
-      cell: ({ row }) => {
-        const recruiter = row.original;
-        return (
-          <PlanUpdateModal
-            recruiter={recruiter}
-            onSubmit={async (
-              id,
-              { plan, startDate, endDate, allowedResume, status }
-            ) => {
-              await updatePlan({
-                id,
-                body: {
-                  plan,
-                  startDate,
-                  endDate,
-                  allowedResume,
-                  status,
-                },
-              }).unwrap();
+    // {
+    //   id: "subscription",
+    //   header: "Subscription",
+    //   cell: ({ row }) => {
+    //     const recruiter = row.original;
+    //     return (
+    //       <PlanUpdateModal
+    //         recruiter={recruiter}
+    //         onSubmit={async (
+    //           id,
+    //           { plan, startDate, endDate, allowedResume, status }
+    //         ) => {
+    //           await updatePlan({
+    //             id,
+    //             body: {
+    //               plan,
+    //               startDate,
+    //               endDate,
+    //               allowedResume,
+    //               status,
+    //             },
+    //           }).unwrap();
 
-              toast.success("Plan updated successfully");
-              refetch();
-            }}
-          />
-        );
-      },
-    },
+    //           toast.success("Plan updated successfully");
+    //           refetch();
+    //         }}
+    //       />
+    //     );
+    //   },
+    // },
     {
       id: "actions",
       header: "Actions",
@@ -320,6 +333,39 @@ export default function RecruiterTable({
     //   size: 80,
     // },
   ];
+
+  if (userRole === "admin") {
+    columns.push({
+      id: "subscription",
+      header: "Subscription",
+      cell: ({ row }) => {
+        const recruiter = row.original;
+        return (
+          <PlanUpdateModal
+            recruiter={recruiter}
+            onSubmit={async (
+              id,
+              { plan, startDate, endDate, allowedResume, status }
+            ) => {
+              await updatePlan({
+                id,
+                body: {
+                  plan,
+                  startDate,
+                  endDate,
+                  allowedResume,
+                  status,
+                },
+              }).unwrap();
+
+              toast.success("Plan updated successfully");
+              refetch();
+            }}
+          />
+        );
+      },
+    });
+  }
 
   const table = useReactTable({
     data,
@@ -361,7 +407,7 @@ export default function RecruiterTable({
                   checked={col.getIsVisible()}
                   onCheckedChange={() => col.toggleVisibility()}
                 >
-                  {col.columnDef.header?.toString() || col.id}
+                  {formatColumnLabel(col.id)}
                 </DropdownMenuCheckboxItem>
               ))}
           </DropdownMenuContent>
