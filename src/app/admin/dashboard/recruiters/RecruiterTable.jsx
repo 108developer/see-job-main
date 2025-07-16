@@ -282,6 +282,23 @@ export default function RecruiterTable({
         );
       },
     },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => {
+        const id = row.original.id;
+        return (
+          <a
+            href={`/admin/employer?id=${id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:underline cursor-pointer border rounded-md p-1 flex justify-center bg-white"
+          >
+            View
+          </a>
+        );
+      },
+    },
     // {
     //   id: "actions",
     //   header: "Actions",

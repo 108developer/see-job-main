@@ -34,6 +34,7 @@ const AdminLogin = ({ closeModal }) => {
       const response = await adminLogin(values);
 
       const data = response?.data;
+      console.log("DATA", data);
       if (data?.token) {
         dispatch(
           loginAction({
