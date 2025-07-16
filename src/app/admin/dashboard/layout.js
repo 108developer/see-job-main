@@ -23,9 +23,10 @@ export default function DashboardLayout({ children }) {
     // { name: "Bulk Upload", href: "/admin/dashboard/bulk-upload" },
   ];
 
-  return useremail !== "admin@example.com" ? (
+  return useremail !== "admin@example.com" &&
+    useremail !== "uploader@seejob.in" ? (
     <div className="flex items-center justify-center w-full p-2">
-      <AccessDeniedAdmin title={"admin"} />
+      <AccessDeniedAdmin title={"admin or uploader"} />
     </div>
   ) : (
     <div className="flex min-h-screen bg-gray-50 text-gray-900">

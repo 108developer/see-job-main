@@ -7,10 +7,12 @@ import BoyPlaceholderImage from "@/images/boy_default_img.jpg";
 import GirlPlaceholderImage from "@/images/girl_default_img.jpg";
 import { useGetCandidateProfileQuery } from "@/redux/api/candidateAuth";
 import { handleDownloadResume } from "@/utils/HandleDownloadResume";
-import { DownloadIcon, FileIcon } from "lucide-react";
+import { DownloadIcon, FileIcon, PenBoxIcon } from "lucide-react";
 import moment from "moment";
 import Image from "next/image";
+import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
+import { useSelector } from "react-redux";
 
 const actions = [
   "Email",
@@ -34,6 +36,8 @@ const CandidateDetailPage = () => {
   const searchParams = useSearchParams();
   const jobId = searchParams.get("jobId");
   const { id } = useParams();
+
+  const { role } = useSelector((state) => state.auth);
 
   const { data, isLoading, error } = useGetCandidateProfileQuery({ id, jobId });
 
@@ -90,9 +94,16 @@ const CandidateDetailPage = () => {
         <div className="flex flex-col items-center space-y-2 w-full">
           <div className="flex justify-between w-full ">
             <div className="flex flex-col">
-              <h4 className="text-xl font-semibold text-red-600 gap-2 flex items-center">
-                {registration.fullName || "Candidate Name"}
-              </h4>
+              <div className="flex items-center gap-4">
+                <h4 className="text-xl font-semibold text-red-600 gap-2 flex items-center">
+                  {registration.fullName || "Candidate Name"}
+                </h4>
+                {role === "admin" && (
+                  <Link href={`/admin/candidate?id=${id}`}>
+                    <PenBoxIcon className="h-4 w-4" />
+                  </Link>
+                )}
+              </div>
               <p className="text-gray-600 text-sm">
                 {registration.jobDescription || "Not Available"}
               </p>
