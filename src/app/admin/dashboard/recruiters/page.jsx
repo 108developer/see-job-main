@@ -6,6 +6,7 @@ import { Loader } from "@/components/ui/loader";
 import { useGetAllRecruitersQuery } from "@/redux/api/admin";
 import { useEffect, useState } from "react";
 import RecruiterTable from "./RecruiterTable";
+import { useSelector } from "react-redux";
 
 export default function Recruiters() {
   const [search, setSearch] = useState("");
@@ -22,6 +23,8 @@ export default function Recruiters() {
     }, 400);
     return () => clearTimeout(timer);
   }, [search]);
+
+  const { role } = useSelector((state) => state.auth);
 
   const { data, isLoading, isError, error, refetch } = useGetAllRecruitersQuery(
     {
@@ -76,6 +79,7 @@ export default function Recruiters() {
           sortBy={sortBy}
           sortOrder={sortOrder}
           onSortChange={handleSortChange}
+          userRole={role}
         />
       )}
 
