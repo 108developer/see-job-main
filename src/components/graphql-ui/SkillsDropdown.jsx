@@ -31,8 +31,10 @@ const SkillDropdown = ({
   }, [searchTerm, skillSelected]);
 
   useEffect(() => {
-    setSelectedSkills(selectedSkillsFromParent || []);
-  }, [selectedSkillsFromParent]);
+    if (selectedSkillsFromParent?.length && selectedSkills.length === 0) {
+      setSelectedSkills(selectedSkillsFromParent);
+    }
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event) => {

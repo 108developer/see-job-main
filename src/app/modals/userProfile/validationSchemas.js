@@ -1,5 +1,11 @@
 import * as Yup from "yup";
 
+const minDOB = new Date();
+minDOB.setFullYear(minDOB.getFullYear() - 100);
+
+const maxDOB = new Date();
+maxDOB.setFullYear(maxDOB.getFullYear() - 18);
+
 // Validation schema using Yup
 export const recruiterValidationSchema = Yup.object({
   firstName: Yup.string().required("First Name is required"),
@@ -55,8 +61,9 @@ export const validationJobPreference = Yup.object({
     .max(10, "You can select a maximum of 10 locations"),
   gender: Yup.string().required("Please select a gender"),
   dob: Yup.date()
-    .required("Please select your date of birth")
-    .max(new Date(), "Date of birth can't be in the future"),
+    .max(maxDOB, "You must be at least 18 years old")
+    .required("Date of Birth is required")
+    .typeError("Date must be a valid date"),
   maritalStatus: Yup.string().required("Please select marital status"),
   language: Yup.array().min(1, "Select at least one language"),
   currentSalary: Yup.number()

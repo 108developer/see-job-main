@@ -25,6 +25,7 @@ import { getTimeAgo, iconMap, statusStyles } from "./constant";
 
 const CandidateInfoCard = React.memo(
   ({
+    role,
     candidate,
     selectedCandidates,
     shownEmails,
@@ -153,6 +154,11 @@ const CandidateInfoCard = React.memo(
                         candidate.recruiterStatus ||
                         "All";
 
+                      if (role === "admin") {
+                        window.open(`/find-cv/${candidate.id}`, "_blank");
+                        return;
+                      }
+
                       if (!checkAccess(candidate.id, "view this candidate"))
                         return;
 
@@ -270,6 +276,11 @@ const CandidateInfoCard = React.memo(
                         > */}
               <div
                 onClick={(e) => {
+                  if (role === "admin") {
+                    window.open(`/find-cv/${candidate.id}`, "_blank");
+                    return;
+                  }
+
                   if (!allowedToVisit.has(candidate.id)) {
                     e.preventDefault();
                     toast.warn("Please reveal contact info to view details.");

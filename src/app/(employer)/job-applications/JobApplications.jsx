@@ -417,6 +417,7 @@ const JobApplications = () => {
 
   const jobApplications = data?.getJobApplications?.jobApplications || [];
   const totalPages = data?.getJobApplications?.totalPages || 1;
+  const allowedResume = data?.getJobApplications?.allowedResume ?? 0;
 
   // if (loading) {
   //   return (
@@ -492,7 +493,7 @@ const JobApplications = () => {
           </div>
 
           {/* Bottom Line: Trio aligned right */}
-          <div className="w-full flex justify-end">
+          <div className="w-full flex justify-between">
             <div className="flex items-center gap-2">
               <button
                 onClick={() => {
@@ -524,6 +525,8 @@ const JobApplications = () => {
                 </>
               )}
             </div>
+
+            <div className="flex text-xs">Downloads Left : {allowedResume}</div>
           </div>
         </div>
 
