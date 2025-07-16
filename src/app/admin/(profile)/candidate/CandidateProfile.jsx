@@ -1,6 +1,7 @@
 "use client";
 
 import SEOModal from "@/app/modals/SEOModal";
+import AccessDeniedAdmin from "@/components/ui/AccessDeniedAdmin";
 import { Loader } from "@/components/ui/loader";
 import PlaceholderImage from "@/images/Profile_avatar_placeholder_large.png";
 import {
@@ -11,16 +12,14 @@ import {
 import { Form, Formik } from "formik";
 import { DownloadIcon, Edit2, FileIcon } from "lucide-react";
 import Image from "next/image";
-import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
 import CandidateEducationDetails from "./CandidateEducationDetails";
 import CandidateJobPreference from "./CandidateJobPreference";
 import CandidateRegisterForm from "./CandidateRegisterForm";
 import CandidateWorkExperience from "./CandidateWorkExperience";
-import { useSelector } from "react-redux";
-import AccessDeniedAdmin from "@/components/ui/AccessDeniedAdmin";
 
 const profilePicSchema = Yup.object().shape({
   profilePic: Yup.mixed()
@@ -49,7 +48,7 @@ const resumeSchema = Yup.object().shape({
     }),
 });
 
-const CandidateProfile = () => {
+const CandidateProfile = ({ userid }) => {
   const [isEditingImage, setIsEditingImage] = useState(false);
   const [isEditingResume, setIsEditingResume] = useState(false);
   const [showImage, setShowImage] = useState("");
@@ -62,9 +61,6 @@ const CandidateProfile = () => {
   const [updateProfilePic, { isLoading: isSubmittingProfilePic }] =
     useUpdateProfilePicMutation();
   const [updateResume] = useUpdateResumeMutation();
-
-  const searchParams = useSearchParams();
-  const userid = searchParams.get("id");
 
   const { role, token } = useSelector((state) => state.auth);
 

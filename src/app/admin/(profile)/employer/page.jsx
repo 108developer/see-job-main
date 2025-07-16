@@ -1,5 +1,6 @@
 import { getSeoMetadata } from "@/lib/getSeoMetadata";
-import EmployerProfile from "./EmployerProfile";
+import EmployerProfileWrapper from "./EmployerProfileWrapper";
+import { Loader } from "@/components/ui/loader";
 
 export async function generateMetadata() {
   const seo = await getSeoMetadata("employer_profile");
@@ -45,8 +46,14 @@ export async function generateMetadata() {
 
 export default function Page() {
   return (
-    <div>
-      <EmployerProfile />
-    </div>
+    <Suspense
+      fallback={
+        <div className="flex h-full items-center justify-center w-full gap-8 p-4">
+          <Loader count={5} height={50} className="mb-4" />
+        </div>
+      }
+    >
+      <EmployerProfileWrapper />
+    </Suspense>
   );
 }
