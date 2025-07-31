@@ -27,7 +27,7 @@ const ResumeService = () => {
         ["Custom-crafted", "Formats"],
         ["Personalised", "Attention"],
       ],
-      orderLink: "/contact",
+      orderLink: "https://secure.ccavenue.com/txn/QBlc607",
       readMore: "/national-resume",
     },
     {
@@ -40,7 +40,7 @@ const ResumeService = () => {
         ["24x7", "Global Sales Support"],
         ["International", "Cards Accepted"],
       ],
-      orderLink: "/signup-form",
+      orderLink: "https://secure.ccavenue.com/txn/QBlc607",
       readMore: "/international-resume",
     },
     {
@@ -53,7 +53,7 @@ const ResumeService = () => {
         ["Tailored", "to get target job"],
         ["Enhanced", "Features"],
       ],
-      orderLink: "/signup-form",
+      orderLink: "https://secure.ccavenue.com/txn/QBlc607",
       readMore: "/combo-resume",
     },
   ];
@@ -94,13 +94,17 @@ const ResumeService = () => {
                     ))}
                   </ul>
                 </div>
-                <div>
+                <div className="flex flex-col">
                   <Link
                     href={orderLink}
                     className="inline-block bg-blue-600 hover:bg-blue-700 text-white py-2 px-5 rounded mb-3"
                   >
                     ORDER NOW
                   </Link>
+                  <span className="text-xs">
+                    *Please connect with our Marketing team for pricing details
+                    before making any payment.
+                  </span>
                 </div>
               </div>
             )

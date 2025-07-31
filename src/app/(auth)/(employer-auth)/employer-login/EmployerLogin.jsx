@@ -115,7 +115,7 @@ const EmployerLogin = () => {
 
             <Link
               href="/post-jobs"
-              className="border border-yellow-500 text-yellow-600 text-sm px-4 py-2 rounded hover:bg-yellow-100 transition text-center"
+              className="bg-green-500 text-white text-sm px-4 py-2 rounded hover:bg-green-600 transition text-center"
             >
               Post a Job
             </Link>
