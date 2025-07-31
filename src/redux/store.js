@@ -9,6 +9,7 @@ import authSlice from "./slices/authSlice";
 import modalSlice from "./slices/modalSlice";
 import paymentReducer from "./slices/paymentSlice";
 import paymentApi from "./api/paymentApi";
+import blogApi from "./api/blogApi";
 
 const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ const store = configureStore({
     auth: authSlice,
     // candidateProfile: candidateProfileSlice,
     [admin.reducerPath]: admin.reducer,
+    [blogApi.reducerPath]: blogApi.reducer,
     [employerAuth.reducerPath]: employerAuth.reducer,
     [candidateAuth.reducerPath]: candidateAuth.reducer,
     [jobApi.reducerPath]: jobApi.reducer,
@@ -30,7 +32,8 @@ const store = configureStore({
       employerAuth.middleware,
       jobApi.middleware,
       groupedFilterApi.middleware,
-      paymentApi.middleware
+      paymentApi.middleware,
+      blogApi.middleware
     ),
 });
 

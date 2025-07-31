@@ -110,6 +110,12 @@ const Navbar = () => {
             />
             <DropdownMenu label="Resume Service" items={ResumeService} />
             <Link
+              href="/blog"
+              className="text-gray-700 flex-nowrap md:text-lg transition duration-300 ease-in-out hover:text-gray-400 "
+            >
+              Blogs
+            </Link>
+            <Link
               href="/career"
               className="text-gray-700 flex-nowrap md:text-lg transition duration-300 ease-in-out hover:text-gray-400 "
             >
