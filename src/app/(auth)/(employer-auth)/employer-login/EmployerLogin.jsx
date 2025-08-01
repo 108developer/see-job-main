@@ -120,6 +120,27 @@ const EmployerLogin = () => {
               Post a Job
             </Link>
           </div>
+
+          {/* Box 2: Post a Job */}
+
+          <div className="bg-white border shadow rounded-md p-6 w-full">
+            <p className="text-black text-lg mb-4 font-medium">
+              <strong className="font-bold">Man Power Solution:</strong>{" "}
+              Simplify your hiring process and quickly find the right talent for
+              your company.
+            </p>
+
+            <ul className="list-disc pl-5 mb-4 text-gray-700 text-sm">
+              {/* Add job-posting highlights if needed */}
+            </ul>
+
+            <Link
+              href="/blog/man-power-solution"
+              className="bg-red-500 text-white text-sm px-4 py-2 rounded hover:bg-red-600 transition text-center"
+            >
+              Man Power Solution
+            </Link>
+          </div>
         </div>
       </div>
 
